@@ -49,7 +49,7 @@ export default function GruposPage() {
     await fetch('/api/predictions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ player_id: player.id, match_id: matchId, home_score: parseInt(home), away_score: parseInt(away) }),
+      body: JSON.stringify({ player_id: player.id, match_id: matchId, home_score: home === "" ? null : parseInt(home), away_score: away === "" ? null : parseInt(away) }),
     })
     setSaving(s => ({ ...s, [matchId]: false }))
     setSaved(s => ({ ...s, [matchId]: true }))
