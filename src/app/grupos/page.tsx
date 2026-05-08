@@ -17,6 +17,7 @@ export default function GruposPage() {
   const [results, setResults] = useState<ResultMap>({})
   const [saving, setSaving] = useState<SavedMap>({})
   const [saved, setSaved] = useState<SavedMap>({})
+  const [editing, setEditing] = useState<SavedMap>({})
   const matches = getGroupMatches()
   const locked = isPastDeadline()
 
@@ -30,9 +31,9 @@ export default function GruposPage() {
       .then(r => r.json()).then(({ data }) => {
         const map: PredMap = {}
         ;(data || []).forEach((p: any) => {
-          map[p.match_id] = { home_score: String(p.home_score ?? ''), away_score: String(p.away_score ?? '') }
+          map[p.match_id] = { home_score: p.home_score !== null && p.home_score !== undefined ? String(p.home_score) : '', away_score: p.away_score !== null && p.away_score !== undefined ? String(p.away_score) : '' }
         })
-        setPreds(map)
+        setPreds(prev => ({ ...map, ...Object.fromEntries(Object.entries(prev).filter(([k]) => editing[k])) }))
       })
     fetch('/api/results')
       .then(r => r.json()).then(({ data }) => {
@@ -57,10 +58,13 @@ export default function GruposPage() {
 
   const updatePred = (matchId: string, side: 'home' | 'away', val: string) => {
     if (locked) return
+    setEditing(e => ({ ...e, [matchId]: true }))
     const current = preds[matchId] || { home_score: '', away_score: '' }
     const updated = { ...current, [side === 'home' ? 'home_score' : 'away_score']: val }
     setPreds(p => ({ ...p, [matchId]: updated }))
-    savePred(matchId, updated.home_score, updated.away_score)
+    if (updated.home_score !== '' || updated.away_score !== '') {
+      savePred(matchId, updated.home_score || '0', updated.away_score || '0')
+    }
   }
 
   const getPoints = (matchId: string, pred: Prediction) => {
