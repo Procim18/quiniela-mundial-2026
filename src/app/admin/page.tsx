@@ -93,9 +93,14 @@ export default function AdminPage() {
   }
 
   const handleBlurResult = (matchId: string) => {
-    const res = results[matchId]
-    if (!res) return
-    saveGroupResult(matchId, res.home_score, res.away_score)
+    setTimeout(() => {
+      setResults(current => {
+        const res = current[matchId]
+        if (!res) return current
+        saveGroupResult(matchId, res.home_score, res.away_score)
+        return current
+      })
+    }, 300)
   }
 
   const saveKnockResult = async (matchId: string, data: any) => {
