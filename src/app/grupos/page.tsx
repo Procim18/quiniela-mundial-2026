@@ -67,9 +67,9 @@ export default function GruposPage() {
   const handleBlur = (matchId: string) => {
     const pred = preds[matchId]
     if (!pred) return
-    if (pred.home_score !== '' && pred.away_score !== '') {
-      savePred(matchId, pred.home_score, pred.away_score)
-    }
+    savePred(matchId, pred.home_score, pred.away_score)
+
+
   }
 
   const getPoints = (matchId: string, pred: Prediction) => {
