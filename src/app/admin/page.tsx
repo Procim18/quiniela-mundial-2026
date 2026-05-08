@@ -92,15 +92,8 @@ export default function AdminPage() {
     setResults(r => ({ ...r, [matchId]: updated }))
   }
 
-  const handleBlurResult = (matchId: string) => {
-    setTimeout(() => {
-      setResults(current => {
-        const res = current[matchId]
-        if (!res) return current
-        saveGroupResult(matchId, res.home_score, res.away_score)
-        return current
-      })
-    }, 300)
+  const handleBlurResult = (_matchId: string) => {
+    // save handled by explicit save button only
   }
 
   const saveKnockResult = async (matchId: string, data: any) => {
@@ -216,15 +209,19 @@ export default function AdminPage() {
                   <span style={{ color: 'var(--muted)', fontFamily: "'Bebas Neue', sans-serif" }}>-</span>
                   <input type="number" min={0} max={20} value={res.away_score} onChange={e => updateResult(match.id, 'away', e.target.value)} onBlur={() => handleBlurResult(match.id)} placeholder="0"
                     style={{ width: 48, height: 48, background: 'rgba(214,40,40,0.12)', border: '1px solid rgba(214,40,40,0.35)', borderRadius: 10, textAlign: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.4rem', color: '#FF6B6B', outline: 'none' }} />
-                  {saving[match.id] && <span style={{ color: 'var(--gold)', fontSize: '0.8rem' }}>...</span>}
-                  {saved[match.id] && <span style={{ color: 'var(--green)', fontSize: '0.8rem' }}>✓</span>}
-                  <button onMouseDown={e => e.preventDefault()} onClick={async () => {
+                  <button onClick={async () => {
+                    const r = results[match.id]
+                    if (!r || r.home_score === '' || r.away_score === '') return
+                    await saveGroupResult(match.id, r.home_score, r.away_score)
+                  }} style={{ background: 'rgba(46,204,113,0.15)', border: '1px solid rgba(46,204,113,0.3)', color: 'var(--green)', borderRadius: 8, padding: '4px 12px', cursor: 'pointer', fontSize: '0.85rem', marginLeft: 4, fontWeight: 600 }}>✓ Guardar</button>
+                  <button onClick={async () => {
                     setResults(r => ({ ...r, [match.id]: { home_score: '', away_score: '' } }))
-                    await new Promise(r => setTimeout(r, 400))
                     await fetch('/api/results?match_id=' + match.id, { method: 'DELETE', headers: { 'x-admin-password': adminPass } })
                     setSaved(s => ({ ...s, [match.id]: true }))
                     setTimeout(() => setSaved(s => ({ ...s, [match.id]: false })), 2000)
-                  }} title="Borrar resultado" style={{ background: 'rgba(214,40,40,0.12)', border: '1px solid rgba(214,40,40,0.3)', color: '#FF6B6B', borderRadius: 8, padding: '4px 10px', cursor: 'pointer', fontSize: '0.9rem', marginLeft: 4 }}>🗑️</button>
+                  }} style={{ background: 'rgba(214,40,40,0.12)', border: '1px solid rgba(214,40,40,0.3)', color: '#FF6B6B', borderRadius: 8, padding: '4px 10px', cursor: 'pointer', fontSize: '0.9rem', marginLeft: 4 }}>🗑️</button>
+                  {saving[match.id] && <span style={{ color: 'var(--gold)', fontSize: '0.8rem', marginLeft: 4 }}>...</span>}
+                  {saved[match.id] && <span style={{ color: 'var(--green)', fontSize: '0.8rem', marginLeft: 4 }}>✓</span>}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, justifyContent: 'flex-end' }}>
                   <span style={{ fontWeight: 600, fontSize: '0.9rem', textAlign: 'right' }}>{match.away.name}</span>
