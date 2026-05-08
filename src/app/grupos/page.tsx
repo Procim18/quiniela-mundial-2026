@@ -60,9 +60,7 @@ export default function GruposPage() {
     const current = preds[matchId] || { home_score: '', away_score: '' }
     const updated = { ...current, [side === 'home' ? 'home_score' : 'away_score']: val }
     setPreds(p => ({ ...p, [matchId]: updated }))
-    if (updated.home_score !== '' && updated.away_score !== '') {
-      savePred(matchId, updated.home_score, updated.away_score)
-    }
+    savePred(matchId, updated.home_score, updated.away_score)
   }
 
   const getPoints = (matchId: string, pred: Prediction) => {
