@@ -56,12 +56,12 @@ export default function AdminPage() {
   }
 
   const saveGroupResult = useCallback(async (matchId: string, home: string, away: string) => {
-    if (!home || !away) return
+    if (home === undefined || away === undefined) return
     setSaving(s => ({ ...s, [matchId]: true }))
     const res = await fetch('/api/results', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-admin-password': adminPass },
-      body: JSON.stringify({ match_id: matchId, home_score: parseInt(home), away_score: parseInt(away) }),
+      body: JSON.stringify({ match_id: matchId, home_score: home === "" ? null : parseInt(home), away_score: away === "" ? null : parseInt(away) }),
     })
     setSaving(s => ({ ...s, [matchId]: false }))
     if (res.ok) {
