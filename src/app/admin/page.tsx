@@ -58,10 +58,24 @@ export default function AdminPage() {
   const saveGroupResult = useCallback(async (matchId: string, home: string, away: string) => {
     if (home === undefined || away === undefined) return
     setSaving(s => ({ ...s, [matchId]: true }))
+    if (home === '' && away === '') {
+      await fetch('/api/results?match_id=' + matchId, {
+        method: 'DELETE',
+        headers: { 'x-admin-password': adminPass },
+      })
+      setSaving(s => ({ ...s, [matchId]: false }))
+      setSaved(s => ({ ...s, [matchId]: true }))
+      setTimeout(() => setSaved(s => ({ ...s, [matchId]: false })), 2500)
+      return
+    }
+    if (home === '' || away === '') {
+      setSaving(s => ({ ...s, [matchId]: false }))
+      return
+    }
     const res = await fetch('/api/results', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-admin-password': adminPass },
-      body: JSON.stringify({ match_id: matchId, home_score: home === "" ? null : parseInt(home), away_score: away === "" ? null : parseInt(away) }),
+      body: JSON.stringify({ match_id: matchId, home_score: parseInt(home), away_score: parseInt(away) }),
     })
     setSaving(s => ({ ...s, [matchId]: false }))
     if (res.ok) {

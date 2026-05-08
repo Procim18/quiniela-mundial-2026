@@ -13,6 +13,16 @@ export async function GET() {
   return NextResponse.json({ data })
 }
 
+// DELETE - admin only
+export async function DELETE(req: NextRequest) {
+  if (!checkAdmin(req)) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+  const matchId = req.nextUrl.searchParams.get('match_id')
+  if (!matchId) return NextResponse.json({ error: 'Falta match_id' }, { status: 400 })
+  const { error } = await supabase.from('group_results').delete().eq('match_id', matchId)
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ ok: true })
+}
+
 // POST - admin only
 export async function POST(req: NextRequest) {
   if (!checkAdmin(req)) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
