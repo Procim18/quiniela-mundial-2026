@@ -8,7 +8,9 @@ export async function GET() {
   const counts: Record<string, number> = {}
   champPreds.forEach(p => { counts[p.team] = (counts[p.team] || 0) + 1 })
   const total = champPreds.length
-  const uniqueTeams = [...new Set(ALL_TEAMS.map(t => t.name))]
+  const seen: Record<string, boolean> = {}
+  const uniqueTeams: string[] = []
+  ALL_TEAMS.forEach(t => { if (!seen[t.name]) { seen[t.name] = true; uniqueTeams.push(t.name) } })
   const result = uniqueTeams
     .filter(name => counts[name])
     .map(name => {
