@@ -76,9 +76,12 @@ export default function AdminPage() {
     const current = results[matchId] || { home_score: '', away_score: '' }
     const updated = { ...current, [side === 'home' ? 'home_score' : 'away_score']: val }
     setResults(r => ({ ...r, [matchId]: updated }))
-    if (updated.home_score !== '' && updated.away_score !== '') {
-      saveGroupResult(matchId, updated.home_score, updated.away_score)
-    }
+  }
+
+  const handleBlurResult = (matchId: string) => {
+    const res = results[matchId]
+    if (!res) return
+    saveGroupResult(matchId, res.home_score, res.away_score)
   }
 
   const saveKnockResult = async (matchId: string, data: any) => {
@@ -189,10 +192,10 @@ export default function AdminPage() {
                   <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{match.home.name}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-                  <input type="number" min={0} max={20} value={res.home_score} onChange={e => updateResult(match.id, 'home', e.target.value)} placeholder="0"
+                  <input type="number" min={0} max={20} value={res.home_score} onChange={e => updateResult(match.id, 'home', e.target.value)} onBlur={() => handleBlurResult(match.id)} placeholder="0"
                     style={{ width: 48, height: 48, background: 'rgba(214,40,40,0.12)', border: '1px solid rgba(214,40,40,0.35)', borderRadius: 10, textAlign: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.4rem', color: '#FF6B6B', outline: 'none' }} />
                   <span style={{ color: 'var(--muted)', fontFamily: "'Bebas Neue', sans-serif" }}>-</span>
-                  <input type="number" min={0} max={20} value={res.away_score} onChange={e => updateResult(match.id, 'away', e.target.value)} placeholder="0"
+                  <input type="number" min={0} max={20} value={res.away_score} onChange={e => updateResult(match.id, 'away', e.target.value)} onBlur={() => handleBlurResult(match.id)} placeholder="0"
                     style={{ width: 48, height: 48, background: 'rgba(214,40,40,0.12)', border: '1px solid rgba(214,40,40,0.35)', borderRadius: 10, textAlign: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.4rem', color: '#FF6B6B', outline: 'none' }} />
                   {saving[match.id] && <span style={{ color: 'var(--gold)', fontSize: '0.8rem' }}>...</span>}
                   {saved[match.id] && <span style={{ color: 'var(--green)', fontSize: '0.8rem' }}>✓</span>}
