@@ -2,20 +2,23 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
-import { KNOCKOUT_ROUNDS, KNOCKOUT_POINTS, ALL_TEAMS } from '@/lib/data'
+import { ALL_KNOCKOUT_ROUNDS, KNOCKOUT_PTS, KnockoutMatch } from '@/lib/knockout'
+import { GROUPS, getGroupMatches } from '@/lib/data'
+import { ALL_TEAMS } from '@/lib/data'
 
 type KnockPred = { home_team: string; away_team: string; home_score: string; away_score: string; winner: string }
-type KnockPredMap = Record<string, KnockPred>
-type KnockResultMap = Record<string, any>
+type KnockResult = { home_team: string; away_team: string; home_score: number | null; away_score: number | null; winner: string }
+type PredMap = Record<string, KnockPred>
+type ResultMap = Record<string, KnockResult>
 
 export default function EliminatoriasPage() {
   const { player, loading } = useAuth()
   const router = useRouter()
-  const [preds, setPreds] = useState<KnockPredMap>({})
-  const [results, setResults] = useState<KnockResultMap>({})
+  const [activeRound, setActiveRound] = useState('R32')
+  const [preds, setPreds] = useState<PredMap>({})
+  const [results, setResults] = useState<ResultMap>({})
   const [champion, setChampion] = useState('')
   const [champResult, setChampResult] = useState('')
-  const [activeRound, setActiveRound] = useState('R16')
   const [saving, setSaving] = useState<Record<string, boolean>>({})
   const [saved, setSaved] = useState<Record<string, boolean>>({})
 
@@ -25,19 +28,27 @@ export default function EliminatoriasPage() {
 
   useEffect(() => {
     if (!player) return
-    fetch(`/api/predictions/knockout?player_id=${player.id}`)
+    fetch('/api/knockout?type=predictions&player_id=' + player.id)
       .then(r => r.json()).then(({ data }) => {
-        const map: KnockPredMap = {}
-        ;(data || []).forEach((p: any) => { map[p.match_id] = { home_team: p.home_team || '', away_team: p.away_team || '', home_score: String(p.home_score ?? ''), away_score: String(p.away_score ?? ''), winner: p.winner || '' } })
+        const map: PredMap = {}
+        ;(data || []).forEach((p: any) => {
+          map[p.match_id] = {
+            home_team: p.home_team || '',
+            away_team: p.away_team || '',
+            home_score: p.home_score !== null && p.home_score !== undefined ? String(p.home_score) : '',
+            away_score: p.away_score !== null && p.away_score !== undefined ? String(p.away_score) : '',
+            winner: p.winner || '',
+          }
+        })
         setPreds(map)
       })
-    fetch('/api/results/knockout')
+    fetch('/api/knockout?type=results')
       .then(r => r.json()).then(({ data }) => {
-        const map: KnockResultMap = {}
+        const map: ResultMap = {}
         ;(data || []).forEach((r: any) => { map[r.match_id] = r })
         setResults(map)
       })
-    fetch(`/api/predictions/champion?player_id=${player.id}`)
+    fetch('/api/predictions/champion?player_id=' + player.id)
       .then(r => r.json()).then(({ data }) => {
         if (data?.[0]) setChampion(data[0].team)
       })
@@ -50,10 +61,10 @@ export default function EliminatoriasPage() {
   const savePred = useCallback(async (matchId: string, pred: KnockPred) => {
     if (!player) return
     setSaving(s => ({ ...s, [matchId]: true }))
-    await fetch('/api/predictions/knockout', {
+    await fetch('/api/knockout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ player_id: player.id, match_id: matchId, ...pred }),
+      body: JSON.stringify({ type: 'prediction', player_id: player.id, match_id: matchId, ...pred }),
     })
     setSaving(s => ({ ...s, [matchId]: false }))
     setSaved(s => ({ ...s, [matchId]: true }))
@@ -64,11 +75,15 @@ export default function EliminatoriasPage() {
     const current = preds[matchId] || { home_team: '', away_team: '', home_score: '', away_score: '', winner: '' }
     const updated = { ...current, [field]: val }
     setPreds(p => ({ ...p, [matchId]: updated }))
-    savePred(matchId, updated)
+  }
+
+  const handleBlurPred = (matchId: string) => {
+    const pred = preds[matchId]
+    if (pred) savePred(matchId, pred)
   }
 
   const saveChampion = async (team: string) => {
-    if (!player || !team) return
+    if (!player) return
     setChampion(team)
     await fetch('/api/predictions/champion', {
       method: 'POST',
@@ -79,46 +94,48 @@ export default function EliminatoriasPage() {
 
   const getPoints = (matchId: string, pred: KnockPred) => {
     const res = results[matchId]
-    if (!res || !pred.winner) return null
+    if (!res || !res.winner || !pred.winner) return null
     const round = matchId.split('_')[0]
-    const rpts = KNOCKOUT_POINTS[round] || { exact: 3, winner: 1 }
-    const predWinner = pred.winner
-    const realWinner = res.winner
-    if (!realWinner) return null
-    if (pred.home_score !== '' && pred.away_score !== '' && parseInt(pred.home_score) === res.home_score && parseInt(pred.away_score) === res.away_score && pred.home_team === res.home_team) {
-      return rpts.exact
+    const pts = KNOCKOUT_PTS[round] || { exact: 2, winner: 1 }
+    const predH = parseInt(pred.home_score)
+    const predA = parseInt(pred.away_score)
+    if (pred.home_team === res.home_team && pred.away_team === res.away_team &&
+        !isNaN(predH) && !isNaN(predA) &&
+        predH === res.home_score && predA === res.away_score &&
+        pred.winner === res.winner) {
+      return pts.exact
     }
-    if (predWinner === realWinner) return rpts.winner
+    if (pred.winner === res.winner) return pts.winner
     return 0
   }
 
+  const uniqueTeams = ALL_TEAMS.filter((t, i, arr) => arr.findIndex(x => x.name === t.name) === i)
+
   if (loading || !player) return null
 
-  const currentRound = KNOCKOUT_ROUNDS.find(r => r.id === activeRound)
+  const currentRound = ALL_KNOCKOUT_ROUNDS.find(r => r.id === activeRound)
 
   return (
-    <div style={{ maxWidth: 900, margin: '0 auto', padding: '32px 20px 60px' }}>
-
-      <div style={{ marginBottom: 28 }}>
-        <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2.2rem', color: 'var(--gold)', letterSpacing: '0.06em' }}>
-          🏆 Eliminatorias
+    <div style={{ maxWidth: 960, margin: '0 auto', padding: '32px 20px 60px' }}>
+      <div style={{ marginBottom: 24 }}>
+        <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2.5rem', color: 'var(--gold)', letterSpacing: '0.06em' }}>
+          Eliminatorias
         </h1>
         <p style={{ color: 'var(--muted)', fontSize: '0.85rem', marginTop: 4 }}>
-          Predice los ganadores de cada ronda. Los equipos se actualizarán conforme avance el torneo.
+          Predice los ganadores de cada ronda. Las predicciones se guardan al salir del campo.
         </p>
       </div>
 
-      {/* Points reminder for knockouts */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 24 }}>
-        {KNOCKOUT_ROUNDS.map(r => {
-          const pts = KNOCKOUT_POINTS[r.id]
+      {/* Points per round */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
+        {ALL_KNOCKOUT_ROUNDS.map(r => {
+          const pts = KNOCKOUT_PTS[r.id]
           return (
-            <div key={r.id} style={{ background: 'var(--dark3)', border: '1px solid var(--border)', borderRadius: 8, padding: '6px 12px', fontSize: '0.78rem' }}>
+            <div key={r.id} style={{ background: 'rgba(17,17,24,0.8)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 8, padding: '5px 12px', fontSize: '0.75rem', backdropFilter: 'blur(8px)' }}>
               <span style={{ color: 'var(--muted)' }}>{r.label}: </span>
-              <span style={{ color: 'var(--gold)' }}>{pts?.exact ?? '?'}pts</span>
-              <span style={{ color: 'var(--muted)' }}> exacto / </span>
-              <span style={{ color: 'var(--blue)' }}>{pts?.winner ?? '?'}pts</span>
-              <span style={{ color: 'var(--muted)' }}> ganador</span>
+              <span style={{ color: 'var(--gold)' }}>{pts?.exact}pts</span>
+              <span style={{ color: 'var(--muted)' }}> / </span>
+              <span style={{ color: 'var(--blue)' }}>{pts?.winner}pt ganador</span>
             </div>
           )
         })}
@@ -126,146 +143,172 @@ export default function EliminatoriasPage() {
 
       {/* Round tabs */}
       <div style={{ display: 'flex', gap: 6, overflowX: 'auto', marginBottom: 24, paddingBottom: 4 }}>
-        {KNOCKOUT_ROUNDS.map(r => (
+        {ALL_KNOCKOUT_ROUNDS.map(r => (
           <button key={r.id} onClick={() => setActiveRound(r.id)} style={{
             flexShrink: 0,
-            background: activeRound === r.id ? 'rgba(244,197,66,0.12)' : 'var(--dark3)',
-            border: `1px solid ${activeRound === r.id ? 'rgba(244,197,66,0.4)' : 'var(--border)'}`,
-            borderRadius: 10, padding: '8px 16px', cursor: 'pointer',
+            background: activeRound === r.id ? 'rgba(244,197,66,0.15)' : 'rgba(17,17,24,0.8)',
+            border: '1px solid ' + (activeRound === r.id ? 'rgba(244,197,66,0.5)' : 'rgba(255,255,255,0.08)'),
+            borderRadius: 10, padding: '8px 14px', cursor: 'pointer',
             color: activeRound === r.id ? 'var(--gold)' : 'var(--muted)',
-            fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.9rem', letterSpacing: '0.06em',
-            whiteSpace: 'nowrap',
+            fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.95rem', letterSpacing: '0.06em',
+            whiteSpace: 'nowrap', backdropFilter: 'blur(8px)',
           }}>
             {r.label}
           </button>
         ))}
         <button onClick={() => setActiveRound('CHAMPION')} style={{
           flexShrink: 0,
-          background: activeRound === 'CHAMPION' ? 'rgba(139,92,246,0.15)' : 'var(--dark3)',
-          border: `1px solid ${activeRound === 'CHAMPION' ? 'rgba(139,92,246,0.4)' : 'var(--border)'}`,
-          borderRadius: 10, padding: '8px 16px', cursor: 'pointer',
+          background: activeRound === 'CHAMPION' ? 'rgba(139,92,246,0.15)' : 'rgba(17,17,24,0.8)',
+          border: '1px solid ' + (activeRound === 'CHAMPION' ? 'rgba(139,92,246,0.5)' : 'rgba(255,255,255,0.08)'),
+          borderRadius: 10, padding: '8px 14px', cursor: 'pointer',
           color: activeRound === 'CHAMPION' ? 'var(--purple)' : 'var(--muted)',
-          fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.9rem', letterSpacing: '0.06em',
-          whiteSpace: 'nowrap',
+          fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.95rem', letterSpacing: '0.06em',
+          whiteSpace: 'nowrap', backdropFilter: 'blur(8px)',
         }}>
-          🏆 Campeón
+          👑 Campeon
         </button>
       </div>
 
-      {/* Champion section */}
+      {/* CHAMPION */}
       {activeRound === 'CHAMPION' && (
-        <div>
-          <div style={{ background: 'var(--dark3)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: 16, padding: 28, marginBottom: 20 }}>
-            <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.6rem', color: 'var(--purple)', marginBottom: 8 }}>
-              🏆 ¿Quién será el Campeón del Mundial?
-            </h2>
-            <p style={{ color: 'var(--muted)', fontSize: '0.85rem', marginBottom: 20 }}>
-              Acertar el campeón vale <strong style={{ color: 'var(--purple)' }}>10 puntos</strong>. Solo puedes elegir uno.
-            </p>
-            {champion && (
-              <div style={{ marginBottom: 16, background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: 10, padding: '10px 16px', display: 'inline-flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ color: 'var(--purple)', fontWeight: 600 }}>Tu selección: {champion}</span>
-                {champResult && champion === champResult && <span style={{ color: 'var(--green)' }}>🎉 +10 pts</span>}
-                {champResult && champion !== champResult && <span style={{ color: '#FF6B6B' }}>✗</span>}
-              </div>
-            )}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 8 }}>
-              {ALL_TEAMS.filter((t, i, arr) => arr.findIndex(x => x.name === t.name) === i).map(team => (
-                <button key={team.name} onClick={() => saveChampion(team.name)} style={{
-                  background: champion === team.name ? 'rgba(139,92,246,0.15)' : 'var(--dark4)',
-                  border: `1px solid ${champion === team.name ? 'rgba(139,92,246,0.5)' : 'var(--border2)'}`,
-                  borderRadius: 10, padding: '10px 14px', cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', gap: 10,
-                  color: champion === team.name ? 'var(--purple)' : 'var(--text)',
-                  transition: 'all 0.15s',
-                }}>
-                  <span style={{ fontSize: '1.3rem' }}>{team.flag}</span>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 500 }}>{team.name}</span>
-                  {champion === team.name && <span style={{ marginLeft: 'auto' }}>✓</span>}
-                </button>
-              ))}
+        <div style={{ background: 'rgba(17,17,24,0.8)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: 16, padding: 28, backdropFilter: 'blur(12px)' }}>
+          <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.6rem', color: 'var(--purple)', marginBottom: 8 }}>
+            Quien sera el Campeon del Mundial?
+          </h2>
+          <p style={{ color: 'var(--muted)', fontSize: '0.85rem', marginBottom: 20 }}>
+            Acertar el campeon vale <strong style={{ color: 'var(--purple)' }}>10 puntos</strong>.
+          </p>
+          {champion && (
+            <div style={{ marginBottom: 16, background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: 10, padding: '10px 16px', display: 'inline-flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ color: 'var(--purple)', fontWeight: 600 }}>Tu seleccion: {champion}</span>
+              {champResult && champion === champResult && <span style={{ color: 'var(--green)' }}>+10 pts</span>}
+              {champResult && champion !== champResult && <span style={{ color: '#FF6B6B' }}>X</span>}
             </div>
+          )}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 8 }}>
+            {uniqueTeams.map(team => (
+              <button key={team.name} onClick={() => saveChampion(team.name)} style={{
+                background: champion === team.name ? 'rgba(139,92,246,0.15)' : 'rgba(255,255,255,0.04)',
+                border: '1px solid ' + (champion === team.name ? 'rgba(139,92,246,0.5)' : 'rgba(255,255,255,0.08)'),
+                borderRadius: 10, padding: '10px 14px', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 8,
+                color: champion === team.name ? 'var(--purple)' : 'var(--text)',
+              }}>
+                <span style={{ fontSize: '1.2rem' }}>{team.flag}</span>
+                <span style={{ fontSize: '0.82rem', fontWeight: 500 }}>{team.name}</span>
+                {champion === team.name && <span style={{ marginLeft: 'auto' }}>✓</span>}
+              </button>
+            ))}
           </div>
         </div>
       )}
 
-      {/* Knockout matches */}
+      {/* KNOCKOUT MATCHES */}
       {activeRound !== 'CHAMPION' && currentRound && (
         <div>
-          <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.6rem', color: 'var(--text)', marginBottom: 16, letterSpacing: '0.04em' }}>
+          <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.8rem', color: 'var(--text)', marginBottom: 6, letterSpacing: '0.04em' }}>
             {currentRound.label}
           </h2>
-          {currentRound.matches.map(match => {
+          <p style={{ color: 'var(--muted)', fontSize: '0.8rem', marginBottom: 20 }}>
+            {activeRound === 'R32' ? '28 Jun – 3 Jul · Los equipos se asignan al terminar la fase de grupos' :
+             activeRound === 'R16' ? '4–7 Jul · Octavos de Final' :
+             activeRound === 'QF' ? '9–11 Jul · Cuartos de Final' :
+             activeRound === 'SF' ? '14–15 Jul · Semifinales' :
+             activeRound === 'TP' ? '18 Jul · Tercer Puesto' : '19 Jul · Gran Final · MetLife Stadium'}
+          </p>
+
+          {/* Column headers */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 8, padding: '0 4px' }}>
+            <div style={{ fontSize: '0.68rem', color: 'var(--muted)', letterSpacing: '0.15em', textTransform: 'uppercase', textAlign: 'center' }}>Tu Prediccion</div>
+            <div style={{ fontSize: '0.68rem', color: 'var(--muted)', letterSpacing: '0.15em', textTransform: 'uppercase', textAlign: 'center' }}>Resultado Real</div>
+          </div>
+
+          {currentRound.matches.map((match: KnockoutMatch) => {
             const pred = preds[match.id] || { home_team: '', away_team: '', home_score: '', away_score: '', winner: '' }
             const res = results[match.id]
             const pts = getPoints(match.id, pred)
-            const roundPts = KNOCKOUT_POINTS[currentRound.id]
+            const pts_config = KNOCKOUT_PTS[match.round] || { exact: 2, winner: 1 }
+
             return (
-              <div key={match.id} style={{ background: 'var(--dark3)', border: '1px solid var(--border)', borderRadius: 14, padding: '18px 20px', marginBottom: 12 }}>
-                <div style={{ fontSize: '0.72rem', color: 'var(--muted)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span>{currentRound.label} · {match.label}</span>
-                  {saving[match.id] && <span style={{ color: 'var(--gold)' }}>Guardando...</span>}
-                  {saved[match.id] && <span style={{ color: 'var(--green)' }}>✓ Guardado</span>}
-                  {pts !== null && (
-                    <span style={{
-                      color: pts >= (roundPts?.exact || 3) ? 'var(--gold)' : pts > 0 ? 'var(--blue)' : 'var(--muted)',
-                      background: pts >= (roundPts?.exact || 3) ? 'rgba(244,197,66,0.1)' : pts > 0 ? 'rgba(59,130,246,0.1)' : 'rgba(255,255,255,0.05)',
-                      border: '1px solid currentColor', borderRadius: 6, padding: '2px 8px',
-                    }}>
-                      {pts > 0 ? `+${pts}` : '0'} pts {pts === 0 ? '✗' : '✓'}
-                    </span>
-                  )}
+              <div key={match.id} style={{ marginBottom: 16 }}>
+                {/* Match info bar */}
+                <div style={{ background: 'rgba(17,17,24,0.85)', border: '1px solid rgba(255,255,255,0.06)', borderBottom: 'none', borderRadius: '12px 12px 0 0', padding: '7px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 4 }}>
+                  <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--gold)', fontWeight: 600 }}>{match.label}</span>
+                    <span style={{ fontSize: '0.65rem', color: 'var(--muted)' }}>📍 {match.stadium} · {match.city}</span>
+                    <span style={{ fontSize: '0.65rem', color: 'var(--muted)' }}>📅 {match.date} · {match.time} ET</span>
+                    <span style={{ fontSize: '0.62rem', color: 'var(--muted)', opacity: 0.7 }}>{match.homeDesc} vs {match.awayDesc}</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                    {saving[match.id] && <span style={{ color: 'var(--gold)', fontSize: '0.7rem' }}>Guardando...</span>}
+                    {saved[match.id] && <span style={{ color: 'var(--green)', fontSize: '0.7rem' }}>Guardado</span>}
+                    {pts !== null && (
+                      <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.85rem', padding: '2px 8px', borderRadius: 5, background: pts >= pts_config.exact ? 'rgba(244,197,66,0.15)' : pts > 0 ? 'rgba(59,130,246,0.15)' : 'rgba(214,40,40,0.1)', color: pts >= pts_config.exact ? 'var(--gold)' : pts > 0 ? 'var(--blue)' : 'var(--muted)', border: '1px solid ' + (pts >= pts_config.exact ? 'rgba(244,197,66,0.3)' : pts > 0 ? 'rgba(59,130,246,0.3)' : 'rgba(214,40,40,0.2)') }}>
+                        {pts > 0 ? '+' + pts + ' pts' : '0 pts'}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
-                {/* Team selectors */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: 12, alignItems: 'center', marginBottom: 16 }}>
-                  <select
-                    value={pred.home_team}
-                    onChange={e => updatePred(match.id, 'home_team', e.target.value)}
-                    style={{ background: 'var(--dark4)', border: '1px solid var(--border2)', borderRadius: 8, padding: '8px 10px', color: 'var(--text)', fontFamily: "'Outfit', sans-serif", fontSize: '0.85rem', outline: 'none' }}
-                  >
-                    <option value="">Equipo local...</option>
-                    {ALL_TEAMS.filter((t, i, arr) => arr.findIndex(x => x.name === t.name) === i).map(t => <option key={t.name} value={t.name}>{t.flag} {t.name}</option>)}
-                  </select>
-                  <span style={{ color: 'var(--muted)', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1rem' }}>VS</span>
-                  <select
-                    value={pred.away_team}
-                    onChange={e => updatePred(match.id, 'away_team', e.target.value)}
-                    style={{ background: 'var(--dark4)', border: '1px solid var(--border2)', borderRadius: 8, padding: '8px 10px', color: 'var(--text)', fontFamily: "'Outfit', sans-serif", fontSize: '0.85rem', outline: 'none' }}
-                  >
-                    <option value="">Equipo visitante...</option>
-                    {ALL_TEAMS.filter((t, i, arr) => arr.findIndex(x => x.name === t.name) === i).map(t => <option key={t.name} value={t.name}>{t.flag} {t.name}</option>)}
-                  </select>
-                </div>
-
-                {/* Score + winner */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <input type="number" min={0} max={20} value={pred.home_score} onChange={e => updatePred(match.id, 'home_score', e.target.value)}
-                      placeholder="0"
-                      style={{ width: 44, height: 44, background: 'var(--dark4)', border: '1px solid var(--border2)', borderRadius: 10, textAlign: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.3rem', color: 'var(--text)', outline: 'none' }}
-                    />
-                    <span style={{ color: 'var(--muted)', fontFamily: "'Bebas Neue', sans-serif" }}>-</span>
-                    <input type="number" min={0} max={20} value={pred.away_score} onChange={e => updatePred(match.id, 'away_score', e.target.value)}
-                      placeholder="0"
-                      style={{ width: 44, height: 44, background: 'var(--dark4)', border: '1px solid var(--border2)', borderRadius: 10, textAlign: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.3rem', color: 'var(--text)', outline: 'none' }}
-                    />
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                    <span style={{ fontSize: '0.72rem', color: 'var(--muted)', letterSpacing: '0.1em' }}>GANADOR (si hay penales)</span>
-                    <select value={pred.winner} onChange={e => updatePred(match.id, 'winner', e.target.value)}
-                      style={{ background: 'var(--dark4)', border: '1px solid var(--border2)', borderRadius: 8, padding: '8px 12px', color: 'var(--text)', fontFamily: "'Outfit', sans-serif", fontSize: '0.85rem', outline: 'none' }}
-                    >
-                      <option value="">Selecciona quien avanza</option>
-                      {pred.home_team && <option value={pred.home_team}>{pred.home_team}</option>}
-                      {pred.away_team && <option value={pred.away_team}>{pred.away_team}</option>}
-                    </select>
-                  </div>
-                  {res && (
-                    <div style={{ fontSize: '0.82rem', color: 'var(--muted)', background: 'var(--dark4)', borderRadius: 8, padding: '6px 12px' }}>
-                      Real: {res.home_team} {res.home_score}-{res.away_score} {res.away_team} · Avanza: <strong style={{ color: 'var(--text)' }}>{res.winner}</strong>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0 }}>
+                  {/* PREDICCION */}
+                  <div style={{ background: 'rgba(17,17,24,0.75)', border: '1px solid rgba(255,255,255,0.07)', borderRight: 'none', borderTop: 'none', borderRadius: '0 0 0 12px', padding: '14px 12px' }}>
+                    <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
+                      <select value={pred.home_team} onChange={e => updatePred(match.id, 'home_team', e.target.value)} onBlur={() => handleBlurPred(match.id)}
+                        style={{ flex: 1, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '6px 8px', color: 'var(--text)', fontFamily: "'Outfit', sans-serif", fontSize: '0.78rem', outline: 'none' }}>
+                        <option value="">Local...</option>
+                        {uniqueTeams.map(t => <option key={t.name} value={t.name}>{t.flag} {t.name}</option>)}
+                      </select>
+                      <select value={pred.away_team} onChange={e => updatePred(match.id, 'away_team', e.target.value)} onBlur={() => handleBlurPred(match.id)}
+                        style={{ flex: 1, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '6px 8px', color: 'var(--text)', fontFamily: "'Outfit', sans-serif", fontSize: '0.78rem', outline: 'none' }}>
+                        <option value="">Visitante...</option>
+                        {uniqueTeams.map(t => <option key={t.name} value={t.name}>{t.flag} {t.name}</option>)}
+                      </select>
                     </div>
-                  )}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <input type="number" min={0} max={20} value={pred.home_score} onChange={e => updatePred(match.id, 'home_score', e.target.value)} onBlur={() => handleBlurPred(match.id)} placeholder="0"
+                        style={{ width: 36, height: 36, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, textAlign: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.2rem', color: 'var(--text)', outline: 'none' }} />
+                      <span style={{ color: 'var(--muted)', fontFamily: "'Bebas Neue', sans-serif" }}>-</span>
+                      <input type="number" min={0} max={20} value={pred.away_score} onChange={e => updatePred(match.id, 'away_score', e.target.value)} onBlur={() => handleBlurPred(match.id)} placeholder="0"
+                        style={{ width: 36, height: 36, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, textAlign: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.2rem', color: 'var(--text)', outline: 'none' }} />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: '0.65rem', color: 'var(--muted)', marginBottom: 3 }}>Avanza:</div>
+                        <select value={pred.winner} onChange={e => updatePred(match.id, 'winner', e.target.value)} onBlur={() => handleBlurPred(match.id)}
+                          style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '4px 6px', color: 'var(--text)', fontFamily: "'Outfit', sans-serif", fontSize: '0.75rem', outline: 'none' }}>
+                          <option value="">Quien avanza?</option>
+                          {pred.home_team && <option value={pred.home_team}>{pred.home_team}</option>}
+                          {pred.away_team && <option value={pred.away_team}>{pred.away_team}</option>}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* RESULTADO REAL */}
+                  <div style={{ background: res ? 'rgba(244,197,66,0.04)' : 'rgba(17,17,24,0.75)', border: '1px solid ' + (res ? 'rgba(244,197,66,0.2)' : 'rgba(255,255,255,0.07)'), borderTop: 'none', borderRadius: '0 0 12px 0', padding: '14px 12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {res && res.home_team ? (
+                      <div style={{ width: '100%' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                          <span style={{ fontSize: '0.8rem', fontWeight: 600, flex: 1 }}>{uniqueTeams.find(t => t.name === res.home_team)?.flag} {res.home_team}</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <div style={{ width: 32, height: 32, background: 'rgba(244,197,66,0.12)', border: '1px solid rgba(244,197,66,0.35)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.1rem', color: 'var(--gold)' }}>{res.home_score ?? '?'}</div>
+                            <span style={{ color: 'var(--muted)', fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.8rem' }}>-</span>
+                            <div style={{ width: 32, height: 32, background: 'rgba(244,197,66,0.12)', border: '1px solid rgba(244,197,66,0.35)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.1rem', color: 'var(--gold)' }}>{res.away_score ?? '?'}</div>
+                          </div>
+                          <span style={{ fontSize: '0.8rem', fontWeight: 600, flex: 1, textAlign: 'right' }}>{uniqueTeams.find(t => t.name === res.away_team)?.flag} {res.away_team}</span>
+                        </div>
+                        {res.winner && (
+                          <div style={{ fontSize: '0.72rem', color: 'var(--green)', textAlign: 'center', background: 'rgba(46,204,113,0.08)', borderRadius: 6, padding: '3px 8px' }}>
+                            Avanza: {uniqueTeams.find(t => t.name === res.winner)?.flag} {res.winner}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div style={{ textAlign: 'center' }}>
+                        <span style={{ fontSize: '1.1rem', display: 'block', marginBottom: 2 }}>⏳</span>
+                        <span style={{ color: 'var(--muted)', fontSize: '0.68rem' }}>Sin resultado</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )
