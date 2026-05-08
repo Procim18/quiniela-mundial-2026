@@ -4,9 +4,7 @@ import { ALL_TEAMS } from '@/lib/data'
 
 export async function GET() {
   const { data: champPreds } = await supabase.from('champion_predictions').select('team')
-  if (!champPreds || champPreds.length === 0) {
-    return NextResponse.json({ data: [] })
-  }
+  if (!champPreds || champPreds.length === 0) return NextResponse.json({ data: [] })
   const counts: Record<string, number> = {}
   champPreds.forEach(p => { counts[p.team] = (counts[p.team] || 0) + 1 })
   const total = champPreds.length
