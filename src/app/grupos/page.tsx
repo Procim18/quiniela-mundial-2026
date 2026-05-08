@@ -49,7 +49,7 @@ export default function GruposPage() {
     await fetch('/api/predictions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ player_id: player.id, match_id: matchId, home_score: home, away_score: away }),
+      body: JSON.stringify({ player_id: player.id, match_id: matchId, home_score: parseInt(home), away_score: parseInt(away) }),
     })
     setSaving(s => ({ ...s, [matchId]: false }))
     setSaved(s => ({ ...s, [matchId]: true }))
@@ -62,8 +62,13 @@ export default function GruposPage() {
     const current = preds[matchId] || { home_score: '', away_score: '' }
     const updated = { ...current, [side === 'home' ? 'home_score' : 'away_score']: val }
     setPreds(p => ({ ...p, [matchId]: updated }))
-    if (updated.home_score !== '' || updated.away_score !== '') {
-      savePred(matchId, updated.home_score || '0', updated.away_score || '0')
+  }
+
+  const handleBlur = (matchId: string) => {
+    const pred = preds[matchId]
+    if (!pred) return
+    if (pred.home_score !== '' && pred.away_score !== '') {
+      savePred(matchId, pred.home_score, pred.away_score)
     }
   }
 
@@ -182,10 +187,10 @@ export default function GruposPage() {
                     <span style={{ fontWeight: 700, fontSize: '0.72rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{match.home.name}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0 }}>
-                    <input type="number" min={0} max={20} value={pred.home_score} onChange={e => updatePred(match.id, 'home', e.target.value)} disabled={locked}
+                    <input type="number" min={0} max={20} value={pred.home_score} onChange={e => updatePred(match.id, 'home', e.target.value)} onBlur={() => handleBlur(match.id)} disabled={locked}
                       style={{ width: 34, height: 34, background: locked ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.06)', border: '1px solid ' + (locked ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.12)'), borderRadius: 8, textAlign: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.2rem', color: locked ? 'var(--muted)' : 'var(--text)', outline: 'none', cursor: locked ? 'not-allowed' : 'text' }} />
                     <span style={{ color: 'var(--muted)', fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.8rem' }}>-</span>
-                    <input type="number" min={0} max={20} value={pred.away_score} onChange={e => updatePred(match.id, 'away', e.target.value)} disabled={locked}
+                    <input type="number" min={0} max={20} value={pred.away_score} onChange={e => updatePred(match.id, 'away', e.target.value)} onBlur={() => handleBlur(match.id)} disabled={locked}
                       style={{ width: 34, height: 34, background: locked ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.06)', border: '1px solid ' + (locked ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.12)'), borderRadius: 8, textAlign: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.2rem', color: locked ? 'var(--muted)' : 'var(--text)', outline: 'none', cursor: locked ? 'not-allowed' : 'text' }} />
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 5, flex: 1, minWidth: 0, justifyContent: 'flex-end' }}>
