@@ -177,3 +177,9 @@ export function getOutcome(h: number, a: number): 'H' | 'A' | 'D' {
 }
 
 export const ALL_TEAMS = Object.values(GROUPS).flat()
+
+export const DEADLINE = new Date('2026-06-11T00:00:00')
+
+export function isPastDeadline(): boolean {
+  return new Date() > DEADLINE
+}
