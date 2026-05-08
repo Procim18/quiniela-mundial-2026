@@ -218,8 +218,9 @@ export default function AdminPage() {
                     style={{ width: 48, height: 48, background: 'rgba(214,40,40,0.12)', border: '1px solid rgba(214,40,40,0.35)', borderRadius: 10, textAlign: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.4rem', color: '#FF6B6B', outline: 'none' }} />
                   {saving[match.id] && <span style={{ color: 'var(--gold)', fontSize: '0.8rem' }}>...</span>}
                   {saved[match.id] && <span style={{ color: 'var(--green)', fontSize: '0.8rem' }}>✓</span>}
-                  <button onClick={async () => {
+                  <button onMouseDown={e => e.preventDefault()} onClick={async () => {
                     setResults(r => ({ ...r, [match.id]: { home_score: '', away_score: '' } }))
+                    await new Promise(r => setTimeout(r, 400))
                     await fetch('/api/results?match_id=' + match.id, { method: 'DELETE', headers: { 'x-admin-password': adminPass } })
                     setSaved(s => ({ ...s, [match.id]: true }))
                     setTimeout(() => setSaved(s => ({ ...s, [match.id]: false })), 2000)
