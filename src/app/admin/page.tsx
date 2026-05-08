@@ -216,7 +216,11 @@ export default function AdminPage() {
                   }} style={{ background: 'rgba(46,204,113,0.15)', border: '1px solid rgba(46,204,113,0.3)', color: 'var(--green)', borderRadius: 8, padding: '4px 12px', cursor: 'pointer', fontSize: '0.85rem', marginLeft: 4, fontWeight: 600 }}>✓ Guardar</button>
                   <button onClick={async () => {
                     setResults(r => ({ ...r, [match.id]: { home_score: '', away_score: '' } }))
-                    await fetch('/api/results?match_id=' + match.id, { method: 'DELETE', headers: { 'x-admin-password': adminPass } })
+                    await fetch('/api/results/delete', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json', 'x-admin-password': adminPass },
+                      body: JSON.stringify({ match_id: match.id })
+                    })
                     setSaved(s => ({ ...s, [match.id]: true }))
                     setTimeout(() => setSaved(s => ({ ...s, [match.id]: false })), 2000)
                   }} style={{ background: 'rgba(214,40,40,0.12)', border: '1px solid rgba(214,40,40,0.3)', color: '#FF6B6B', borderRadius: 8, padding: '4px 10px', cursor: 'pointer', fontSize: '0.9rem', marginLeft: 4 }}>🗑️</button>
