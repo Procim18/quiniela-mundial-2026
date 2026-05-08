@@ -213,7 +213,7 @@ export default function AdminPage() {
                     const r = results[match.id]
                     if (!r || r.home_score === '' || r.away_score === '') return
                     await saveGroupResult(match.id, r.home_score, r.away_score)
-                  }} style={{ background: 'rgba(46,204,113,0.15)', border: '1px solid rgba(46,204,113,0.3)', color: 'var(--green)', borderRadius: 8, padding: '4px 12px', cursor: 'pointer', fontSize: '0.85rem', marginLeft: 4, fontWeight: 600 }}>✓ Guardar</button>
+                  }} disabled={!(results[match.id] && results[match.id].home_score !== '' && results[match.id].away_score !== '')} style={{ background: (results[match.id] && results[match.id].home_score !== '' && results[match.id].away_score !== '') ? 'rgba(46,204,113,0.15)' : 'rgba(255,255,255,0.03)', border: '1px solid rgba(46,204,113,0.3)', color: (results[match.id] && results[match.id].home_score !== '' && results[match.id].away_score !== '') ? 'var(--green)' : 'var(--muted)', borderRadius: 8, padding: '4px 12px', cursor: (results[match.id] && results[match.id].home_score !== '' && results[match.id].away_score !== '') ? 'pointer' : 'not-allowed', fontSize: '0.85rem', marginLeft: 4, fontWeight: 600 }}>✓ Guardar</button>
                   <button onClick={async () => {
                     setResults(r => ({ ...r, [match.id]: { home_score: '', away_score: '' } }))
                     await fetch('/api/results/delete', {
