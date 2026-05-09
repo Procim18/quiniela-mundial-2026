@@ -175,6 +175,18 @@ export default function AdminPage() {
           Ingresa los resultados reales para calcular los puntos automáticamente.
         </p>
         {msg && <div style={{ marginTop: 12, background: 'rgba(46,204,113,0.1)', border: '1px solid rgba(46,204,113,0.3)', borderRadius: 8, padding: '8px 16px', color: 'var(--green)', fontSize: '0.85rem' }}>{msg}</div>}
+        <div style={{ marginTop: 16 }}>
+          <button onClick={async () => {
+            const res = await fetch('/api/sync-results', { method: 'POST', headers: { 'x-admin-password': adminPass } })
+            const data = await res.json()
+            if (data.ok) setMsg('✅ ' + (data.message || (data.synced + ' resultados sincronizados')))
+            else setMsg('❌ Error: ' + data.error)
+            setTimeout(() => setMsg(''), 6000)
+          }} style={{ background: 'rgba(46,204,113,0.1)', border: '1px solid rgba(46,204,113,0.3)', color: 'var(--green)', borderRadius: 8, padding: '8px 18px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600 }}>
+            🔄 Sincronizar resultados automaticamente
+          </button>
+          <span style={{ color: 'var(--muted)', fontSize: '0.75rem', marginLeft: 10 }}>Importa resultados reales desde football-data.org</span>
+        </div>
       </div>
 
       {/* Tab selector */}
