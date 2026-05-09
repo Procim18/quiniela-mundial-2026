@@ -1,7 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  color-scheme: dark;
   --gold: #F4C542;
   --gold-dark: #C89B1A;
   --red: #D62828;
@@ -103,25 +102,3 @@ input[type=number] { -moz-appearance: textfield; }
 ::-webkit-scrollbar-thumb { background: var(--dark4); border-radius: 2px; }
 
 .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
-
-[data-theme="light"] {
-  --gold: #B8860B;
-  --gold-dark: #8B6508;
-  --red: #B22222;
-  --dark: #F5F5F0;
-  --dark2: #EBEBEB;
-  --dark3: #E0E0D8;
-  --dark4: #D5D5CC;
-  --border: rgba(180,140,0,0.2);
-  --border2: rgba(0,0,0,0.1);
-  --text: #1A1A2E;
-  --muted: #666680;
-  --green: #1A7A3C;
-  --blue: #1A4FBF;
-  --purple: #5B2C8B;
-  --nike-red: #CC0000;
-}
-
-[data-theme="light"] .world-bg::before {
-  background: linear-gradient(180deg, rgba(245,245,240,0.85) 0%, rgba(245,245,240,0.7) 35%, rgba(245,245,240,0.8) 100%);
-}
