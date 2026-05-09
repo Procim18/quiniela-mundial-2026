@@ -23,7 +23,7 @@ export default function AdminPage() {
   const [saving, setSaving] = useState<Record<string, boolean>>({})
   const [saved, setSaved] = useState<Record<string, boolean>>({})
   const [msg, setMsg] = useState('')
-  const [players, setPlayers] = useState<{id: string; username: string}[]>([])
+  const [players, setPlayers] = useState<{id: string; username: string; is_active: boolean}[]>([])
   const [resetPass, setResetPass] = useState<Record<string, string>>({})
   const [resetMsg, setResetMsg] = useState<Record<string, string>>({})
 
@@ -331,7 +331,12 @@ export default function AdminPage() {
                   <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg, var(--gold), var(--red))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.9rem', color: 'var(--dark)' }}>
                     {p.username.charAt(0).toUpperCase()}
                   </div>
-                  <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{p.username}</span>
+                  <div>
+                    <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{p.username}</span>
+                    <span style={{ marginLeft: 8, fontSize: '0.7rem', padding: '2px 8px', borderRadius: 6, background: p.is_active ? 'rgba(46,204,113,0.1)' : 'rgba(214,40,40,0.1)', color: p.is_active ? 'var(--green)' : '#FF6B6B', border: '1px solid ' + (p.is_active ? 'rgba(46,204,113,0.3)' : 'rgba(214,40,40,0.3)') }}>
+                      {p.is_active ? 'Activo' : 'Pendiente'}
+                    </span>
+                  </div>
                 </div>
                 <input
                   type="text"
@@ -341,25 +346,41 @@ export default function AdminPage() {
                   style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 12px', color: 'var(--text)', fontFamily: "'Outfit', sans-serif", fontSize: '0.85rem', outline: 'none' }}
                 />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                  <button onClick={async () => {
-                    const pass = resetPass[p.id]
-                    if (!pass || pass.length < 4) { setResetMsg(m => ({ ...m, [p.id]: 'Min 4 caracteres' })); return }
-                    const res = await fetch('/api/admin/reset-password', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json', 'x-admin-password': adminPass },
-                      body: JSON.stringify({ player_id: p.id, new_password: pass }),
-                    })
-                    if (res.ok) {
-                      setResetMsg(m => ({ ...m, [p.id]: 'Contrasena cambiada' }))
-                      setResetPass(r => ({ ...r, [p.id]: '' }))
-                    } else {
-                      setResetMsg(m => ({ ...m, [p.id]: 'Error' }))
-                    }
-                    setTimeout(() => setResetMsg(m => ({ ...m, [p.id]: '' })), 3000)
-                  }} style={{ background: 'rgba(46,204,113,0.15)', border: '1px solid rgba(46,204,113,0.3)', color: 'var(--green)', borderRadius: 8, padding: '6px 12px', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600 }}>
-                    Resetear
-                  </button>
-                  {resetMsg[p.id] && <span style={{ fontSize: '0.72rem', color: resetMsg[p.id] === 'Contrasena cambiada' ? 'var(--green)' : '#FF6B6B' }}>{resetMsg[p.id]}</span>}
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <button onClick={async () => {
+                      const res = await fetch('/api/admin/toggle-active', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'x-admin-password': adminPass },
+                        body: JSON.stringify({ player_id: p.id, is_active: !p.is_active }),
+                      })
+                      if (res.ok) {
+                        setPlayers(pl => pl.map(pl2 => pl2.id === p.id ? { ...pl2, is_active: !p.is_active } : pl2))
+                        setResetMsg(m => ({ ...m, [p.id]: p.is_active ? 'Desactivado' : 'Activado' }))
+                        setTimeout(() => setResetMsg(m => ({ ...m, [p.id]: '' })), 2000)
+                      }
+                    }} style={{ background: p.is_active ? 'rgba(214,40,40,0.12)' : 'rgba(46,204,113,0.12)', border: '1px solid ' + (p.is_active ? 'rgba(214,40,40,0.3)' : 'rgba(46,204,113,0.3)'), color: p.is_active ? '#FF6B6B' : 'var(--green)', borderRadius: 8, padding: '6px 12px', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600 }}>
+                      {p.is_active ? 'Desactivar' : 'Activar'}
+                    </button>
+                    <button onClick={async () => {
+                      const pass = resetPass[p.id]
+                      if (!pass || pass.length < 4) { setResetMsg(m => ({ ...m, [p.id]: 'Min 4 caracteres' })); return }
+                      const res = await fetch('/api/admin/reset-password', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'x-admin-password': adminPass },
+                        body: JSON.stringify({ player_id: p.id, new_password: pass }),
+                      })
+                      if (res.ok) {
+                        setResetMsg(m => ({ ...m, [p.id]: 'Contrasena cambiada' }))
+                        setResetPass(r => ({ ...r, [p.id]: '' }))
+                      } else {
+                        setResetMsg(m => ({ ...m, [p.id]: 'Error' }))
+                      }
+                      setTimeout(() => setResetMsg(m => ({ ...m, [p.id]: '' })), 3000)
+                    }} style={{ background: 'rgba(46,204,113,0.15)', border: '1px solid rgba(46,204,113,0.3)', color: 'var(--green)', borderRadius: 8, padding: '6px 12px', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600 }}>
+                      Resetear
+                    </button>
+                  </div>
+                  {resetMsg[p.id] && <span style={{ fontSize: '0.72rem', color: resetMsg[p.id].includes('Error') ? '#FF6B6B' : 'var(--green)' }}>{resetMsg[p.id]}</span>}
                 </div>
               </div>
             ))}
