@@ -41,7 +41,20 @@ export default function ClasificacionPage() {
       fetch('/api/leaderboard').then(r => r.json()),
       fetch('/api/favorites').then(r => r.json()),
     ])
-    setScores(lb.data || [])
+    const newScores = lb.data || []
+    if (scores.length > 0) {
+      const newMovers: Record<string, number> = {}
+      newScores.forEach((p: Score, i: number) => {
+        const oldRank = prevRanks[p.username]
+        if (oldRank !== undefined && oldRank !== i) newMovers[p.username] = oldRank - i
+      })
+      setMovers(newMovers)
+      setTimeout(() => setMovers({}), 3000)
+    }
+    const newRanks: Record<string, number> = {}
+    newScores.forEach((p: Score, i: number) => { newRanks[p.username] = i })
+    setPrevRanks(newRanks)
+    setScores(newScores)
     setFavorites(fav.data || [])
     setFavTotal(fav.total || 0)
     setLastUpdated(new Date())

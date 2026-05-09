@@ -26,6 +26,8 @@ export default function AdminPage() {
   const [players, setPlayers] = useState<{id: string; username: string; is_active: boolean}[]>([])
   const [resetPass, setResetPass] = useState<Record<string, string>>({})
   const [resetMsg, setResetMsg] = useState<Record<string, string>>({})
+  const [newUsername, setNewUsername] = useState<Record<string, string>>({})
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
 
   const groupMatches = getGroupMatches()
 
@@ -42,6 +44,7 @@ export default function AdminPage() {
     // We'll load results; if unauthorized the saves will fail
     loadResults()
     loadPlayers()
+    loadPredStats()
     setAuthed(true)
   }
 
@@ -49,6 +52,22 @@ export default function AdminPage() {
     const res = await fetch('/api/players')
     const { data } = await res.json()
     setPlayers(data || [])
+  }
+
+  const [predStats, setPredStats] = useState<Record<string, number>>({})
+
+  const loadPredStats = async () => {
+    const [playersRes, predsRes] = await Promise.all([
+      fetch('/api/players').then(r => r.json()),
+      fetch('/api/predictions/all?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
+    ])
+    const players = playersRes.data || []
+    const preds = predsRes.data || []
+    const stats: Record<string, number> = {}
+    players.forEach((p: any) => {
+      stats[p.id] = preds.filter((pr: any) => pr.player_id === p.id && pr.home_score !== null && pr.away_score !== null).length
+    })
+    setPredStats(stats)
   }
 
   const loadResults = async () => {
@@ -336,17 +355,46 @@ export default function AdminPage() {
                     <span style={{ marginLeft: 8, fontSize: '0.7rem', padding: '2px 8px', borderRadius: 6, background: p.is_active ? 'rgba(46,204,113,0.1)' : 'rgba(214,40,40,0.1)', color: p.is_active ? 'var(--green)' : '#FF6B6B', border: '1px solid ' + (p.is_active ? 'rgba(46,204,113,0.3)' : 'rgba(214,40,40,0.3)') }}>
                       {p.is_active ? 'Activo' : 'Pendiente'}
                     </span>
+                    <span style={{ marginLeft: 6, fontSize: '0.7rem', padding: '2px 8px', borderRadius: 6, background: (predStats[p.id] || 0) === 72 ? 'rgba(46,204,113,0.1)' : (predStats[p.id] || 0) > 0 ? 'rgba(244,197,66,0.1)' : 'rgba(214,40,40,0.1)', color: (predStats[p.id] || 0) === 72 ? 'var(--green)' : (predStats[p.id] || 0) > 0 ? 'var(--gold)' : '#FF6B6B', border: '1px solid rgba(255,255,255,0.1)' }}>
+                      {predStats[p.id] || 0}/72 pred
+                    </span>
                   </div>
                 </div>
-                <input
-                  type="text"
-                  placeholder="Nueva contrasena..."
-                  value={resetPass[p.id] || ''}
-                  onChange={e => setResetPass(r => ({ ...r, [p.id]: e.target.value }))}
-                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 12px', color: 'var(--text)', fontFamily: "'Outfit', sans-serif", fontSize: '0.85rem', outline: 'none' }}
-                />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <input
+                    type="text"
+                    placeholder="Nuevo username..."
+                    value={newUsername[p.id] || ''}
+                    onChange={e => setNewUsername(r => ({ ...r, [p.id]: e.target.value }))}
+                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 12px', color: 'var(--text)', fontFamily: "'Outfit', sans-serif", fontSize: '0.85rem', outline: 'none' }}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Nueva contrasena..."
+                    value={resetPass[p.id] || ''}
+                    onChange={e => setResetPass(r => ({ ...r, [p.id]: e.target.value }))}
+                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 12px', color: 'var(--text)', fontFamily: "'Outfit', sans-serif", fontSize: '0.85rem', outline: 'none' }}
+                  />
+                </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                  <div style={{ display: 'flex', gap: 6 }}>
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                    <button onClick={async () => {
+                      const name = newUsername[p.id]
+                      if (!name || name.length < 2) { setResetMsg(m => ({ ...m, [p.id]: 'Min 2 caracteres' })); return }
+                      const res = await fetch('/api/admin/rename-player', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'x-admin-password': adminPass },
+                        body: JSON.stringify({ player_id: p.id, new_username: name }),
+                      })
+                      if (res.ok) {
+                        setPlayers(pl => pl.map(pl2 => pl2.id === p.id ? { ...pl2, username: name } : pl2))
+                        setNewUsername(r => ({ ...r, [p.id]: '' }))
+                        setResetMsg(m => ({ ...m, [p.id]: 'Username cambiado' }))
+                      } else setResetMsg(m => ({ ...m, [p.id]: 'Error' }))
+                      setTimeout(() => setResetMsg(m => ({ ...m, [p.id]: '' })), 2000)
+                    }} style={{ background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.3)', color: 'var(--blue)', borderRadius: 8, padding: '6px 12px', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600 }}>
+                      Renombrar
+                    </button>
                     <button onClick={async () => {
                       const res = await fetch('/api/admin/toggle-active', {
                         method: 'POST',
@@ -380,7 +428,26 @@ export default function AdminPage() {
                       Resetear
                     </button>
                   </div>
-                  {resetMsg[p.id] && <span style={{ fontSize: '0.72rem', color: resetMsg[p.id].includes('Error') ? '#FF6B6B' : 'var(--green)' }}>{resetMsg[p.id]}</span>}
+                  {resetMsg[p.id] && <span style={{ fontSize: '0.72rem', color: resetMsg[p.id].includes('Error') || resetMsg[p.id].includes('Min') ? '#FF6B6B' : 'var(--green)' }}>{resetMsg[p.id]}</span>}
+                  {confirmDelete === p.id ? (
+                    <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.78rem', color: '#FF6B6B' }}>¿Confirmar borrado?</span>
+                      <button onClick={async () => {
+                        const res = await fetch('/api/admin/delete-player', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json', 'x-admin-password': adminPass },
+                          body: JSON.stringify({ player_id: p.id }),
+                        })
+                        if (res.ok) setPlayers(pl => pl.filter(pl2 => pl2.id !== p.id))
+                        setConfirmDelete(null)
+                      }} style={{ background: 'rgba(214,40,40,0.2)', border: '1px solid rgba(214,40,40,0.4)', color: '#FF6B6B', borderRadius: 6, padding: '4px 10px', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 600 }}>Si, borrar</button>
+                      <button onClick={() => setConfirmDelete(null)} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--muted)', borderRadius: 6, padding: '4px 10px', cursor: 'pointer', fontSize: '0.78rem' }}>Cancelar</button>
+                    </div>
+                  ) : (
+                    <button onClick={() => setConfirmDelete(p.id)} style={{ background: 'rgba(214,40,40,0.08)', border: '1px solid rgba(214,40,40,0.2)', color: '#FF6B6B', borderRadius: 8, padding: '4px 10px', cursor: 'pointer', fontSize: '0.78rem', alignSelf: 'flex-start' }}>
+                      🗑️ Borrar usuario
+                    </button>
+                  )}
                 </div>
               </div>
             ))}

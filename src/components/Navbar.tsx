@@ -34,6 +34,20 @@ export default function Navbar() {
   const { player, logout } = useAuth()
   const path = usePathname()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [theme, setTheme] = useState('dark')
+
+  useEffect(() => {
+    const saved = localStorage.getItem('theme') || 'dark'
+    setTheme(saved)
+    document.documentElement.setAttribute('data-theme', saved)
+  }, [])
+
+  const toggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark'
+    setTheme(next)
+    localStorage.setItem('theme', next)
+    document.documentElement.setAttribute('data-theme', next)
+  }
 
   const mainLinks = [
     { href: '/', label: '🏠 Inicio' },
@@ -116,6 +130,10 @@ export default function Navbar() {
               Entrar
             </Link>
           )}
+
+          <button onClick={toggleTheme} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '6px 10px', cursor: 'pointer', color: 'var(--text)', fontSize: '1rem', flexShrink: 0 }}>
+            {theme === 'dark' ? '☀️' : '🌙'}
+          </button>
 
           {/* Hamburger */}
           <button onClick={() => setMenuOpen(!menuOpen)} className="mobile-nav" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '6px 10px', cursor: 'pointer', color: 'var(--text)', fontSize: '1.1rem', flexShrink: 0 }}>
