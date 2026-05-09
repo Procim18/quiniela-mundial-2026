@@ -217,7 +217,7 @@ export default function GruposPage() {
               border: '1px solid ' + (isActive ? 'rgba(244,197,66,0.4)' : 'rgba(255,255,255,0.07)'),
               borderRadius: 8, padding: '7px 14px', cursor: 'pointer',
               color: isActive ? 'var(--gold)' : 'var(--muted)',
-              fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.9rem', letterSpacing: '0.06em',
+              fontFamily: "'Bebas Neue', sans-serif", fontSize: '1rem', letterSpacing: '0.06em',
             }}>
               {g}
               <div style={{ fontSize: '0.55rem', color: done === 6 ? 'var(--green)' : 'var(--muted)', marginTop: 1 }}>{done}/6</div>
@@ -244,7 +244,7 @@ export default function GruposPage() {
             {/* Match header */}
             <div style={{ background: 'rgba(10,10,16,0.8)', borderRadius: '10px 10px 0 0', padding: '6px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: '1px solid rgba(255,255,255,0.06)', borderBottom: 'none' }}>
               <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-                <span style={{ fontSize: '0.68rem', color: 'var(--gold)', fontWeight: 700, fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.08em' }}>
+                <span style={{ fontSize: '0.78rem', color: 'var(--gold)', fontWeight: 700, fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.08em' }}>
                   {match.home.name} vs {match.away.name}
                 </span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.62rem', color: 'var(--muted)' }}>
@@ -275,8 +275,8 @@ export default function GruposPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <div style={{ flex: 1, textAlign: 'right' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6 }}>
-                      <span style={{ fontSize: '0.82rem', fontWeight: 600 }}>{match.home.name}</span>
-                      <span style={{ fontSize: '1rem' }}>{match.home.flag}</span>
+                      <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{match.home.name}</span>
+                      <span style={{ fontSize: '1.3rem' }}>{match.home.flag}</span>
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -285,19 +285,19 @@ export default function GruposPage() {
                       onBlur={() => handleBlur(match.id)}
                       disabled={locked}
                       placeholder="-"
-                      style={{ width: 36, height: 36, background: locked ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.06)', border: '1px solid ' + (locked ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.12)'), borderRadius: 6, textAlign: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.2rem', color: locked ? 'var(--muted)' : 'var(--text)', outline: 'none', cursor: locked ? 'not-allowed' : 'text' }} />
+                      style={{ width: 42, height: 42, background: locked ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.06)', border: '1px solid ' + (locked ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.12)'), borderRadius: 6, textAlign: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.3rem', color: locked ? 'var(--muted)' : 'var(--text)', outline: 'none', cursor: locked ? 'not-allowed' : 'text' }} />
                     <span style={{ color: 'rgba(255,255,255,0.3)', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1rem' }}>:</span>
                     <input type="number" min={0} max={20} value={pred.away_score}
                       onChange={e => updatePred(match.id, 'away', e.target.value)}
                       onBlur={() => handleBlur(match.id)}
                       disabled={locked}
                       placeholder="-"
-                      style={{ width: 36, height: 36, background: locked ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.06)', border: '1px solid ' + (locked ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.12)'), borderRadius: 6, textAlign: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.2rem', color: locked ? 'var(--muted)' : 'var(--text)', outline: 'none', cursor: locked ? 'not-allowed' : 'text' }} />
+                      style={{ width: 42, height: 42, background: locked ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.06)', border: '1px solid ' + (locked ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.12)'), borderRadius: 6, textAlign: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.3rem', color: locked ? 'var(--muted)' : 'var(--text)', outline: 'none', cursor: locked ? 'not-allowed' : 'text' }} />
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ fontSize: '1rem' }}>{match.away.flag}</span>
-                      <span style={{ fontSize: '0.82rem', fontWeight: 600 }}>{match.away.name}</span>
+                      <span style={{ fontSize: '1.3rem' }}>{match.away.flag}</span>
+                      <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{match.away.name}</span>
                     </div>
                   </div>
                 </div>
@@ -318,15 +318,15 @@ export default function GruposPage() {
                 {res && res.home_score !== null ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{ flex: 1, textAlign: 'right' }}>
-                      <span style={{ fontSize: '0.82rem', fontWeight: 600 }}>{match.home.name}</span>
+                      <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{match.home.name}</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <div style={{ width: 34, height: 34, background: 'rgba(244,197,66,0.1)', border: '1px solid rgba(244,197,66,0.3)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.2rem', color: 'var(--gold)', fontWeight: 700 }}>{res.home_score}</div>
+                      <div style={{ width: 40, height: 40, background: 'rgba(244,197,66,0.1)', border: '1px solid rgba(244,197,66,0.3)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.3rem', color: 'var(--gold)', fontWeight: 700 }}>{res.home_score}</div>
                       <span style={{ color: 'rgba(255,255,255,0.25)', fontFamily: "'Bebas Neue', sans-serif" }}>:</span>
-                      <div style={{ width: 34, height: 34, background: 'rgba(244,197,66,0.1)', border: '1px solid rgba(244,197,66,0.3)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.2rem', color: 'var(--gold)', fontWeight: 700 }}>{res.away_score}</div>
+                      <div style={{ width: 40, height: 40, background: 'rgba(244,197,66,0.1)', border: '1px solid rgba(244,197,66,0.3)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.3rem', color: 'var(--gold)', fontWeight: 700 }}>{res.away_score}</div>
                     </div>
                     <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: '0.82rem', fontWeight: 600 }}>{match.away.name}</span>
+                      <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{match.away.name}</span>
                     </div>
                   </div>
                 ) : (
