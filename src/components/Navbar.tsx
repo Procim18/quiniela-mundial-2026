@@ -13,6 +13,7 @@ export default function Navbar() {
     { href: '/eliminatorias', label: '🏆 Eliminatorias' },
     { href: '/clasificacion', label: '📊 Tabla' },
     { href: '/predicciones', label: '👁️ Predicciones' },
+    { href: '/estadisticas', label: '📈 Stats' },
   ]
 
   return (

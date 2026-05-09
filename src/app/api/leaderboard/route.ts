@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
-import { getGroupMatches, getOutcome, KNOCKOUT_POINTS, CHAMPION_POINTS } from '@/lib/data'
+import { getGroupMatches, getOutcome, CHAMPION_POINTS } from '@/lib/data'
+import { KNOCKOUT_PTS, ALL_KNOCKOUT_ROUNDS } from '@/lib/knockout'
 
 export async function GET() {
   const [
@@ -51,17 +52,17 @@ export async function GET() {
     const myKnockoutPreds = (knockoutPreds || []).filter(p => p.player_id === player.id)
     myKnockoutPreds.forEach(pred => {
       const result = knockoutResultsMap[pred.match_id]
-      if (!result) return
+      if (!result || !result.winner || !pred.winner) return
       const round = pred.match_id.split('_')[0]
-      const roundPts = KNOCKOUT_POINTS[round] || { exact: 3, winner: 1 }
-
-      // Check winner match (who advances)
-      const predWinner = pred.winner || (pred.home_score > pred.away_score ? pred.home_team : pred.away_team)
-      const realWinner = result.winner || (result.home_score > result.away_score ? result.home_team : result.away_team)
-
-      if (pred.home_score === result.home_score && pred.away_score === result.away_score && pred.home_team === result.home_team) {
+      const roundPts = KNOCKOUT_PTS[round] || { exact: 2, winner: 1 }
+      const predH = parseInt(pred.home_score)
+      const predA = parseInt(pred.away_score)
+      if (pred.home_team === result.home_team && pred.away_team === result.away_team &&
+          !isNaN(predH) && !isNaN(predA) &&
+          predH === result.home_score && predA === result.away_score &&
+          pred.winner === result.winner) {
         pts += roundPts.exact; exactKnockout++
-      } else if (predWinner === realWinner) {
+      } else if (pred.winner === result.winner) {
         pts += roundPts.winner; winnerKnockout++
       }
     })
