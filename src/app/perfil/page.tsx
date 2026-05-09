@@ -9,6 +9,8 @@ interface Score { username: string; pts: number; exactGroup: number; winnerGroup
 interface Pred { match_id: string; home_score: number | null; away_score: number | null }
 interface Result { match_id: string; home_score: number; away_score: number }
 
+const MEDAL_COLORS = ['#F4C542', '#C0C0C0', '#CD7F32']
+
 const AVATAR_COLORS = [
   'linear-gradient(135deg,#C89B1A,#F4C542)',
   'linear-gradient(135deg,#1A4FBF,#3B82F6)',
@@ -78,8 +80,6 @@ export default function PerfilPage() {
   })
   const played = exact + winner + fail
   const accuracy = played > 0 ? Math.round(((exact + winner) / played) * 100) : 0
-
-  const MEDAL_COLORS = ['#F4C542', '#C0C0C0', '#CD7F32']
 
   return (
     <div style={{ maxWidth: 760, margin: '0 auto', padding: '24px 16px 60px' }}>
