@@ -61,9 +61,15 @@ html, body {
   inset: 0;
   background-image: url('https://i.imgur.com/yFm5zGf.png');
   background-size: cover;
-  background-position: center top;
+  background-position: center center;
   filter: saturate(1.15) brightness(0.52) contrast(1.08);
   animation: kenBurns 20s ease-in-out infinite alternate;
+}
+
+@media (max-width: 768px) {
+  .bg-slide {
+    background-position: 60% center;
+  }
 }
 
 @keyframes kenBurns {
