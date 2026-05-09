@@ -49,7 +49,7 @@ export default function KnockoutPanel({ adminPass }: Props) {
           standings[g] = teams.map((t: any) => t.name)
         })
 
-        setGroupStandings(Object.fromEntries(Object.entries(standings).map(([g, teams]) => [g, teams])))
+        setGroupStandings(Object.fromEntries(Object.entries(standings).map(([g, teams]) => [g, teams.map((t: any) => t.name)])))
 
         // Calculate suggestions for R32
         const { ROUND_OF_32 } = require('@/lib/knockout')
