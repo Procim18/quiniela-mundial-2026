@@ -1,6 +1,8 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { getGroupMatches } from '@/lib/data'
+import { useAuth } from '@/lib/auth-context'
+import { useRouter } from 'next/navigation'
 
 interface Player { id: string; username: string }
 interface Pred { player_id: string; match_id: string; home_score: number | null; away_score: number | null }
@@ -18,6 +20,11 @@ const COLORS = [
 ]
 
 export default function EstadisticasPage() {
+  const { player: authPlayer, loading: authLoading } = useAuth()
+  const router = useRouter()
+  useEffect(() => {
+    if (!authLoading && !authPlayer) router.push('/login')
+  }, [authPlayer, authLoading])
   const [players, setPlayers] = useState<Player[]>([])
   const [preds, setPreds] = useState<Pred[]>([])
   const [results, setResults] = useState<Result[]>([])

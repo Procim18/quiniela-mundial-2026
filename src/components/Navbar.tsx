@@ -7,14 +7,15 @@ export default function Navbar() {
   const { player, logout } = useAuth()
   const path = usePathname()
 
-  const links = [
-    { href: '/', label: '🏠 Inicio' },
+  const publicLinks = [{ href: '/', label: '🏠 Inicio' }]
+  const privateLinks = [
     { href: '/grupos', label: '⚽ Grupos' },
     { href: '/eliminatorias', label: '🏆 Eliminatorias' },
     { href: '/clasificacion', label: '📊 Tabla' },
     { href: '/predicciones', label: '👁️ Predicciones' },
     { href: '/estadisticas', label: '📈 Stats' },
   ]
+  const links = player ? [...publicLinks, ...privateLinks] : publicLinks
 
   return (
     <nav style={{

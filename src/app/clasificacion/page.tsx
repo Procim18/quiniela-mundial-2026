@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 
 interface PlayerScore {
@@ -22,7 +23,12 @@ const COLORS = [
 ]
 
 export default function ClasificacionPage() {
-  const { player } = useAuth()
+  const { player, loading: authLoading } = useAuth()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!authLoading && !player) router.push('/login')
+  }, [player, authLoading])
   const [scores, setScores] = useState<PlayerScore[]>([])
   const [favorites, setFavorites] = useState<FavoriteTeam[]>([])
   const [favTotal, setFavTotal] = useState(0)

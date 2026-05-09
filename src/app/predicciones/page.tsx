@@ -1,6 +1,8 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { GROUPS, getGroupMatches, GroupMatch } from '@/lib/data'
+import { useAuth } from '@/lib/auth-context'
+import { useRouter } from 'next/navigation'
 
 interface Player { id: string; username: string }
 interface Pred { player_id: string; match_id: string; home_score: number | null; away_score: number | null }
@@ -31,6 +33,11 @@ const COLORS = [
 ]
 
 export default function PrediccionesPage() {
+  const { player: authPlayer, loading: authLoading } = useAuth()
+  const router = useRouter()
+  useEffect(() => {
+    if (!authLoading && !authPlayer) router.push('/login')
+  }, [authPlayer, authLoading])
   const [activeGroup, setActiveGroup] = useState('A')
   const [expandedMatch, setExpandedMatch] = useState<string | null>(null)
   const [players, setPlayers] = useState<Player[]>([])
