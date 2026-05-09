@@ -22,6 +22,20 @@ export default function GruposPage() {
   const prevResultsRef = useRef<Record<string, boolean>>({})
   const matches = getGroupMatches()
   const locked = isPastDeadline()
+  const [hoursLeft, setHoursLeft] = useState(0)
+  const [showDeadlineWarning, setShowDeadlineWarning] = useState(false)
+
+  useEffect(() => {
+    const update = () => {
+      const diff = new Date('2026-06-11T14:00:00-04:00').getTime() - Date.now()
+      const hours = diff / 3600000
+      setHoursLeft(Math.max(0, Math.floor(hours)))
+      setShowDeadlineWarning(hours > 0 && hours <= 24)
+    }
+    update()
+    const t = setInterval(update, 60000)
+    return () => clearInterval(t)
+  }, [])
 
   useEffect(() => {
     if (!loading && !player) router.push('/login')
@@ -100,6 +114,16 @@ export default function GruposPage() {
 
   return (
     <div style={{ maxWidth: 960, margin: '0 auto', padding: '32px 20px 60px' }}>
+      {showDeadlineWarning && !locked && (
+        <div style={{ marginBottom: 16, background: 'rgba(244,197,66,0.08)', border: '1px solid rgba(244,197,66,0.4)', borderRadius: 12, padding: '12px 18px', display: 'flex', alignItems: 'center', gap: 10, animation: 'borderGlow 2s ease-in-out infinite' }}>
+          <span style={{ fontSize: '1.3rem' }}>⚠️</span>
+          <div>
+            <span style={{ color: 'var(--gold)', fontWeight: 700, fontSize: '0.9rem' }}>Las predicciones cierran en {hoursLeft} horas</span>
+            <span style={{ color: 'var(--muted)', fontSize: '0.8rem', marginLeft: 8 }}>Asegurate de completar todos tus partidos antes del 11 Jun a las 14:00 ET</span>
+          </div>
+        </div>
+      )}
+
       {newResults.length > 0 && (
         <div style={{ position: 'fixed', top: 70, right: 20, zIndex: 999, background: 'rgba(46,204,113,0.15)', border: '1px solid rgba(46,204,113,0.4)', borderRadius: 12, padding: '12px 18px', backdropFilter: 'blur(12px)', animation: 'slideUp 0.3s ease', display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ fontSize: '1.2rem' }}>🆕</span>
