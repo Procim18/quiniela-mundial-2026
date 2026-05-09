@@ -1,20 +1,21 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 :root {
   --gold: #F4C542;
   --gold-dark: #C89B1A;
   --red: #D62828;
-  --dark: #0A0A0F;
-  --dark2: #111118;
-  --dark3: #1A1A25;
-  --dark4: #22222F;
-  --border: rgba(244, 197, 66, 0.15);
+  --dark: #050508;
+  --dark2: #0a0a10;
+  --dark3: #111118;
+  --dark4: #1a1a24;
+  --border: rgba(244,197,66,0.15);
   --border2: rgba(255,255,255,0.07);
   --text: #E8E8F0;
   --muted: #7878A0;
   --green: #2ECC71;
   --blue: #3B82F6;
   --purple: #8B5CF6;
+  --nike-red: #FF0000;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -24,17 +25,62 @@ html, body {
   color: var(--text);
   font-family: 'Outfit', sans-serif;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
-body::before {
-  content: '';
+.world-bg {
   position: fixed;
   inset: 0;
-  background:
-    radial-gradient(ellipse 80% 50% at 20% -10%, rgba(244,197,66,0.07) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 110%, rgba(214,40,40,0.06) 0%, transparent 60%);
-  pointer-events: none;
   z-index: 0;
+  overflow: hidden;
+}
+
+.world-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(5,5,8,0.72) 0%,
+    rgba(5,5,8,0.50) 35%,
+    rgba(5,5,8,0.55) 65%,
+    rgba(5,5,8,0.82) 100%
+  );
+  z-index: 1;
+}
+
+.bg-slides {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.bg-slide {
+  position: absolute;
+  inset: 0;
+  background-image: url('https://i.imgur.com/yFm5zGf.png');
+  background-size: cover;
+  background-position: center top;
+  filter: saturate(1.15) brightness(0.52) contrast(1.08);
+  animation: kenBurns 20s ease-in-out infinite alternate;
+}
+
+@keyframes kenBurns {
+  0% { transform: scale(1) translateX(0); }
+  100% { transform: scale(1.06) translateX(-1%); }
+}
+
+.nike-stripe {
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--gold), var(--nike-red), var(--gold), transparent);
+  animation: stripeSlide 3s linear infinite;
+  background-size: 200% 100%;
+}
+
+@keyframes stripeSlide {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 a { color: inherit; text-decoration: none; }
@@ -43,8 +89,8 @@ input[type=number]::-webkit-outer-spin-button,
 input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
 input[type=number] { -moz-appearance: textfield; }
 
-::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: var(--dark2); }
-::-webkit-scrollbar-thumb { background: var(--dark4); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: var(--dark4); border-radius: 2px; }
 
 .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
