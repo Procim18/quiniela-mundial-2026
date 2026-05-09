@@ -22,17 +22,6 @@ const COLORS = [
   'linear-gradient(135deg,#EC4899,#8B5CF6)',
 ]
 
-async function exportAsImage(elementId: string, filename: string) {
-  const html2canvas = (await import('html2canvas')).default
-  const el = document.getElementById(elementId)
-  if (!el) return
-  const canvas = await html2canvas(el, { backgroundColor: '#050508', scale: 2 })
-  const link = document.createElement('a')
-  link.download = filename
-  link.href = canvas.toDataURL('image/png')
-  link.click()
-}
-
 export default function ClasificacionPage() {
   const { player, loading: authLoading } = useAuth()
   const router = useRouter()
