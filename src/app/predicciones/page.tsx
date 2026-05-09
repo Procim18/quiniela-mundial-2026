@@ -42,7 +42,7 @@ export default function PrediccionesPage() {
   useEffect(() => {
     Promise.all([
       fetch('/api/players').then(r => r.json()),
-      fetch('/api/predictions/all').then(r => r.json()),
+      fetch('/api/predictions/all?t=' + Date.now()).then(r => r.json()),
       fetch('/api/results').then(r => r.json()),
     ]).then(([p, pr, rs]) => {
       setPlayers(p.data || [])
