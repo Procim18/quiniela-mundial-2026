@@ -5,6 +5,7 @@ export const dynamic = 'force-dynamic'
 
 export async function GET() {
   const { data, error } = await supabase.from('group_predictions').select('player_id, match_id, home_score, away_score')
+  console.log('predictions/all:', JSON.stringify({ data, error }))
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return new NextResponse(JSON.stringify({ data }), {
     headers: {
