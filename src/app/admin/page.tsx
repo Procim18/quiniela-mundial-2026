@@ -23,6 +23,9 @@ export default function AdminPage() {
   const [saving, setSaving] = useState<Record<string, boolean>>({})
   const [saved, setSaved] = useState<Record<string, boolean>>({})
   const [msg, setMsg] = useState('')
+  const [players, setPlayers] = useState<{id: string; username: string}[]>([])
+  const [resetPass, setResetPass] = useState<Record<string, string>>({})
+  const [resetMsg, setResetMsg] = useState<Record<string, string>>({})
 
   const groupMatches = getGroupMatches()
 
@@ -38,7 +41,14 @@ export default function AdminPage() {
     // Try posting a dummy - actually just verify via a dedicated check
     // We'll load results; if unauthorized the saves will fail
     loadResults()
+    loadPlayers()
     setAuthed(true)
+  }
+
+  const loadPlayers = async () => {
+    const res = await fetch('/api/players')
+    const { data } = await res.json()
+    setPlayers(data || [])
   }
 
   const loadResults = async () => {
@@ -169,7 +179,7 @@ export default function AdminPage() {
 
       {/* Tab selector */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
-        {['grupos', 'eliminatorias', 'campeon'].map(t => (
+        {['grupos', 'eliminatorias', 'campeon', 'usuarios'].map(t => (
           <button key={t} onClick={() => setActiveTab(t)} style={{
             background: activeTab === t ? 'rgba(214,40,40,0.15)' : 'var(--dark3)',
             border: `1px solid ${activeTab === t ? 'rgba(214,40,40,0.4)' : 'var(--border)'}`,
@@ -177,7 +187,7 @@ export default function AdminPage() {
             borderRadius: 10, padding: '8px 20px', cursor: 'pointer',
             fontFamily: "'Bebas Neue', sans-serif", fontSize: '1rem', letterSpacing: '0.06em',
           }}>
-            {t === 'grupos' ? '⚽ Grupos' : t === 'eliminatorias' ? '🏆 Eliminatorias' : '👑 Campeón'}
+            {t === 'grupos' ? '⚽ Grupos' : t === 'eliminatorias' ? '🏆 Eliminatorias' : t === 'campeon' ? '👑 Campeon' : '👥 Usuarios'}
           </button>
         ))}
       </div>
@@ -293,6 +303,55 @@ export default function AdminPage() {
               </div>
             )
           })}
+        </div>
+      )}
+
+      {/* USUARIOS */}
+      {activeTab === 'usuarios' && (
+        <div>
+          <div style={{ background: 'rgba(17,17,24,0.8)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, overflow: 'hidden' }}>
+            <div style={{ padding: '14px 20px', background: 'rgba(255,255,255,0.03)', fontSize: '0.7rem', color: 'var(--muted)', letterSpacing: '0.12em', textTransform: 'uppercase', display: 'grid', gridTemplateColumns: '1fr 200px 120px', gap: 12 }}>
+              <span>Usuario</span><span>Nueva contrasena</span><span></span>
+            </div>
+            {players.map((p, i) => (
+              <div key={p.id} style={{ display: 'grid', gridTemplateColumns: '1fr 200px 120px', gap: 12, padding: '12px 20px', borderTop: '1px solid rgba(255,255,255,0.05)', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg, var(--gold), var(--red))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.9rem', color: 'var(--dark)' }}>
+                    {p.username.charAt(0).toUpperCase()}
+                  </div>
+                  <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{p.username}</span>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Nueva contrasena..."
+                  value={resetPass[p.id] || ''}
+                  onChange={e => setResetPass(r => ({ ...r, [p.id]: e.target.value }))}
+                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 12px', color: 'var(--text)', fontFamily: "'Outfit', sans-serif", fontSize: '0.85rem', outline: 'none' }}
+                />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <button onClick={async () => {
+                    const pass = resetPass[p.id]
+                    if (!pass || pass.length < 4) { setResetMsg(m => ({ ...m, [p.id]: 'Min 4 caracteres' })); return }
+                    const res = await fetch('/api/admin/reset-password', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json', 'x-admin-password': adminPass },
+                      body: JSON.stringify({ player_id: p.id, new_password: pass }),
+                    })
+                    if (res.ok) {
+                      setResetMsg(m => ({ ...m, [p.id]: 'Contrasena cambiada' }))
+                      setResetPass(r => ({ ...r, [p.id]: '' }))
+                    } else {
+                      setResetMsg(m => ({ ...m, [p.id]: 'Error' }))
+                    }
+                    setTimeout(() => setResetMsg(m => ({ ...m, [p.id]: '' })), 3000)
+                  }} style={{ background: 'rgba(46,204,113,0.15)', border: '1px solid rgba(46,204,113,0.3)', color: 'var(--green)', borderRadius: 8, padding: '6px 12px', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600 }}>
+                    Resetear
+                  </button>
+                  {resetMsg[p.id] && <span style={{ fontSize: '0.72rem', color: resetMsg[p.id] === 'Contrasena cambiada' ? 'var(--green)' : '#FF6B6B' }}>{resetMsg[p.id]}</span>}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
