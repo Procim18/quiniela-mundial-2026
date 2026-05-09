@@ -69,7 +69,6 @@ export default function Navbar() {
     { href: '/predicciones', label: 'Predicciones', icon: Icons.eye },
     { href: '/estadisticas', label: 'Estadísticas', icon: Icons.chart },
     { href: '/historial', label: 'Historial', icon: Icons.history },
-    { href: '/chat', label: 'Chat', icon: Icons.chat },
     { href: '/perfil', label: 'Perfil', icon: Icons.user },
     { href: '/reglas', label: 'Reglas', icon: Icons.rules },
   ]
