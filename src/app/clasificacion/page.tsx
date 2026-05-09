@@ -67,7 +67,7 @@ export default function ClasificacionPage() {
   const medals = ['🥈', '🥇', '🥉']
 
   return (
-    <div style={{ maxWidth: 960, margin: '0 auto', padding: '32px 20px 60px' }}>
+    <div id="tabla-export" style={{ maxWidth: 960, margin: '0 auto', padding: '32px 20px 60px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28, flexWrap: 'wrap', gap: 12 }}>
         <div>
           <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2.5rem', color: 'var(--gold)', letterSpacing: '0.06em' }}>Clasificacion</h1>
@@ -187,7 +187,5 @@ export default function ClasificacionPage() {
         </>
       )}
     </div>
-    </div>
-      </div>
   )
 }
