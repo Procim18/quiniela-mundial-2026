@@ -66,18 +66,15 @@ export default function PerfilPage() {
   const myPreds = preds.filter(p => p.home_score !== null && p.away_score !== null)
   const predPct = Math.round((myPreds.length / matches.length) * 100)
 
-  let exact = 0, winner = 0, fail = 0
-  myPreds.forEach(pred => {
+  const { exact, winner, fail } = myPreds.reduce((acc, pred) => {
     const res = playedMatches.find(r => r.match_id === pred.match_id)
-    if (!res) return
-    if (pred.home_score === res.home_score && pred.away_score === res.away_score) exact++
-    else {
-      const po = pred.home_score! > pred.away_score! ? 'H' : pred.away_score! > pred.home_score! ? 'A' : 'D'
-      const ro = res.home_score > res.away_score ? 'H' : res.away_score > res.home_score ? 'A' : 'D'
-      if (po === ro) winner++
-      else fail++
-    }
-  })
+    if (!res) return acc
+    if (pred.home_score === res.home_score && pred.away_score === res.away_score) return { ...acc, exact: acc.exact + 1 }
+    const po = pred.home_score! > pred.away_score! ? 'H' : pred.away_score! > pred.home_score! ? 'A' : 'D'
+    const ro = res.home_score > res.away_score ? 'H' : res.away_score > res.home_score ? 'A' : 'D'
+    if (po === ro) return { ...acc, winner: acc.winner + 1 }
+    return { ...acc, fail: acc.fail + 1 }
+  }, { exact: 0, winner: 0, fail: 0 })
   const played = exact + winner + fail
   const accuracy = played > 0 ? Math.round(((exact + winner) / played) * 100) : 0
 
