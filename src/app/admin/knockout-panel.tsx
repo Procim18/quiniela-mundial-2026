@@ -17,8 +17,60 @@ export default function KnockoutPanel({ adminPass }: Props) {
   const [msg, setMsg] = useState('')
 
   const uniqueTeams = ALL_TEAMS.filter((t, i, arr) => arr.findIndex(x => x.name === t.name) === i)
+  const [groupStandings, setGroupStandings] = useState<Record<string, string[]>>({})
+  const [suggestions, setSuggestions] = useState<Record<string, {home: string, away: string}>>({})
 
   useEffect(() => {
+    // Load group results to calculate standings
+    fetch('/api/results')
+      .then(r => r.json()).then(({ data }) => {
+        if (!data) return
+        const { GROUPS, getGroupMatches } = require('@/lib/data')
+        const matches = getGroupMatches()
+        const standings: Record<string, {name: string; pts: number; gd: number; gf: number}[]> = {}
+
+        Object.keys(GROUPS).forEach(g => {
+          const teams = GROUPS[g].map((t: any) => ({ name: t.name, pts: 0, gd: 0, gf: 0 }))
+          const gMatches = matches.filter((m: any) => m.group === g)
+          gMatches.forEach((m: any) => {
+            const res = data.find((r: any) => r.match_id === m.id)
+            if (!res || res.home_score === null) return
+            const h = res.home_score, a = res.away_score
+            const hi = teams.findIndex((t: any) => t.name === m.home.name)
+            const ai = teams.findIndex((t: any) => t.name === m.away.name)
+            if (hi === -1 || ai === -1) return
+            teams[hi].gf += h; teams[hi].gd += h - a
+            teams[ai].gf += a; teams[ai].gd += a - h
+            if (h > a) { teams[hi].pts += 3 }
+            else if (a > h) { teams[ai].pts += 3 }
+            else { teams[hi].pts += 1; teams[ai].pts += 1 }
+          })
+          teams.sort((a: any, b: any) => b.pts - a.pts || b.gd - a.gd || b.gf - a.gf)
+          standings[g] = teams.map((t: any) => t.name)
+        })
+
+        setGroupStandings(Object.fromEntries(Object.entries(standings).map(([g, teams]) => [g, teams])))
+
+        // Calculate suggestions for R32
+        const { ROUND_OF_32 } = require('@/lib/knockout')
+        const sugg: Record<string, {home: string, away: string}> = {}
+        ROUND_OF_32.forEach((match: any) => {
+          const getTeam = (desc: string) => {
+            const m = desc.match(/^([12])[°º]([A-L])$/)
+            if (m) {
+              const pos = parseInt(m[1]) - 1
+              const group = m[2]
+              return standings[group]?.[pos] || ''
+            }
+            return ''
+          }
+          const home = getTeam(match.homeDesc)
+          const away = getTeam(match.awayDesc)
+          if (home || away) sugg[match.id] = { home, away }
+        })
+        setSuggestions(sugg)
+      })
+
     fetch('/api/knockout?type=results')
       .then(r => r.json()).then(({ data }) => {
         const map: ResultMap = {}
@@ -62,6 +114,12 @@ export default function KnockoutPanel({ adminPass }: Props) {
 
   const currentRound = ALL_KNOCKOUT_ROUNDS.find(r => r.id === activeRound)
 
+  const applySuggestion = (matchId: string) => {
+    const sugg = suggestions[matchId]
+    if (!sugg) return
+    setResults(r => ({ ...r, [matchId]: { ...(r[matchId] || {}), home_team: sugg.home, away_team: sugg.away } }))
+  }
+
   return (
     <div>
       {msg && <div style={{ marginBottom: 12, background: 'rgba(214,40,40,0.12)', border: '1px solid rgba(214,40,40,0.3)', borderRadius: 8, padding: '8px 14px', color: '#FF6B6B', fontSize: '0.85rem' }}>{msg}</div>}
@@ -94,6 +152,11 @@ export default function KnockoutPanel({ adminPass }: Props) {
             </div>
 
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'flex-end' }}>
+              {suggestions[match.id] && (activeRound === 'R32') && (
+                <button onClick={() => applySuggestion(match.id)} style={{ background: 'rgba(46,204,113,0.1)', border: '1px solid rgba(46,204,113,0.3)', color: 'var(--green)', borderRadius: 8, padding: '6px 12px', cursor: 'pointer', fontSize: '0.78rem', marginBottom: 8, display: 'block' }}>
+                  ✨ Sugerir: {suggestions[match.id].home} vs {suggestions[match.id].away}
+                </button>
+              )}
               <select value={res.home_team || ''} onChange={e => updateResult(match.id, 'home_team', e.target.value)}
                 style={{ background: 'rgba(214,40,40,0.1)', border: '1px solid rgba(214,40,40,0.3)', borderRadius: 8, padding: '8px', color: 'var(--text)', fontFamily: "'Outfit', sans-serif", fontSize: '0.85rem', outline: 'none', minWidth: 140 }}>
                 <option value="">Local...</option>

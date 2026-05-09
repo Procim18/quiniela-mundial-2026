@@ -15,10 +15,12 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ data })
   }
 
-  if (type === 'predictions' && playerId) {
-    const { data, error } = await supabase.from('knockout_predictions').select('*').eq('player_id', playerId)
+  if (type === 'predictions') {
+    const query = supabase.from('knockout_predictions').select('*')
+    if (playerId) query.eq('player_id', playerId)
+    const { data, error } = await query
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    return NextResponse.json({ data })
+    return NextResponse.json({ data }, { headers: { 'Cache-Control': 'no-store' } })
   }
 
   return NextResponse.json({ error: 'Faltan parametros' }, { status: 400 })
