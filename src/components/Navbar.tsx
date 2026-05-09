@@ -46,6 +46,7 @@ export default function Navbar() {
     { href: '/predicciones', label: '👁️ Predicciones' },
     { href: '/estadisticas', label: '📈 Stats' },
     { href: '/chat', label: '💬 Chat' },
+    { href: '/perfil', label: '👤 Perfil' },
   ]
   const links = player ? [...publicLinks, ...privateLinks] : publicLinks
 
