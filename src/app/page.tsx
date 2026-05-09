@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import Deadlines from '@/components/Deadlines'
 import { useAuth } from '@/lib/auth-context'
 import { DEADLINE } from '@/lib/data'
 
