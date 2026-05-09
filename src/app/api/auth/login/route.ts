@@ -24,6 +24,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Contraseña incorrecta' }, { status: 401 })
   }
 
+  if (!player.is_active) {
+    return NextResponse.json({ error: 'Tu cuenta esta pendiente de activacion. Contacta al admin para activarla.' }, { status: 403 })
+  }
+
   return NextResponse.json({
     player: { id: player.id, username: player.username, is_admin: player.is_admin }
   })
