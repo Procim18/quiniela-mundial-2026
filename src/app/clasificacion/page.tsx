@@ -66,16 +66,7 @@ export default function ClasificacionPage() {
           <button onClick={load} style={{ background: 'rgba(17,17,24,0.8)', border: '1px solid rgba(255,255,255,0.08)', color: 'var(--text)', borderRadius: 10, padding: '8px 18px', cursor: 'pointer', fontFamily: "'Outfit', sans-serif", fontSize: '0.85rem' }}>
             Actualizar
           </button>
-          <button onClick={async () => {
-            const el = document.getElementById('tabla-export')
-            if (!el) return
-            const { default: domtoimage } = await import('https://cdn.jsdelivr.net/npm/dom-to-image@2.6.0/src/dom-to-image.min.js' as any)
-            const dataUrl = await domtoimage.toPng(el, { bgcolor: '#050508', width: el.offsetWidth * 2, height: el.offsetHeight * 2, style: { transform: 'scale(2)', transformOrigin: 'top left' } })
-            const link = document.createElement('a')
-            link.download = 'quiniela-mundial-2026.png'
-            link.href = dataUrl
-            link.click()
-          }} style={{ background: 'rgba(244,197,66,0.1)', border: '1px solid rgba(244,197,66,0.3)', color: 'var(--gold)', borderRadius: 10, padding: '8px 18px', cursor: 'pointer', fontFamily: "'Outfit', sans-serif", fontSize: '0.85rem' }}>
+          <button onClick={() => window.print()} style={{ background: 'rgba(244,197,66,0.1)', border: '1px solid rgba(244,197,66,0.3)', color: 'var(--gold)', borderRadius: 10, padding: '8px 18px', cursor: 'pointer', fontFamily: "'Outfit', sans-serif", fontSize: '0.85rem' }}>
             📸 Exportar
           </button>
         </div>
