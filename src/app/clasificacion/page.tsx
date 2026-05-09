@@ -22,6 +22,8 @@ const COLORS = [
   'linear-gradient(135deg,#EC4899,#8B5CF6)',
 ]
 
+interface Score { username: string; pts: number; exactGroup: number; winnerGroup: number; exactKnockout: number; winnerKnockout: number; champPts: number }
+
 export default function ClasificacionPage() {
   const { player, loading: authLoading } = useAuth()
   const router = useRouter()
