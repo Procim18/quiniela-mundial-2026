@@ -17,6 +17,7 @@ export default function GruposPage() {
   const [results, setResults] = useState<ResultMap>({})
   const [saving, setSaving] = useState<SavedMap>({})
   const [saved, setSaved] = useState<SavedMap>({})
+  const [miniRanking, setMiniRanking] = useState<{username: string; pts: number}[]>([])
   const [editing, setEditing] = useState<SavedMap>({})
   const [newResults, setNewResults] = useState<string[]>([])
   const prevResultsRef = useRef<Record<string, boolean>>({})
@@ -43,6 +44,10 @@ export default function GruposPage() {
 
   useEffect(() => {
     if (!player) return
+    fetch('/api/leaderboard?t=' + Date.now(), { cache: 'no-store' })
+      .then(r => r.json()).then(({ data }) => {
+        if (data) setMiniRanking(data.slice(0, 5).map((p: any) => ({ username: p.username, pts: p.pts })))
+      })
     fetch('/api/predictions?player_id=' + player.id)
       .then(r => r.json()).then(({ data }) => {
         const map: PredMap = {}
@@ -114,6 +119,22 @@ export default function GruposPage() {
 
   return (
     <div style={{ maxWidth: 960, margin: '0 auto', padding: '32px 20px 60px' }}>
+      {/* Mini ranking */}
+      {miniRanking.length > 0 && miniRanking.some(p => p.pts > 0) && (
+        <div style={{ background: 'rgba(17,17,24,0.8)', border: '1px solid rgba(244,197,66,0.15)', borderRadius: 12, padding: '12px 16px', marginBottom: 16, backdropFilter: 'blur(12px)' }}>
+          <div style={{ fontSize: '0.68rem', color: 'var(--muted)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 10 }}>🏆 Top 5 ahora</div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {miniRanking.map((p, i) => (
+              <div key={p.username} style={{ display: 'flex', alignItems: 'center', gap: 6, background: p.username === player?.username ? 'rgba(244,197,66,0.1)' : 'rgba(255,255,255,0.04)', borderRadius: 8, padding: '5px 10px', border: '1px solid ' + (p.username === player?.username ? 'rgba(244,197,66,0.3)' : 'rgba(255,255,255,0.06)') }}>
+                <span style={{ fontSize: '0.7rem', color: 'var(--muted)', fontFamily: "'Bebas Neue', sans-serif" }}>#{i+1}</span>
+                <span style={{ fontSize: '0.78rem', fontWeight: 600, color: p.username === player?.username ? 'var(--gold)' : 'var(--text)' }}>{p.username}</span>
+                <span style={{ fontSize: '0.78rem', color: 'var(--gold)', fontFamily: "'Bebas Neue', sans-serif" }}>{p.pts}pts</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {showDeadlineWarning && !locked && (
         <div style={{ marginBottom: 16, background: 'rgba(244,197,66,0.08)', border: '1px solid rgba(244,197,66,0.4)', borderRadius: 12, padding: '12px 18px', display: 'flex', alignItems: 'center', gap: 10, animation: 'borderGlow 2s ease-in-out infinite' }}>
           <span style={{ fontSize: '1.3rem' }}>⚠️</span>
