@@ -36,6 +36,8 @@ export default function ClasificacionPage() {
   const [favTotal, setFavTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
+  const [prevRanks, setPrevRanks] = useState<Record<string, number>>({})
+  const [movers, setMovers] = useState<Record<string, number>>({})
 
   const load = async () => {
     setLoading(true)
