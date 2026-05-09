@@ -60,7 +60,7 @@ export default function KnockoutPanel({ adminPass }: Props) {
             if (m) {
               const pos = parseInt(m[1]) - 1
               const group = m[2]
-              return standings[group]?.[pos] || ''
+              return (standings[group]?.[pos] as any)?.name || standings[group]?.[pos] || ''
             }
             return ''
           }
