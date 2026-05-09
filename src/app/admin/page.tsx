@@ -341,11 +341,11 @@ export default function AdminPage() {
       {activeTab === 'usuarios' && (
         <div>
           <div style={{ background: 'rgba(17,17,24,0.8)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, overflow: 'hidden' }}>
-            <div style={{ padding: '14px 20px', background: 'rgba(255,255,255,0.03)', fontSize: '0.7rem', color: 'var(--muted)', letterSpacing: '0.12em', textTransform: 'uppercase', display: 'grid', gridTemplateColumns: '1fr 200px 120px', gap: 12 }}>
-              <span>Usuario</span><span>Nueva contrasena</span><span></span>
+            <div style={{ padding: '14px 20px', background: 'rgba(255,255,255,0.03)', fontSize: '0.7rem', color: 'var(--muted)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+              Usuarios registrados
             </div>
             {players.map((p, i) => (
-              <div key={p.id} style={{ display: 'grid', gridTemplateColumns: '1fr 200px 120px', gap: 12, padding: '12px 20px', borderTop: '1px solid rgba(255,255,255,0.05)', alignItems: 'center' }}>
+              <div key={p.id} style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: '16px 20px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg, var(--gold), var(--red))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.9rem', color: 'var(--dark)' }}>
                     {p.username.charAt(0).toUpperCase()}
