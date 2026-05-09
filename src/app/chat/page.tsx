@@ -51,10 +51,20 @@ export default function ChatPage() {
     if (!loading && !player) router.push('/login')
   }, [player, loading])
 
+  const [hasNew, setHasNew] = useState(false)
+  const lastCountRef = useRef(0)
+
   const loadMessages = useCallback(async () => {
     const res = await fetch('/api/chat?t=' + Date.now(), { cache: 'no-store' })
     const { data } = await res.json()
-    if (data) setMessages(data)
+    if (data) {
+      if (lastCountRef.current > 0 && data.length > lastCountRef.current) {
+        setHasNew(true)
+        setTimeout(() => setHasNew(false), 3000)
+      }
+      lastCountRef.current = data.length
+      setMessages(data)
+    }
   }, [])
 
   useEffect(() => {
@@ -93,9 +103,16 @@ export default function ChatPage() {
     <div style={{ maxWidth: 700, margin: '0 auto', padding: '24px 16px 0', display: 'flex', flexDirection: 'column', height: 'calc(100vh - 60px)' }}>
 
       <div style={{ marginBottom: 16, flexShrink: 0 }}>
-        <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2rem', color: 'var(--gold)', letterSpacing: '0.06em' }}>
-          💬 Chat
-        </h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2rem', color: 'var(--gold)', letterSpacing: '0.06em' }}>
+            💬 Chat
+          </h1>
+          {hasNew && (
+            <div style={{ background: 'rgba(46,204,113,0.15)', border: '1px solid rgba(46,204,113,0.4)', borderRadius: 8, padding: '4px 10px', fontSize: '0.75rem', color: 'var(--green)', animation: 'slideUp 0.3s ease' }}>
+              🆕 Nuevo mensaje
+            </div>
+          )}
+        </div>
         <p style={{ color: 'var(--muted)', fontSize: '0.8rem', marginTop: 2 }}>
           Habla con tus amigos de la quiniela. Se actualiza cada 5 segundos.
         </p>

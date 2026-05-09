@@ -227,6 +227,23 @@ export default function HomePage() {
           )}
         </div>
 
+        {/* How to join - only for non-logged users */}
+        {!player && (
+          <div style={{ marginTop: 40, display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center', animation: 'slideUp 0.8s ease 1.2s both', maxWidth: 600 }}>
+            {[
+              { n: '1', icon: '📝', label: 'Regístrate', desc: 'Crea tu cuenta en segundos' },
+              { n: '2', icon: '⚽', label: 'Predice', desc: 'Llena los 72 partidos de grupos' },
+              { n: '3', icon: '🏆', label: 'Compite', desc: 'Gana puntos y sube en la tabla' },
+            ].map(s => (
+              <div key={s.n} style={{ background: 'rgba(17,17,24,0.7)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '16px 20px', textAlign: 'center', minWidth: 140, backdropFilter: 'blur(10px)' }}>
+                <div style={{ fontSize: '1.8rem', marginBottom: 6 }}>{s.icon}</div>
+                <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1rem', color: 'var(--gold)', letterSpacing: '0.06em' }}>{s.label}</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: 3 }}>{s.desc}</div>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Stats bar */}
         <div style={{ marginTop: 48, display: 'flex', gap: 24, justifyContent: 'center', flexWrap: 'wrap', animation: 'slideUp 0.8s ease 1.2s both' }}>
           {[

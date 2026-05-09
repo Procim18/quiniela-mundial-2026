@@ -5,6 +5,12 @@ import Navbar from '@/components/Navbar'
 
 export const metadata: Metadata = {
   title: 'Quiniela Mundial 2026',
+  description: 'Predice los resultados del Mundial 2026',
+  icons: { icon: '/favicon.svg' },
+}
+
+const __unused: Metadata = {
+  title: 'Quiniela Mundial 2026',
   description: 'La quiniela del Mundial 2026',
 }
 
