@@ -287,12 +287,12 @@ export default function EliminatoriasPage() {
                             <div style={{ fontSize: '0.6rem', color: 'var(--muted)', marginBottom: 3, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Avanza</div>
                             <div style={{ display: 'flex', gap: 5 }}>
                               <button onClick={() => { updatePred(match.id, 'winner', res.home_team); setTimeout(() => handleBlur(match.id), 100) }} disabled={roundLocked}
-                                style={{ flex: 1, padding: '5px 6px', borderRadius: 6, border: '1px solid ' + (pred.winner === res.home_team ? 'rgba(244,197,66,0.5)' : 'rgba(255,255,255,0.1)'), background: pred.winner === res.home_team ? 'rgba(244,197,66,0.12)' : 'rgba(255,255,255,0.04)', color: pred.winner === res.home_team ? 'var(--gold)' : 'var(--muted)', cursor: roundLocked ? 'not-allowed' : 'pointer', fontSize: '0.7rem', fontWeight: 600, textAlign: 'center' }}>
-                                {getFlag(res.home_team)}
+                                style={{ flex: 1, padding: '5px 8px', borderRadius: 6, border: '1px solid ' + (pred.winner === res.home_team ? 'rgba(244,197,66,0.5)' : 'rgba(255,255,255,0.1)'), background: pred.winner === res.home_team ? 'rgba(244,197,66,0.12)' : 'rgba(255,255,255,0.04)', color: pred.winner === res.home_team ? 'var(--gold)' : 'var(--muted)', cursor: roundLocked ? 'not-allowed' : 'pointer', fontSize: '0.68rem', fontWeight: 600, textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                                <span>{getFlag(res.home_team)}</span><span>{res.home_team}</span>
                               </button>
                               <button onClick={() => { updatePred(match.id, 'winner', res.away_team); setTimeout(() => handleBlur(match.id), 100) }} disabled={roundLocked}
-                                style={{ flex: 1, padding: '5px 6px', borderRadius: 6, border: '1px solid ' + (pred.winner === res.away_team ? 'rgba(244,197,66,0.5)' : 'rgba(255,255,255,0.1)'), background: pred.winner === res.away_team ? 'rgba(244,197,66,0.12)' : 'rgba(255,255,255,0.04)', color: pred.winner === res.away_team ? 'var(--gold)' : 'var(--muted)', cursor: roundLocked ? 'not-allowed' : 'pointer', fontSize: '0.7rem', fontWeight: 600, textAlign: 'center' }}>
-                                {getFlag(res.away_team)}
+                                style={{ flex: 1, padding: '5px 8px', borderRadius: 6, border: '1px solid ' + (pred.winner === res.away_team ? 'rgba(244,197,66,0.5)' : 'rgba(255,255,255,0.1)'), background: pred.winner === res.away_team ? 'rgba(244,197,66,0.12)' : 'rgba(255,255,255,0.04)', color: pred.winner === res.away_team ? 'var(--gold)' : 'var(--muted)', cursor: roundLocked ? 'not-allowed' : 'pointer', fontSize: '0.68rem', fontWeight: 600, textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                                <span>{getFlag(res.away_team)}</span><span>{res.away_team}</span>
                               </button>
                             </div>
                           </div>
