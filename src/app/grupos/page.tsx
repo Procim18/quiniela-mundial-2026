@@ -18,6 +18,8 @@ export default function GruposPage() {
   const [saving, setSaving] = useState<SavedMap>({})
   const [saved, setSaved] = useState<SavedMap>({})
   const [editing, setEditing] = useState<SavedMap>({})
+  const [newResults, setNewResults] = useState<string[]>([])
+  const prevResultsRef = useRef<Record<string, boolean>>({})
   const matches = getGroupMatches()
   const locked = isPastDeadline()
 
@@ -98,6 +100,12 @@ export default function GruposPage() {
 
   return (
     <div style={{ maxWidth: 960, margin: '0 auto', padding: '32px 20px 60px' }}>
+      {newResults.length > 0 && (
+        <div style={{ position: 'fixed', top: 70, right: 20, zIndex: 999, background: 'rgba(46,204,113,0.15)', border: '1px solid rgba(46,204,113,0.4)', borderRadius: 12, padding: '12px 18px', backdropFilter: 'blur(12px)', animation: 'slideUp 0.3s ease', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontSize: '1.2rem' }}>🆕</span>
+          <span style={{ color: 'var(--green)', fontWeight: 600, fontSize: '0.88rem' }}>Nuevo resultado disponible</span>
+        </div>
+      )}
       <div style={{ marginBottom: 24 }}>
         <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2.5rem', color: 'var(--gold)', letterSpacing: '0.06em' }}>
           Fase de Grupos
