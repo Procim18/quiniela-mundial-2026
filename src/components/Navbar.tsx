@@ -47,6 +47,7 @@ export default function Navbar() {
     { href: '/estadisticas', label: '📈 Stats' },
     { href: '/chat', label: '💬 Chat' },
     { href: '/perfil', label: '👤 Perfil' },
+    { href: '/historial', label: '📈 Historial' },
   ]
   const links = player ? [...publicLinks, ...privateLinks] : publicLinks
 
