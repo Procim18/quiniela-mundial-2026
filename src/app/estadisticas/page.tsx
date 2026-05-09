@@ -33,9 +33,9 @@ export default function EstadisticasPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/players').then(r => r.json()),
-      fetch('/api/predictions/all?t=' + Date.now()).then(r => r.json()),
-      fetch('/api/results').then(r => r.json()),
+      fetch('/api/players?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
+      fetch('/api/predictions/all?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
+      fetch('/api/results?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
     ]).then(([p, pr, rs]) => {
       setPlayers(p.data || [])
       setPreds(pr.data || [])
