@@ -4,7 +4,7 @@ import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 import { ALL_KNOCKOUT_ROUNDS, KNOCKOUT_PTS, KnockoutMatch } from '@/lib/knockout'
 import { GROUPS, getGroupMatches } from '@/lib/data'
-import { ALL_TEAMS } from '@/lib/data'
+import { ALL_TEAMS, isRoundLocked, DEADLINES } from '@/lib/data'
 
 type KnockPred = { home_team: string; away_team: string; home_score: string; away_score: string; winner: string }
 type KnockResult = { home_team: string; away_team: string; home_score: number | null; away_score: number | null; winner: string }
@@ -110,6 +110,7 @@ export default function EliminatoriasPage() {
   }
 
   const uniqueTeams = ALL_TEAMS.filter((t, i, arr) => arr.findIndex(x => x.name === t.name) === i)
+  const roundLocked = activeRound === 'CHAMPION' ? isRoundLocked('campeon') : isRoundLocked(activeRound)
 
   if (loading || !player) return null
 
@@ -209,6 +210,11 @@ export default function EliminatoriasPage() {
           <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.8rem', color: 'var(--text)', marginBottom: 6, letterSpacing: '0.04em' }}>
             {currentRound.label}
           </h2>
+          {roundLocked && (
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(214,40,40,0.1)', border: '1px solid rgba(214,40,40,0.3)', borderRadius: 8, padding: '6px 14px', marginBottom: 12, fontSize: '0.82rem', color: '#FF6B6B' }}>
+              🔒 Predicciones cerradas para esta ronda
+            </div>
+          )}
           <p style={{ color: 'var(--muted)', fontSize: '0.8rem', marginBottom: 20 }}>
             {activeRound === 'R32' ? '28 Jun – 3 Jul · Los equipos se asignan al terminar la fase de grupos' :
              activeRound === 'R16' ? '4–7 Jul · Octavos de Final' :
@@ -255,12 +261,12 @@ export default function EliminatoriasPage() {
                   <div style={{ background: 'rgba(17,17,24,0.75)', border: '1px solid rgba(255,255,255,0.07)', borderRight: 'none', borderTop: 'none', borderRadius: '0 0 0 12px', padding: '14px 12px' }}>
                     <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
                       <select value={pred.home_team} onChange={e => updatePred(match.id, 'home_team', e.target.value)} onBlur={() => handleBlurPred(match.id)}
-                        style={{ flex: 1, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '6px 8px', color: 'var(--text)', fontFamily: "'Outfit', sans-serif", fontSize: '0.78rem', outline: 'none' }}>
+                        disabled={roundLocked} style={{ flex: 1, background: roundLocked ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '6px 8px', color: roundLocked ? 'var(--muted)' : 'var(--text)', fontFamily: "'Outfit', sans-serif", fontSize: '0.78rem', outline: 'none', cursor: roundLocked ? 'not-allowed' : 'default' }}>
                         <option value="">Local...</option>
                         {uniqueTeams.map(t => <option key={t.name} value={t.name}>{t.flag} {t.name}</option>)}
                       </select>
                       <select value={pred.away_team} onChange={e => updatePred(match.id, 'away_team', e.target.value)} onBlur={() => handleBlurPred(match.id)}
-                        style={{ flex: 1, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '6px 8px', color: 'var(--text)', fontFamily: "'Outfit', sans-serif", fontSize: '0.78rem', outline: 'none' }}>
+                        disabled={roundLocked} style={{ flex: 1, background: roundLocked ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '6px 8px', color: roundLocked ? 'var(--muted)' : 'var(--text)', fontFamily: "'Outfit', sans-serif", fontSize: '0.78rem', outline: 'none', cursor: roundLocked ? 'not-allowed' : 'default' }}>
                         <option value="">Visitante...</option>
                         {uniqueTeams.map(t => <option key={t.name} value={t.name}>{t.flag} {t.name}</option>)}
                       </select>

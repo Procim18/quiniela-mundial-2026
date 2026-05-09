@@ -227,10 +227,27 @@ export const KNOCKOUT_POINTS: Record<string, { exact: number; winner: number }> 
 }
 
 export const CHAMPION_POINTS = 10
-export const DEADLINE = new Date('2026-06-11T00:00:00')
+export const DEADLINES: Record<string, Date> = {
+  grupos:  new Date('2026-06-11T14:00:00-04:00'),
+  R32:     new Date('2026-06-28T14:00:00-04:00'),
+  R16:     new Date('2026-07-04T12:00:00-04:00'),
+  QF:      new Date('2026-07-09T15:00:00-04:00'),
+  SF:      new Date('2026-07-14T14:00:00-04:00'),
+  TP:      new Date('2026-07-18T16:00:00-04:00'),
+  FINAL:   new Date('2026-07-19T14:00:00-04:00'),
+  campeon: new Date('2026-06-11T14:00:00-04:00'),
+}
+
+export const DEADLINE = DEADLINES.grupos
 
 export function isPastDeadline(): boolean {
-  return new Date() > DEADLINE
+  return new Date() > DEADLINES.grupos
+}
+
+export function isRoundLocked(round: string): boolean {
+  const d = DEADLINES[round]
+  if (!d) return false
+  return new Date() > d
 }
 
 export function getOutcome(h: number, a: number): 'H' | 'A' | 'D' {

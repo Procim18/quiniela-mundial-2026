@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
+import KnockoutPanel from './knockout-panel'
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 import { getGroupMatches, KNOCKOUT_ROUNDS, ALL_TEAMS } from '@/lib/data'
@@ -240,6 +241,7 @@ export default function AdminPage() {
       {/* ELIMINATORIAS */}
       {activeTab === 'eliminatorias' && (
         <div>
+          <KnockoutPanel adminPass={adminPass} />
           <div style={{ display: 'flex', gap: 6, overflowX: 'auto', marginBottom: 20 }}>
             {KNOCKOUT_ROUNDS.map(r => (
               <button key={r.id} onClick={() => setActiveRound(r.id)} style={{
