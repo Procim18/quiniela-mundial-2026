@@ -130,11 +130,12 @@ export default function Navbar() {
                 }}>
                   Más {Icons.chevron}
                 </button>
+                <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, height: 10, zIndex: 199 }} />
                 <div className="dropdown-menu" style={{
-                  position: 'absolute', top: 'calc(100% + 6px)', left: 0,
+                  position: 'absolute', top: 'calc(100% + 4px)', left: 0,
                   background: 'rgba(8,8,14,0.98)', border: '1px solid rgba(255,255,255,0.08)',
                   borderRadius: 10, padding: '6px', minWidth: 180, zIndex: 200,
-                  backdropFilter: 'blur(20px)', boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+                  backdropFilter: 'blur(20px)', boxShadow: '0 8px 32px rgba(0,0,0,0.4)', paddingTop: 10,
                 }}>
                   {moreLinks.map(l => (
                     <Link key={l.href} href={l.href} style={{
@@ -259,6 +260,7 @@ export default function Navbar() {
       <style>{`
         .dropdown-wrap:hover .dropdown-menu { display: block !important; }
         .dropdown-menu { display: none; }
+        .dropdown-menu:hover { display: block !important; }
         @media (max-width: 768px) {
           .desktop-nav { display: none !important; }
           .mobile-nav { display: flex !important; }
