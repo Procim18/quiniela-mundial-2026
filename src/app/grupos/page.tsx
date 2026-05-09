@@ -219,6 +219,14 @@ export default function GruposPage() {
                     <span style={{ fontWeight: 700, fontSize: '0.72rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{match.home.name}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0 }}>
+                    {pred.home_score !== '' && pred.away_score !== '' && (
+                      <button onClick={() => {
+                        const text = `🏆 Quiniela Mundial 2026\n⚽ ${match.home.name} ${pred.home_score} - ${pred.away_score} ${match.away.name}\n📅 ${match.city} · ${match.time} hs\n\n¡Entra a la quiniela! https://quiniela-mundial-2026-zeta.vercel.app`
+                        window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank')
+                      }} style={{ background: 'rgba(37,211,102,0.12)', border: '1px solid rgba(37,211,102,0.3)', color: '#25D366', borderRadius: 8, padding: '4px 10px', cursor: 'pointer', fontSize: '0.75rem', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span>📤</span> Compartir
+                      </button>
+                    )}
                     <input type="number" min={0} max={20} value={pred.home_score} onChange={e => updatePred(match.id, 'home', e.target.value)} onBlur={() => handleBlur(match.id)} disabled={locked}
                       style={{ width: 34, height: 34, background: locked ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.06)', border: '1px solid ' + (locked ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.12)'), borderRadius: 8, textAlign: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.2rem', color: locked ? 'var(--muted)' : 'var(--text)', outline: 'none', cursor: locked ? 'not-allowed' : 'text' }} />
                     <span style={{ color: 'var(--muted)', fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.8rem' }}>-</span>
