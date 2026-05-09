@@ -35,7 +35,7 @@ export default function Navbar() {
   const path = usePathname()
   const [menuOpen, setMenuOpen] = useState(false)
 
-  const publicLinks = [{ href: '/', label: '🏠 Inicio' }]
+  const publicLinks = [{ href: '/', label: '🏠 Inicio' }, { href: '/reglas', label: '📋 Reglas' }]
   const privateLinks = [
     { href: '/grupos', label: '⚽ Grupos' },
     { href: '/eliminatorias', label: '🏆 Eliminatorias' },
