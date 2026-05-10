@@ -71,7 +71,7 @@ export default function PerfilPage() {
   return (
     <div style={{ maxWidth: 760, margin: '0 auto', padding: '24px 16px 60px' }}>
       <div style={{ background: 'rgba(10,10,16,0.9)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, overflow: 'hidden', marginBottom: 16 }}>
-        <div style={{ height: 3, background: medalColor ? linear-gradient(90deg, ${medalColor}80, ${medalColor}) : 'linear-gradient(90deg, #1A1A2E, #2A2A4E)' }} />
+        <div style={{ height: 3, background: medalColor ? 'linear-gradient(90deg, ' + medalColor + '80, ' + medalColor + ')' : 'linear-gradient(90deg, #1A1A2E, #2A2A4E)' }} />
         <div style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: 18, flexWrap: 'wrap' }}>
           <div style={{ position: 'relative', flexShrink: 0 }}>
             <div style={{ width: 68, height: 68, borderRadius: '50%', background: AVATAR_COLORS[myColorIdx % AVATAR_COLORS.length], display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '2rem', color: 'white', border: medalColor ? 2px solid ${medalColor}50 : '2px solid rgba(255,255,255,0.08)' }}>
