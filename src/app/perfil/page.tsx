@@ -52,16 +52,17 @@ export default function PerfilPage() {
   const playedResults = results.filter(r => r.home_score !== null)
   const myPreds = preds.filter(p => p.home_score !== null && p.away_score !== null)
   const predPct = Math.round((myPreds.length / matches.length) * 100)
-  const calcAcc = myPreds.reduce((acc, pred) => {
+  let cExact = 0, cWinner = 0, cFail = 0
+  for (const pred of myPreds) {
     const res = playedResults.find(r => r.match_id === pred.match_id)
-    if (!res) return acc
-    if (pred.home_score === res.home_score && pred.away_score === res.away_score) return { ...acc, exact: acc.exact + 1 }
+    if (!res) continue
+    if (pred.home_score === res.home_score && pred.away_score === res.away_score) { cExact++; continue }
     const po = (pred.home_score ?? 0) > (pred.away_score ?? 0) ? 'H' : (pred.away_score ?? 0) > (pred.home_score ?? 0) ? 'A' : 'D'
     const ro = res.home_score > res.away_score ? 'H' : res.away_score > res.home_score ? 'A' : 'D'
-    return po === ro ? { ...acc, winner: acc.winner + 1 } : { ...acc, fail: acc.fail + 1 }
-  }, { exact: 0, winner: 0, fail: 0 })
-  const played = calcAcc.exact + calcAcc.winner + calcAcc.fail
-  const accuracy = played > 0 ? Math.round(((calcAcc.exact + calcAcc.winner) / played) * 100) : 0
+    if (po === ro) cWinner++; else cFail++
+  }
+  const played = cExact + cWinner + cFail
+  const accuracy = played > 0 ? Math.round(((cExact + cWinner) / played) * 100) : 0
   const medalColor = myRank >= 1 && myRank <= 3 ? MEDAL_COLORS[myRank - 1] : null
 
   if (authLoading || !player) return null
@@ -130,14 +131,14 @@ export default function PerfilPage() {
             <div style={{ background: 'rgba(10,10,16,0.8)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: '18px', marginBottom: 16 }}>
               <div style={{ fontSize: '0.65rem', color: 'var(--muted)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 12 }}>Desglose de precision</div>
               <div style={{ display: 'flex', gap: 1, height: 8, borderRadius: 100, overflow: 'hidden', marginBottom: 12 }}>
-                {calcAcc.exact > 0 && <div style={{ width: (calcAcc.exact/played*100)+'%', background: '#C89B1A', borderRadius: '100px 0 0 100px' }} />}
-                {calcAcc.winner > 0 && <div style={{ width: (calcAcc.winner/played*100)+'%', background: '#3B82F6' }} />}
-                {calcAcc.fail > 0 && <div style={{ width: (calcAcc.fail/played*100)+'%', background: 'rgba(214,40,40,0.6)', borderRadius: '0 100px 100px 0' }} />}
+                {cExact > 0 && <div style={{ width: (cExact/played*100)+'%', background: '#C89B1A', borderRadius: '100px 0 0 100px' }} />}
+                {cWinner > 0 && <div style={{ width: (cWinner/played*100)+'%', background: '#3B82F6' }} />}
+                {cFail > 0 && <div style={{ width: (cFail/played*100)+'%', background: 'rgba(214,40,40,0.6)', borderRadius: '0 100px 100px 0' }} />}
               </div>
               <div style={{ display: 'flex', gap: 16, fontSize: '0.78rem', flexWrap: 'wrap' }}>
-                <span style={{ color: '#C89B1A' }}>{calcAcc.exact} exactos</span>
-                <span style={{ color: '#3B82F6' }}>{calcAcc.winner} ganadores</span>
-                <span style={{ color: 'rgba(255,100,100,0.7)' }}>{calcAcc.fail} fallos</span>
+                <span style={{ color: '#C89B1A' }}>{cExact} exactos</span>
+                <span style={{ color: '#3B82F6' }}>{cWinner} ganadores</span>
+                <span style={{ color: 'rgba(255,100,100,0.7)' }}>{cFail} fallos</span>
                 <span style={{ color: 'var(--muted)' }}>{played} jugados</span>
               </div>
             </div>
