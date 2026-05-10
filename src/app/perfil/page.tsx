@@ -10,7 +10,6 @@ interface Pred { match_id: string; home_score: number | null; away_score: number
 interface Result { match_id: string; home_score: number; away_score: number }
 
 const MEDAL_COLORS = ['#F4C542', '#C0C0C0', '#CD7F32']
-
 const AVATAR_COLORS = [
   'linear-gradient(135deg,#C89B1A,#F4C542)',
   'linear-gradient(135deg,#1A4FBF,#3B82F6)',
@@ -61,36 +60,35 @@ export default function PerfilPage() {
   const myScore = scores.find(s => s.username === player.username)
   const myRank = scores.findIndex(s => s.username === player.username) + 1
   const myColorIdx = scores.findIndex(s => s.username === player.username)
-
   const playedMatches = results.filter(r => r.home_score !== null)
   const myPreds = preds.filter(p => p.home_score !== null && p.away_score !== null)
   const predPct = Math.round((myPreds.length / matches.length) * 100)
 
-  const { exact, winner, fail } = myPreds.reduce((acc, pred) => {
+  const calcStats = myPreds.reduce((acc, pred) => {
     const res = playedMatches.find(r => r.match_id === pred.match_id)
     if (!res) return acc
     if (pred.home_score === res.home_score && pred.away_score === res.away_score) return { ...acc, exact: acc.exact + 1 }
-    const po = pred.home_score! > pred.away_score! ? 'H' : pred.away_score! > pred.home_score! ? 'A' : 'D'
+    const po = (pred.home_score ?? 0) > (pred.away_score ?? 0) ? 'H' : (pred.away_score ?? 0) > (pred.home_score ?? 0) ? 'A' : 'D'
     const ro = res.home_score > res.away_score ? 'H' : res.away_score > res.home_score ? 'A' : 'D'
     if (po === ro) return { ...acc, winner: acc.winner + 1 }
     return { ...acc, fail: acc.fail + 1 }
   }, { exact: 0, winner: 0, fail: 0 })
-  const played = exact + winner + fail
-  const accuracy = played > 0 ? Math.round(((exact + winner) / played) * 100) : 0
+
+  const played = calcStats.exact + calcStats.winner + calcStats.fail
+  const accuracy = played > 0 ? Math.round(((calcStats.exact + calcStats.winner) / played) * 100) : 0
 
   return (
     <div style={{ maxWidth: 760, margin: '0 auto', padding: '24px 16px 60px' }}>
 
       {/* Player card */}
       <div style={{ background: 'rgba(10,10,16,0.9)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, overflow: 'hidden', marginBottom: 16, backdropFilter: 'blur(12px)' }}>
-        {/* Card top accent */}
-        <div style={{ height: 3, background: myRank === 1 ? 'linear-gradient(90deg, #C89B1A, #F4C542)' : myRank === 2 ? 'linear-gradient(90deg, #A0A0A0, #C0C0C0)' : myRank === 3 ? 'linear-gradient(90deg, #8B5A00, #CD7F32)' : 'linear-gradient(90deg, #1A1A2E, #2A2A4E)' }} />
+        <div style={{ height: 3, background: myRank === 1 ? 'linear-gradient(90deg, #C89B1A, #F4C542)' : myRank === 2 ? 'linear-gradient(90deg, #808080, #C0C0C0)' : myRank === 3 ? 'linear-gradient(90deg, #8B5A00, #CD7F32)' : 'linear-gradient(90deg, #1A1A2E, #2A2A4E)' }} />
         <div style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: 18, flexWrap: 'wrap' }}>
           <div style={{ position: 'relative', flexShrink: 0 }}>
-            <div style={{ width: 68, height: 68, borderRadius: '50%', background: AVATAR_COLORS[myColorIdx % AVATAR_COLORS.length] || AVATAR_COLORS[0], display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '2rem', color: 'white', boxShadow: myRank <= 3 ? 0 0 20px ${MEDAL_COLORS[myRank - 1]}40 : 'none', border: myRank <= 3 ? 2px solid ${MEDAL_COLORS[myRank - 1]}50 : '2px solid rgba(255,255,255,0.08)' }}>
+            <div style={{ width: 68, height: 68, borderRadius: '50%', background: AVATAR_COLORS[myColorIdx % AVATAR_COLORS.length] || AVATAR_COLORS[0], display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '2rem', color: 'white', border: myRank >= 1 && myRank <= 3 ? 2px solid ${MEDAL_COLORS[myRank - 1]}50 : '2px solid rgba(255,255,255,0.08)' }}>
               {player.username.charAt(0).toUpperCase()}
             </div>
-            {myRank <= 3 && (
+            {myRank >= 1 && myRank <= 3 && (
               <div style={{ position: 'absolute', bottom: -2, right: -2, width: 22, height: 22, borderRadius: '50%', background: MEDAL_COLORS[myRank - 1], display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 900, color: '#0a0a10', border: '2px solid rgba(10,10,16,0.9)' }}>
                 {myRank}
               </div>
@@ -99,12 +97,12 @@ export default function PerfilPage() {
           <div style={{ flex: 1 }}>
             <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.8rem', color: 'var(--text)', letterSpacing: '0.06em', lineHeight: 1 }}>{player.username}</div>
             <div style={{ display: 'flex', gap: 12, marginTop: 6, flexWrap: 'wrap' }}>
-              {myRank > 0 && <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>Posición <span style={{ color: myRank <= 3 ? MEDAL_COLORS[myRank - 1] : 'var(--text)', fontWeight: 700 }}>#{myRank}</span></span>}
-              {champion && <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>Campeón: <span style={{ color: 'var(--purple)', fontWeight: 600 }}>{champion}</span></span>}
+              {myRank > 0 && <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>Posicion <span style={{ color: myRank <= 3 ? MEDAL_COLORS[myRank - 1] : 'var(--text)', fontWeight: 700 }}>#{myRank}</span></span>}
+              {champion && <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>Campeon: <span style={{ color: 'var(--purple)', fontWeight: 600 }}>{champion}</span></span>}
             </div>
           </div>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2.5rem', color: myRank <= 3 ? MEDAL_COLORS[myRank - 1] : 'var(--gold)', lineHeight: 1 }}>{myScore?.pts ?? 0}</div>
+            <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2.5rem', color: myRank >= 1 && myRank <= 3 ? MEDAL_COLORS[myRank - 1] : 'var(--gold)', lineHeight: 1 }}>{myScore?.pts ?? 0}</div>
             <div style={{ fontSize: '0.62rem', color: 'var(--muted)', letterSpacing: '0.15em', textTransform: 'uppercase' }}>puntos</div>
           </div>
         </div>
@@ -117,11 +115,11 @@ export default function PerfilPage() {
           {/* Stats grid */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 10, marginBottom: 16 }}>
             {[
-              { icon: <TrophyIcon />, label: 'Posición', value: myRank > 0 ? '#' + myRank : '—', color: myRank <= 3 ? MEDAL_COLORS[myRank - 1] : 'var(--gold)' },
+              { icon: <TrophyIcon />, label: 'Posicion', value: myRank > 0 ? '#' + myRank : '—', color: myRank >= 1 && myRank <= 3 ? MEDAL_COLORS[myRank - 1] : 'var(--gold)' },
               { icon: <StarIcon />, label: 'Pts totales', value: String(myScore?.pts ?? 0), color: 'var(--text)' },
               { icon: <TargetIcon />, label: 'Exactos', value: String(myScore?.exactGroup ?? 0), color: 'var(--gold)' },
               { icon: <SoccerIcon />, label: 'Ganadores', value: String(myScore?.winnerGroup ?? 0), color: 'var(--blue)' },
-              { icon: <TargetIcon />, label: 'Precisión', value: accuracy + '%', color: accuracy >= 60 ? 'var(--green)' : accuracy >= 40 ? 'var(--gold)' : '#FF6B6B' },
+              { icon: <TargetIcon />, label: 'Precision', value: accuracy + '%', color: accuracy >= 60 ? 'var(--green)' : accuracy >= 40 ? 'var(--gold)' : '#FF6B6B' },
               { icon: <StarIcon />, label: 'Completadas', value: myPreds.length + '/' + matches.length, color: 'var(--text)' },
             ].map(s => (
               <div key={s.label} style={{ background: 'rgba(10,10,16,0.8)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '14px', display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -132,9 +130,9 @@ export default function PerfilPage() {
           </div>
 
           {/* Progress bar */}
-          <div style={{ background: 'rgba(10,10,16,0.8)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: '18px', marginBottom: 16, backdropFilter: 'blur(12px)' }}>
+          <div style={{ background: 'rgba(10,10,16,0.8)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: '18px', marginBottom: 16 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-              <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text)' }}>Predicciones completadas</span>
+              <span style={{ fontSize: '0.78rem', fontWeight: 600 }}>Predicciones completadas</span>
               <span style={{ fontSize: '0.78rem', color: predPct === 100 ? 'var(--green)' : 'var(--gold)', fontWeight: 600 }}>{myPreds.length}/{matches.length} — {predPct}%</span>
             </div>
             <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: 100, height: 8, overflow: 'hidden', marginBottom: 10 }}>
@@ -149,17 +147,17 @@ export default function PerfilPage() {
 
           {/* Accuracy breakdown */}
           {played > 0 && (
-            <div style={{ background: 'rgba(10,10,16,0.8)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: '18px', marginBottom: 16, backdropFilter: 'blur(12px)' }}>
-              <div style={{ fontSize: '0.65rem', color: 'var(--muted)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 12 }}>Desglose de precisión</div>
+            <div style={{ background: 'rgba(10,10,16,0.8)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: '18px', marginBottom: 16 }}>
+              <div style={{ fontSize: '0.65rem', color: 'var(--muted)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 12 }}>Desglose de precision</div>
               <div style={{ display: 'flex', gap: 1, height: 8, borderRadius: 100, overflow: 'hidden', marginBottom: 12 }}>
-                {exact > 0 && <div style={{ width: (exact/played*100)+'%', background: '#C89B1A', borderRadius: '100px 0 0 100px' }} />}
-                {winner > 0 && <div style={{ width: (winner/played*100)+'%', background: '#3B82F6' }} />}
-                {fail > 0 && <div style={{ width: (fail/played*100)+'%', background: 'rgba(214,40,40,0.6)', borderRadius: '0 100px 100px 0' }} />}
+                {calcStats.exact > 0 && <div style={{ width: (calcStats.exact/played*100)+'%', background: '#C89B1A', borderRadius: '100px 0 0 100px' }} />}
+                {calcStats.winner > 0 && <div style={{ width: (calcStats.winner/played*100)+'%', background: '#3B82F6' }} />}
+                {calcStats.fail > 0 && <div style={{ width: (calcStats.fail/played*100)+'%', background: 'rgba(214,40,40,0.6)', borderRadius: '0 100px 100px 0' }} />}
               </div>
               <div style={{ display: 'flex', gap: 16, fontSize: '0.78rem', flexWrap: 'wrap' }}>
-                <span style={{ color: '#C89B1A' }}>{exact} exactos</span>
-                <span style={{ color: '#3B82F6' }}>{winner} ganadores</span>
-                <span style={{ color: 'rgba(255,100,100,0.7)' }}>{fail} fallos</span>
+                <span style={{ color: '#C89B1A' }}>{calcStats.exact} exactos</span>
+                <span style={{ color: '#3B82F6' }}>{calcStats.winner} ganadores</span>
+                <span style={{ color: 'rgba(255,100,100,0.7)' }}>{calcStats.fail} fallos</span>
                 <span style={{ color: 'var(--muted)' }}>{played} partidos jugados</span>
               </div>
             </div>
@@ -171,7 +169,7 @@ export default function PerfilPage() {
               { href: '/grupos', label: 'Predicciones grupos', color: 'rgba(244,197,66,0.08)', border: 'rgba(244,197,66,0.2)', textColor: 'var(--gold)' },
               { href: '/eliminatorias', label: 'Predicciones eliminatorias', color: 'rgba(59,130,246,0.08)', border: 'rgba(59,130,246,0.2)', textColor: 'var(--blue)' },
               { href: '/clasificacion', label: 'Ver tabla completa', color: 'rgba(255,255,255,0.04)', border: 'rgba(255,255,255,0.08)', textColor: 'var(--muted)' },
-              { href: '/estadisticas', label: 'Estadísticas', color: 'rgba(139,92,246,0.08)', border: 'rgba(139,92,246,0.2)', textColor: 'var(--purple)' },
+              { href: '/estadisticas', label: 'Estadisticas', color: 'rgba(139,92,246,0.08)', border: 'rgba(139,92,246,0.2)', textColor: 'var(--purple)' },
             ].map(l => (
               <Link key={l.href} href={l.href} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: l.color, border: '1px solid ' + l.border, color: l.textColor, borderRadius: 10, padding: '12px 14px', fontSize: '0.82rem', fontWeight: 600 }}>
                 {l.label} <ChevronIcon />
