@@ -65,9 +65,7 @@ export default function PerfilPage() {
   const accuracy = played > 0 ? Math.round(((cExact + cWinner) / played) * 100) : 0
   const medalColor = myRank >= 1 && myRank <= 3 ? MEDAL_COLORS[myRank - 1] : null
 
-  if (authLoading || !player) return null
-
-  return (
+  return (!authLoading && player ? (
     <div style={{ maxWidth: 760, margin: '0 auto', padding: '24px 16px 60px' }}>
       <div style={{ background: 'rgba(10,10,16,0.9)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, overflow: 'hidden', marginBottom: 16 }}>
         <div style={{ height: 3, background: medalColor ? 'linear-gradient(90deg, ' + medalColor + '80, ' + medalColor + ')' : 'linear-gradient(90deg, #1A1A2E, #2A2A4E)' }} />
@@ -159,5 +157,5 @@ export default function PerfilPage() {
         </>
       )}
     </div>
-  )
+  ) : null)
 }
