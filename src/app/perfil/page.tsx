@@ -46,27 +46,25 @@ export default function PerfilPage() {
     })
   }, [player])
 
-  if (authLoading || !player) return null
-
-  const myRank = scores.findIndex(s => s.username === player.username) + 1
-  const myScore = scores.find(s => s.username === player.username)
-  const myColorIdx = Math.max(0, scores.findIndex(s => s.username === player.username))
+  const myRank = scores.findIndex(s => s.username === player?.username) + 1
+  const myScore = scores.find(s => s.username === player?.username)
+  const myColorIdx = Math.max(0, scores.findIndex(s => s.username === player?.username))
   const playedResults = results.filter(r => r.home_score !== null)
   const myPreds = preds.filter(p => p.home_score !== null && p.away_score !== null)
   const predPct = Math.round((myPreds.length / matches.length) * 100)
-
-  let exact = 0, winnerCount = 0, fail = 0
-  myPreds.forEach(pred => {
+  const calcAcc = myPreds.reduce((acc, pred) => {
     const res = playedResults.find(r => r.match_id === pred.match_id)
-    if (!res) return
-    if (pred.home_score === res.home_score && pred.away_score === res.away_score) { exact++; return }
+    if (!res) return acc
+    if (pred.home_score === res.home_score && pred.away_score === res.away_score) return { ...acc, exact: acc.exact + 1 }
     const po = (pred.home_score ?? 0) > (pred.away_score ?? 0) ? 'H' : (pred.away_score ?? 0) > (pred.home_score ?? 0) ? 'A' : 'D'
     const ro = res.home_score > res.away_score ? 'H' : res.away_score > res.home_score ? 'A' : 'D'
-    if (po === ro) winnerCount++; else fail++
-  })
-  const played = exact + winnerCount + fail
-  const accuracy = played > 0 ? Math.round(((exact + winnerCount) / played) * 100) : 0
+    return po === ro ? { ...acc, winner: acc.winner + 1 } : { ...acc, fail: acc.fail + 1 }
+  }, { exact: 0, winner: 0, fail: 0 })
+  const played = calcAcc.exact + calcAcc.winner + calcAcc.fail
+  const accuracy = played > 0 ? Math.round(((calcAcc.exact + calcAcc.winner) / played) * 100) : 0
   const medalColor = myRank >= 1 && myRank <= 3 ? MEDAL_COLORS[myRank - 1] : null
+
+  if (authLoading || !player) return null
 
   return (
     <div style={{ maxWidth: 760, margin: '0 auto', padding: '24px 16px 60px' }}>
@@ -132,14 +130,14 @@ export default function PerfilPage() {
             <div style={{ background: 'rgba(10,10,16,0.8)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: '18px', marginBottom: 16 }}>
               <div style={{ fontSize: '0.65rem', color: 'var(--muted)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 12 }}>Desglose de precision</div>
               <div style={{ display: 'flex', gap: 1, height: 8, borderRadius: 100, overflow: 'hidden', marginBottom: 12 }}>
-                {exact > 0 && <div style={{ width: (exact/played*100)+'%', background: '#C89B1A', borderRadius: '100px 0 0 100px' }} />}
-                {winnerCount > 0 && <div style={{ width: (winnerCount/played*100)+'%', background: '#3B82F6' }} />}
-                {fail > 0 && <div style={{ width: (fail/played*100)+'%', background: 'rgba(214,40,40,0.6)', borderRadius: '0 100px 100px 0' }} />}
+                {calcAcc.exact > 0 && <div style={{ width: (calcAcc.exact/played*100)+'%', background: '#C89B1A', borderRadius: '100px 0 0 100px' }} />}
+                {calcAcc.winner > 0 && <div style={{ width: (calcAcc.winner/played*100)+'%', background: '#3B82F6' }} />}
+                {calcAcc.fail > 0 && <div style={{ width: (calcAcc.fail/played*100)+'%', background: 'rgba(214,40,40,0.6)', borderRadius: '0 100px 100px 0' }} />}
               </div>
               <div style={{ display: 'flex', gap: 16, fontSize: '0.78rem', flexWrap: 'wrap' }}>
-                <span style={{ color: '#C89B1A' }}>{exact} exactos</span>
-                <span style={{ color: '#3B82F6' }}>{winnerCount} ganadores</span>
-                <span style={{ color: 'rgba(255,100,100,0.7)' }}>{fail} fallos</span>
+                <span style={{ color: '#C89B1A' }}>{calcAcc.exact} exactos</span>
+                <span style={{ color: '#3B82F6' }}>{calcAcc.winner} ganadores</span>
+                <span style={{ color: 'rgba(255,100,100,0.7)' }}>{calcAcc.fail} fallos</span>
                 <span style={{ color: 'var(--muted)' }}>{played} jugados</span>
               </div>
             </div>
