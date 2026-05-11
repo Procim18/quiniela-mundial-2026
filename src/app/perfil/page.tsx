@@ -14,6 +14,19 @@ const AVATAR_COLORS = ['linear-gradient(135deg,#C89B1A,#F4C542)','linear-gradien
 const TrophyIcon = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>
 const TargetIcon = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
 const StarIcon = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+function calcStats(myPreds: any[], playedResults: any[]) {
+  let exact = 0, winner = 0, fail = 0
+  for (const pred of myPreds) {
+    const res = playedResults.find((r: any) => r.match_id === pred.match_id)
+    if (!res) continue
+    if (pred.home_score === res.home_score && pred.away_score === res.away_score) { exact++; continue }
+    const po = (pred.home_score ?? 0) > (pred.away_score ?? 0) ? 'H' : (pred.away_score ?? 0) > (pred.home_score ?? 0) ? 'A' : 'D'
+    const ro = res.home_score > res.away_score ? 'H' : res.away_score > res.home_score ? 'A' : 'D'
+    if (po === ro) winner++; else fail++
+  }
+  return { exact, winner, fail }
+}
+
 const ChevronIcon = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
 
 export default function PerfilPage() {
@@ -52,17 +65,10 @@ export default function PerfilPage() {
   const playedResults = results.filter(r => r.home_score !== null)
   const myPreds = preds.filter(p => p.home_score !== null && p.away_score !== null)
   const predPct = Math.round((myPreds.length / matches.length) * 100)
-  let cExact = 0, cWinner = 0, cFail = 0
-  for (const pred of myPreds) {
-    const res = playedResults.find(r => r.match_id === pred.match_id)
-    if (!res) continue
-    if (pred.home_score === res.home_score && pred.away_score === res.away_score) { cExact++; continue }
-    const po = (pred.home_score ?? 0) > (pred.away_score ?? 0) ? 'H' : (pred.away_score ?? 0) > (pred.home_score ?? 0) ? 'A' : 'D'
-    const ro = res.home_score > res.away_score ? 'H' : res.away_score > res.home_score ? 'A' : 'D'
-    if (po === ro) cWinner++; else cFail++
-  }
-  const played = cExact + cWinner + cFail
-  const accuracy = played > 0 ? Math.round(((cExact + cWinner) / played) * 100) : 0
+  const stats = calcStats(myPreds, playedResults)
+  const played = stats.exact + stats.winner + stats.fail
+  const accuracy = played > 0 ? Math.round(((stats.exact + stats.winner) / played) * 100) : 0
+  const cExact = stats.exact, cWinner = stats.winner, cFail = stats.fail
   const medalColor = myRank >= 1 && myRank <= 3 ? MEDAL_COLORS[myRank - 1] : null
 
   return (!authLoading && player ? (
