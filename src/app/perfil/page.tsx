@@ -77,7 +77,7 @@ export default function PerfilPage() {
         <div style={{ height: 3, background: medalColor ? 'linear-gradient(90deg, ' + medalColor + '80, ' + medalColor + ')' : 'linear-gradient(90deg, #1A1A2E, #2A2A4E)' }} />
         <div style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: 18, flexWrap: 'wrap' }}>
           <div style={{ position: 'relative', flexShrink: 0 }}>
-            <div style={{ width: 68, height: 68, borderRadius: '50%', background: AVATAR_COLORS[myColorIdx % AVATAR_COLORS.length], display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '2rem', color: 'white', border: medalColor ? 2px solid ${medalColor}50 : '2px solid rgba(255,255,255,0.08)' }}>
+            <div style={{ width: 68, height: 68, borderRadius: '50%', background: AVATAR_COLORS[myColorIdx % AVATAR_COLORS.length], display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '2rem', color: 'white', border: medalColor ? '2px solid ' + medalColor + '50' : '2px solid rgba(255,255,255,0.08)' }}>
               {player.username.charAt(0).toUpperCase()}
             </div>
             {medalColor && (
