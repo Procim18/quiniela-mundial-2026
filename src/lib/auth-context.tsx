@@ -33,7 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const res = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password, email }),
+      body: JSON.stringify({ username, password }),
     })
     const data = await res.json()
     if (data.error) return { error: data.error }

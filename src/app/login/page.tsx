@@ -18,8 +18,6 @@ export default function LoginPage() {
     setError('')
     if (!username.trim() || !password.trim()) { setError('Completa todos los campos'); return }
     if (mode === 'register' && !email.trim()) { setError('El correo es obligatorio'); return }
-    if (mode === 'register' && !email.trim()) { setError('El correo es obligatorio'); return }
-    if (mode === 'register' && !email.trim()) { setError('El correo es obligatorio'); return }
     setLoading(true)
     const res = mode === 'login' ? await login(username.trim(), password) : await register(username.trim(), password, email.trim())
     setLoading(false)
