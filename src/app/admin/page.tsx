@@ -20,6 +20,8 @@ export default function AdminPage() {
   const [results, setResults] = useState<ResultMap>({})
   const [knockResults, setKnockResults] = useState<KnockResultMap>({})
   const [champion, setChampion] = useState('')
+  const [scorerResult, setScorerResult] = useState('')
+  const [scorerInput, setScorerInput] = useState('')
   const [saving, setSaving] = useState<Record<string, boolean>>({})
   const [saved, setSaved] = useState<Record<string, boolean>>({})
   const [msg, setMsg] = useState('')
@@ -75,6 +77,7 @@ export default function AdminPage() {
       fetch('/api/results').then(r => r.json()),
       fetch('/api/results/knockout').then(r => r.json()),
       fetch('/api/results/champion').then(r => r.json()),
+      fetch('/api/results/scorer').then(r => r.json()),
     ])
     const map: ResultMap = {}
     ;(gr.data || []).forEach((r: any) => { map[r.match_id] = { home_score: String(r.home_score), away_score: String(r.away_score) } })
