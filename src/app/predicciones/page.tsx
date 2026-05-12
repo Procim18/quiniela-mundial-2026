@@ -98,7 +98,7 @@ export default function PrediccionesPage() {
       {/* Main tabs */}
       <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
         {([['grupos', 'Grupos'], ['eliminatorias', 'Eliminatorias'], ['fecha', 'Por Fecha']] as [string, string][]).map(([tab, label]) => (
-          <button key={tab} onClick={() => { setActiveTab(tab); setExpandedMatch(null) }} style={{
+          <button key={tab} onClick={() => { setActiveTab(tab as any); setExpandedMatch(null) }} style={{
             background: activeTab === tab ? 'rgba(244,197,66,0.1)' : 'rgba(255,255,255,0.03)',
             border: '1px solid ' + (activeTab === tab ? 'rgba(244,197,66,0.4)' : 'rgba(255,255,255,0.07)'),
             borderRadius: 7, padding: '7px 16px', cursor: 'pointer',
