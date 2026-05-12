@@ -22,6 +22,8 @@ export default function AdminPage() {
   const [champion, setChampion] = useState('')
   const [scorerResult, setScorerResult] = useState('')
   const [scorerInput, setScorerInput] = useState('')
+  const [wcPlayers, setWcPlayers] = useState<{name: string; team: string}[]>([])
+  const [showScorerSuggestions, setShowScorerSuggestions] = useState(false)
   const [saving, setSaving] = useState<Record<string, boolean>>({})
   const [saved, setSaved] = useState<Record<string, boolean>>({})
   const [msg, setMsg] = useState('')
@@ -78,6 +80,7 @@ export default function AdminPage() {
       fetch('/api/results/knockout').then(r => r.json()),
       fetch('/api/results/champion').then(r => r.json()),
       fetch('/api/results/scorer').then(r => r.json()),
+      fetch('/api/players-wc').then(r => r.json()),
     ])
     const map: ResultMap = {}
     ;(gr.data || []).forEach((r: any) => { map[r.match_id] = { home_score: String(r.home_score), away_score: String(r.away_score) } })
@@ -495,7 +498,22 @@ export default function AdminPage() {
             <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1rem', color: 'var(--purple)', letterSpacing: '0.1em', marginBottom: 8 }}>GOLEADOR DEL TORNEO — 10 PTS</div>
             <p style={{ color: 'var(--muted)', fontSize: '0.78rem', marginBottom: 14 }}>Ingresa el goleador oficial cuando termine el torneo.</p>
             <div style={{ display: 'flex', gap: 8 }}>
-              <input type="text" placeholder="Nombre del goleador..." value={scorerInput} onChange={e => setScorerInput(e.target.value)} style={{ flex: 1, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '10px 14px', color: 'var(--text)', fontFamily: "'Outfit', sans-serif", fontSize: '0.88rem', outline: 'none' }} />
+              <div style={{ flex: 1, position: 'relative' }}>
+                <input type="text" placeholder={wcPlayers.length > 0 ? "Escribe el nombre del goleador..." : "Los planteles se confirman el 2 de junio..."} value={scorerInput} onChange={e => { setScorerInput(e.target.value); setShowScorerSuggestions(true) }} onFocus={() => setShowScorerSuggestions(true)} style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '10px 14px', color: 'var(--text)', fontFamily: "'Outfit', sans-serif", fontSize: '0.88rem', outline: 'none', boxSizing: 'border-box' }} />
+                {showScorerSuggestions && scorerInput.length >= 2 && wcPlayers.length > 0 && (
+                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 200, background: 'rgba(8,8,14,0.98)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, marginTop: 4, maxHeight: 200, overflowY: 'auto' }}>
+                    {wcPlayers.filter(p => p.name.toLowerCase().includes(scorerInput.toLowerCase())).slice(0, 8).map(p => (
+                      <div key={p.name} onClick={() => { setScorerInput(p.name); setShowScorerSuggestions(false) }} style={{ padding: '10px 14px', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '0.85rem' }}>
+                        <span style={{ fontWeight: 600 }}>{p.name}</span>
+                        <span style={{ color: 'var(--muted)', fontSize: '0.75rem', marginLeft: 8 }}>{p.team}</span>
+                      </div>
+                    ))}
+                    {wcPlayers.filter(p => p.name.toLowerCase().includes(scorerInput.toLowerCase())).length === 0 && (
+                      <div style={{ padding: '10px 14px', color: 'var(--muted)', fontSize: '0.82rem' }}>No encontrado</div>
+                    )}
+                  </div>
+                )}
+              </div>
               <button onClick={async () => {
                 if (!scorerInput.trim()) return
                 const res = await fetch('/api/results/scorer', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-password': adminPass }, body: JSON.stringify({ scorer_name: scorerInput.trim() }) })
