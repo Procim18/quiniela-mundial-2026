@@ -33,6 +33,13 @@ export default function GruposPage() {
   const locked = isPastDeadline()
   const [hoursLeft, setHoursLeft] = useState(0)
   const [showDeadlineWarning, setShowDeadlineWarning] = useState(false)
+  const [scorer, setScorer] = useState('')
+  const [scorerSaved, setScorerSaved] = useState(false)
+  const [scorerResult, setScorerResult] = useState('')
+  const [wcPlayers, setWcPlayers] = useState<{name: string; team: string; position: string}[]>([])
+  const [scorerQuery, setScorerQuery] = useState('')
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [playersReady, setPlayersReady] = useState(false)
 
   useEffect(() => {
     if (!loading && !player) router.push('/login')
@@ -67,6 +74,13 @@ export default function GruposPage() {
         })
         setPreds(map)
       })
+    fetch('/api/predictions/scorer?player_id=' + player.id)
+      .then(r => r.json()).then(({ data }) => { if (data?.scorer_name) { setScorer(data.scorer_name); setScorerQuery(data.scorer_name) } })
+    fetch('/api/results/scorer')
+      .then(r => r.json()).then(({ data }) => { if (data?.scorer_name) setScorerResult(data.scorer_name) })
+    fetch('/api/players-wc')
+      .then(r => r.json()).then(({ data }) => { if (data?.length > 0) { setWcPlayers(data); setPlayersReady(true) } })
+
     fetch('/api/results')
       .then(r => r.json()).then(({ data }) => {
         const map: ResultMap = {}
@@ -204,6 +218,69 @@ export default function GruposPage() {
           <span style={{ color: 'var(--green)', fontSize: '0.82rem', fontWeight: 600 }}>Nuevo resultado disponible</span>
         </div>
       )}
+
+      {/* Goleador */}
+      <div style={{ background: 'rgba(10,10,16,0.8)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: 12, padding: '18px', marginBottom: 20, backdropFilter: 'blur(12px)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg>
+          <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1rem', color: 'var(--purple)', letterSpacing: '0.1em' }}>GOLEADOR DEL TORNEO</span>
+          <span style={{ fontSize: '0.7rem', color: 'var(--purple)', background: 'rgba(139,92,246,0.1)', borderRadius: 5, padding: '2px 8px', border: '1px solid rgba(139,92,246,0.2)' }}>10 pts</span>
+        </div>
+        <p style={{ color: 'var(--muted)', fontSize: '0.78rem', marginBottom: 14 }}>
+          ¿Quién será el máximo goleador del Mundial 2026?
+        </p>
+        {!playersReady ? (
+          <div style={{ background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.15)', borderRadius: 8, padding: '12px 16px', fontSize: '0.82rem', color: 'rgba(139,92,246,0.7)' }}>
+            Los planteles oficiales se confirman el 2 de junio. Vuelve después de esa fecha para elegir tu goleador.
+            {scorer && <div style={{ marginTop: 8, color: 'var(--purple)', fontWeight: 600 }}>Tu selección actual: {scorer}</div>}
+          </div>
+        ) : (
+          <div style={{ position: 'relative' }}>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <div style={{ flex: 1, position: 'relative' }}>
+                <input
+                  type="text"
+                  placeholder="Escribe el nombre del jugador..."
+                  value={scorerQuery}
+                  onChange={e => { setScorerQuery(e.target.value); setShowSuggestions(true) }}
+                  onFocus={() => setShowSuggestions(true)}
+                  disabled={locked}
+                  style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: 8, padding: '10px 14px', color: 'var(--text)', fontFamily: "'Outfit', sans-serif", fontSize: '0.88rem', outline: 'none', boxSizing: 'border-box' }}
+                />
+                {showSuggestions && scorerQuery.length >= 2 && (
+                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100, background: 'rgba(8,8,14,0.98)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: 8, marginTop: 4, maxHeight: 200, overflowY: 'auto', backdropFilter: 'blur(12px)' }}>
+                    {wcPlayers.filter(p => p.name.toLowerCase().includes(scorerQuery.toLowerCase())).slice(0, 10).map(p => (
+                      <div key={p.name} onClick={() => { setScorerQuery(p.name); setScorer(p.name); setShowSuggestions(false) }} style={{ padding: '10px 14px', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '0.85rem' }}>
+                        <span style={{ fontWeight: 600 }}>{p.name}</span>
+                        <span style={{ color: 'var(--muted)', fontSize: '0.75rem', marginLeft: 8 }}>{p.team} · {p.position}</span>
+                      </div>
+                    ))}
+                    {wcPlayers.filter(p => p.name.toLowerCase().includes(scorerQuery.toLowerCase())).length === 0 && (
+                      <div style={{ padding: '10px 14px', color: 'var(--muted)', fontSize: '0.82rem' }}>No se encontró ningún jugador</div>
+                    )}
+                  </div>
+                )}
+              </div>
+              <button onClick={async () => {
+                if (!scorer || !player) return
+                await fetch('/api/predictions/scorer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ player_id: player.id, scorer_name: scorer }) })
+                setScorerSaved(true)
+                setTimeout(() => setScorerSaved(false), 2000)
+              }} disabled={locked || !scorer} style={{ background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.4)', color: 'var(--purple)', borderRadius: 8, padding: '10px 16px', cursor: locked || !scorer ? 'not-allowed' : 'pointer', fontSize: '0.82rem', fontWeight: 600, flexShrink: 0, opacity: locked || !scorer ? 0.5 : 1 }}>
+                {scorerSaved ? '✓ Guardado' : 'Guardar'}
+              </button>
+            </div>
+            {scorer && !scorerSaved && <div style={{ marginTop: 8, fontSize: '0.75rem', color: 'var(--muted)' }}>Seleccionado: <span style={{ color: 'var(--purple)', fontWeight: 600 }}>{scorer}</span></div>}
+            {scorerResult && (
+              <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 8, background: scorer === scorerResult ? 'rgba(46,204,113,0.08)' : 'rgba(255,255,255,0.04)', border: '1px solid ' + (scorer === scorerResult ? 'rgba(46,204,113,0.25)' : 'rgba(255,255,255,0.08)'), borderRadius: 8, padding: '8px 14px', fontSize: '0.8rem' }}>
+                <span style={{ color: 'var(--muted)' }}>Goleador real:</span>
+                <span style={{ fontWeight: 600, color: scorer === scorerResult ? 'var(--green)' : 'var(--text)' }}>{scorerResult}</span>
+                {scorer === scorerResult && <span style={{ color: 'var(--green)', fontWeight: 700 }}>+10 pts</span>}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* Group tabs */}
       <div style={{ display: 'flex', gap: 4, overflowX: 'auto', marginBottom: 16, paddingBottom: 2, scrollbarWidth: 'none' }}>
