@@ -489,6 +489,23 @@ export default function AdminPage() {
               ))}
             </div>
           </div>
+
+          {/* Goleador */}
+          <div style={{ marginTop: 16, background: 'rgba(139,92,246,0.05)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: 12, padding: '20px' }}>
+            <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1rem', color: 'var(--purple)', letterSpacing: '0.1em', marginBottom: 8 }}>GOLEADOR DEL TORNEO — 10 PTS</div>
+            <p style={{ color: 'var(--muted)', fontSize: '0.78rem', marginBottom: 14 }}>Ingresa el goleador oficial cuando termine el torneo.</p>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <input type="text" placeholder="Nombre del goleador..." value={scorerInput} onChange={e => setScorerInput(e.target.value)} style={{ flex: 1, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '10px 14px', color: 'var(--text)', fontFamily: "'Outfit', sans-serif", fontSize: '0.88rem', outline: 'none' }} />
+              <button onClick={async () => {
+                if (!scorerInput.trim()) return
+                const res = await fetch('/api/results/scorer', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-password': adminPass }, body: JSON.stringify({ scorer_name: scorerInput.trim() }) })
+                if (res.ok) setScorerResult(scorerInput.trim())
+              }} style={{ background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.4)', color: 'var(--purple)', borderRadius: 8, padding: '10px 16px', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600, flexShrink: 0 }}>
+                Guardar
+              </button>
+            </div>
+            {scorerResult && <p style={{ color: 'var(--purple)', fontSize: '0.82rem', marginTop: 8 }}>Goleador actual: <strong>{scorerResult}</strong></p>}
+          </div>
         </div>
       )}
     </div>
