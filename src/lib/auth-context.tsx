@@ -10,7 +10,7 @@ interface Player {
 interface AuthContextType {
   player: Player | null
   login: (username: string, password: string) => Promise<{ error?: string }>
-  register: (username: string, password: string) => Promise<{ error?: string }>
+  register: (username: string, password: string, email?: string) => Promise<{ error?: string }>
   logout: () => void
   loading: boolean
 }
@@ -33,7 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const res = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ username, password, email }),
     })
     const data = await res.json()
     if (data.error) return { error: data.error }
@@ -42,11 +42,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return {}
   }
 
-  const register = async (username: string, password: string) => {
+  const register = async (username: string, password: string, email?: string) => {
     const res = await fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ username, password, email }),
     })
     const data = await res.json()
     if (data.error) return { error: data.error }

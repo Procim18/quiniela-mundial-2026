@@ -23,7 +23,7 @@ export default function AdminPage() {
   const [saving, setSaving] = useState<Record<string, boolean>>({})
   const [saved, setSaved] = useState<Record<string, boolean>>({})
   const [msg, setMsg] = useState('')
-  const [players, setPlayers] = useState<{id: string; username: string; is_active: boolean}[]>([])
+  const [players, setPlayers] = useState<{id: string; username: string; is_active: boolean; email?: string}[]>([])
   const [resetPass, setResetPass] = useState<Record<string, string>>({})
   const [resetMsg, setResetMsg] = useState<Record<string, string>>({})
   const [newUsername, setNewUsername] = useState<Record<string, string>>({})
@@ -352,6 +352,7 @@ export default function AdminPage() {
                   </div>
                   <div>
                     <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{p.username}</span>
+                    {p.email && <span style={{ marginLeft: 8, fontSize: '0.72rem', color: 'var(--muted)' }}>{p.email}</span>}
                     <span style={{ marginLeft: 8, fontSize: '0.7rem', padding: '2px 8px', borderRadius: 6, background: p.is_active ? 'rgba(46,204,113,0.1)' : 'rgba(214,40,40,0.1)', color: p.is_active ? 'var(--green)' : '#FF6B6B', border: '1px solid ' + (p.is_active ? 'rgba(46,204,113,0.3)' : 'rgba(214,40,40,0.3)') }}>
                       {p.is_active ? 'Activo' : 'Pendiente'}
                     </span>

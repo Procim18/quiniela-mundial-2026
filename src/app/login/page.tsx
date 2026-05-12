@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 export default function LoginPage() {
   const [mode, setMode] = useState<'login' | 'register'>('login')
   const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -16,9 +17,11 @@ export default function LoginPage() {
     e.preventDefault()
     setError('')
     if (!username.trim() || !password.trim()) { setError('Completa todos los campos'); return }
+    if (mode === 'register' && !email.trim()) { setError('El correo es obligatorio'); return }
+    if (mode === 'register' && !email.trim()) { setError('El correo es obligatorio'); return }
+    if (mode === 'register' && !email.trim()) { setError('El correo es obligatorio'); return }
     setLoading(true)
-    const fn = mode === 'login' ? login : register
-    const res = await fn(username.trim(), password)
+    const res = mode === 'login' ? await login(username.trim(), password) : await register(username.trim(), password, email.trim())
     setLoading(false)
     if (res.error) { setError(res.error); return }
     router.push('/grupos')
