@@ -50,7 +50,7 @@ export default function PrediccionesPage() {
     if (!authLoading && !authPlayer) router.push('/login')
   }, [authPlayer, authLoading])
 
-  const [activeTab, setActiveTab] = useState<'grupos' | 'eliminatorias'>('grupos')
+  const [activeTab, setActiveTab] = useState<'grupos' | 'eliminatorias' | 'fecha'>('grupos')
   const [activeGroup, setActiveGroup] = useState('A')
   const [expandedMatch, setExpandedMatch] = useState<string | null>(null)
   const [players, setPlayers] = useState<Player[]>([])
@@ -97,7 +97,7 @@ export default function PrediccionesPage() {
 
       {/* Main tabs */}
       <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
-        {([['grupos', 'Grupos'], ['eliminatorias', 'Eliminatorias']] as const).map(([tab, label]) => (
+        {([['grupos', 'Grupos'], ['eliminatorias', 'Eliminatorias'], ['fecha', 'Por Fecha']] as [string, string][]).map(([tab, label]) => (
           <button key={tab} onClick={() => { setActiveTab(tab); setExpandedMatch(null) }} style={{
             background: activeTab === tab ? 'rgba(244,197,66,0.1)' : 'rgba(255,255,255,0.03)',
             border: '1px solid ' + (activeTab === tab ? 'rgba(244,197,66,0.4)' : 'rgba(255,255,255,0.07)'),
@@ -170,7 +170,7 @@ export default function PrediccionesPage() {
                 {isExpanded && (
                   <div style={{ background: 'rgba(6,6,10,0.95)', border: '1px solid rgba(244,197,66,0.15)', borderTop: 'none', borderRadius: '0 0 10px 10px', padding: '14px 16px', backdropFilter: 'blur(12px)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, fontSize: '0.65rem', color: 'rgba(255,255,255,0.25)', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
-                      <PinIcon /> {match.stadium}, {match.city} · {match.time} ET
+                      <PinIcon /> {match.date} · {match.stadium}, {match.city} · {match.time} ET
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                       {matchPreds.map(({ player, pred }, idx) => {
@@ -211,6 +211,91 @@ export default function PrediccionesPage() {
             )
           })}
         </>
+      ) : activeTab === 'fecha' ? (
+        <div>
+          {(() => {
+            const allMatches = matches
+            const byDate: Record<string, typeof allMatches> = {}
+            allMatches.forEach(m => {
+              const d = m.date || 'Sin fecha'
+              if (!byDate[d]) byDate[d] = []
+              byDate[d].push(m)
+            })
+            return Object.entries(byDate).sort((a, b) => {
+              const months: Record<string, number> = { 'Jun': 6, 'Jul': 7 }
+              const [da, ma] = a[0].split(' ')
+              const [db, mb] = b[0].split(' ')
+              return (months[ma] * 100 + parseInt(da)) - (months[mb] * 100 + parseInt(db))
+            }).map(([date, dateMatches]) => (
+              <div key={date} style={{ marginBottom: 24 }}>
+                <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1rem', color: 'var(--gold)', letterSpacing: '0.1em', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ height: 1, width: 20, background: 'rgba(244,197,66,0.3)' }} />
+                  {date}
+                  <div style={{ height: 1, flex: 1, background: 'rgba(244,197,66,0.15)' }} />
+                </div>
+                {dateMatches.map(match => {
+                  const res = getResult(match.id)
+                  const isExpanded = expandedMatch === match.id
+                  const matchPreds = getMatchPreds(match.id)
+                  const predCount = matchPreds.filter(mp => mp.pred?.home_score !== null && mp.pred?.away_score !== null).length
+                  return (
+                    <div key={match.id} style={{ marginBottom: 6 }}>
+                      <div onClick={() => setExpandedMatch(isExpanded ? null : match.id)} style={{ background: isExpanded ? 'rgba(10,10,16,0.95)' : 'rgba(10,10,16,0.8)', border: '1px solid ' + (isExpanded ? 'rgba(244,197,66,0.25)' : 'rgba(255,255,255,0.07)'), borderRadius: isExpanded ? '10px 10px 0 0' : 10, padding: '11px 16px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <span style={{ fontSize: '0.65rem', color: 'var(--muted)', background: 'rgba(255,255,255,0.04)', borderRadius: 4, padding: '2px 6px', border: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>Grupo {match.group}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1 }}>
+                          <span style={{ fontSize: '1.1rem' }}>{match.home.flag}</span>
+                          <span style={{ fontWeight: 700, fontSize: '0.85rem' }}>{match.home.name}</span>
+                        </div>
+                        {res ? (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+                            <div style={{ width: 28, height: 28, background: 'rgba(244,197,66,0.1)', border: '1px solid rgba(244,197,66,0.3)', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1rem', color: 'var(--gold)' }}>{res.home_score}</div>
+                            <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.8rem' }}>:</span>
+                            <div style={{ width: 28, height: 28, background: 'rgba(244,197,66,0.1)', border: '1px solid rgba(244,197,66,0.3)', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1rem', color: 'var(--gold)' }}>{res.away_score}</div>
+                          </div>
+                        ) : (
+                          <span style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.2)', padding: '0 6px' }}>{match.time} ET</span>
+                        )}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1, justifyContent: 'flex-end' }}>
+                          <span style={{ fontWeight: 700, fontSize: '0.85rem' }}>{match.away.name}</span>
+                          <span style={{ fontSize: '1.1rem' }}>{match.away.flag}</span>
+                        </div>
+                        <span style={{ fontSize: '0.68rem', color: 'var(--muted)', background: 'rgba(255,255,255,0.04)', borderRadius: 5, padding: '2px 7px', border: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>{predCount}/{players.length}</span>
+                        <span style={{ color: 'var(--muted)', flexShrink: 0 }}><ChevronIcon up={isExpanded} /></span>
+                      </div>
+                      {isExpanded && (
+                        <div style={{ background: 'rgba(6,6,10,0.95)', border: '1px solid rgba(244,197,66,0.15)', borderTop: 'none', borderRadius: '0 0 10px 10px', padding: '14px 16px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, fontSize: '0.65rem', color: 'rgba(255,255,255,0.25)', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
+                            <PinIcon /> {match.stadium}, {match.city} · {match.time} ET
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                            {matchPreds.map(({ player, pred }, idx) => {
+                              const pts = pred?.home_score !== null && pred?.away_score !== null ? getPoints(pred as Pred, res) : null
+                              const hasPred = pred?.home_score !== null && pred?.away_score !== null
+                              return (
+                                <div key={player.id} style={{ display: 'flex', alignItems: 'center', gap: 12, background: pts === 3 ? 'rgba(244,197,66,0.06)' : pts === 1 ? 'rgba(59,130,246,0.06)' : 'rgba(255,255,255,0.02)', borderRadius: 8, padding: '9px 12px', border: '1px solid ' + (pts === 3 ? 'rgba(244,197,66,0.2)' : pts === 1 ? 'rgba(59,130,246,0.15)' : 'rgba(255,255,255,0.05)') }}>
+                                  <div style={{ width: 28, height: 28, borderRadius: '50%', background: AVATAR_COLORS[idx % AVATAR_COLORS.length], display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.85rem', color: 'white', flexShrink: 0 }}>{player.username.charAt(0).toUpperCase()}</div>
+                                  <span style={{ fontWeight: 600, fontSize: '0.85rem', minWidth: 80 }}>{player.username}</span>
+                                  {hasPred && pred ? (
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                      <div style={{ width: 28, height: 28, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1rem' }}>{pred.home_score}</div>
+                                      <span style={{ color: 'rgba(255,255,255,0.2)' }}>:</span>
+                                      <div style={{ width: 28, height: 28, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1rem' }}>{pred.away_score}</div>
+                                    </div>
+                                  ) : <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.78rem', fontStyle: 'italic' }}>Sin prediccion</span>}
+                                  {pts !== null && <span style={{ marginLeft: 'auto', fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.85rem', color: pts === 3 ? 'var(--gold)' : pts === 1 ? 'var(--blue)' : 'rgba(255,255,255,0.2)', background: pts === 3 ? 'rgba(244,197,66,0.1)' : pts === 1 ? 'rgba(59,130,246,0.1)' : 'rgba(255,255,255,0.04)', borderRadius: 5, padding: '2px 7px' }}>{pts > 0 ? '+' + pts : '0'}pts</span>}
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            ))
+          })()}
+        </div>
       ) : (
         <div>
           {ALL_KNOCKOUT_ROUNDS.map(round => (
