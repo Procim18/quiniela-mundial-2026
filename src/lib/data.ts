@@ -195,7 +195,7 @@ export function getGroupMatches(): GroupMatch[] {
     const info = MATCH_INFO[group] || []
     const pairs = [[0,1],[2,3],[0,2],[1,3],[0,3],[1,2]]
     pairs.forEach(([i, j], idx) => {
-      const mi = info[idx] || {stadium:'Por confirmar',city:'Por confirmar',time:'18:00'}
+      const mi = info[idx] || {stadium:'Por confirmar',city:'Por confirmar',time:'18:00',date:'Por confirmar'}
       matches.push({
         id: group + '_' + idx,
         home: teams[i],
