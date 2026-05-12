@@ -68,7 +68,6 @@ export default function Navbar() {
   const moreLinks = [
     { href: '/predicciones', label: 'Predicciones', icon: Icons.eye },
     { href: '/estadisticas', label: 'Estadísticas', icon: Icons.chart },
-    { href: '/historial', label: 'Historial', icon: Icons.history },
     { href: '/perfil', label: 'Perfil', icon: Icons.user },
     { href: '/reglas', label: 'Reglas', icon: Icons.rules },
   ]
