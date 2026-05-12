@@ -251,7 +251,7 @@ export default function GruposPage() {
                   <PinIcon /> {match.stadium} · {match.city}
                 </span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.62rem', color: 'var(--muted)' }}>
-                  <ClockIcon /> {match.time} ET
+                  <ClockIcon /> {match.date} · {match.time} ET
                 </span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
