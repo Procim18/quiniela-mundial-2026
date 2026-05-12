@@ -68,6 +68,23 @@ export default function LoginPage() {
             />
           </div>
 
+          {mode === 'register' && (
+            <div>
+              <label style={{ fontSize: '0.78rem', color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: 8 }}>
+                Correo electrónico
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="ej: pepito@gmail.com"
+                style={{ width: '100%', background: 'var(--dark4)', border: '1px solid var(--border2)', borderRadius: 10, padding: '12px 16px', color: 'var(--text)', fontFamily: "'Outfit', sans-serif", fontSize: '0.95rem', outline: 'none' }}
+                onFocus={e => e.target.style.borderColor = 'rgba(244,197,66,0.5)'}
+                onBlur={e => e.target.style.borderColor = 'var(--border2)'}
+              />
+            </div>
+          )}
+
           <div>
             <label style={{ fontSize: '0.78rem', color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: 8 }}>
               Contraseña
