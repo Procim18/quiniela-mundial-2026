@@ -189,11 +189,26 @@ const MATCH_INFO: Record<string, Array<{stadium: string; city: string; time: str
   ],
 }
 
+export const PAIRS_BY_GROUP: Record<string, number[][]> = {
+  A: [[0, 1], [2, 3], [3, 1], [0, 2], [0, 3], [1, 2]],
+  B: [[0, 1], [2, 3], [1, 3], [0, 2], [3, 0], [1, 2]],
+  C: [[0, 1], [2, 3], [3, 1], [0, 2], [3, 0], [1, 2]],
+  D: [[0, 1], [2, 3], [0, 2], [3, 1], [3, 0], [1, 2]],
+  E: [[0, 1], [2, 3], [0, 2], [3, 1], [1, 2], [3, 0]],
+  F: [[0, 1], [2, 3], [0, 2], [3, 1], [1, 2], [3, 0]],
+  G: [[0, 1], [2, 3], [0, 2], [3, 1], [1, 2], [3, 0]],
+  H: [[0, 1], [2, 3], [0, 2], [3, 1], [1, 2], [3, 0]],
+  I: [[0, 1], [2, 3], [0, 2], [3, 1], [3, 0], [1, 2]],
+  J: [[0, 1], [2, 3], [0, 2], [3, 1], [1, 2], [3, 0]],
+  K: [[0, 1], [2, 3], [0, 2], [3, 1], [3, 0], [1, 2]],
+  L: [[0, 1], [2, 3], [0, 2], [3, 1], [3, 0], [1, 2]],
+}
+
 export function getGroupMatches(): GroupMatch[] {
   const matches: GroupMatch[] = []
   for (const [group, teams] of Object.entries(GROUPS)) {
     const info = MATCH_INFO[group] || []
-    const pairs = [[0,1],[2,3],[0,2],[1,3],[0,3],[1,2]]
+    const pairs = PAIRS_BY_GROUP[group] || [[0,1],[2,3],[0,2],[1,3],[0,3],[1,2]]
     pairs.forEach(([i, j], idx) => {
       const mi = info[idx] || {stadium:'Por confirmar',city:'Por confirmar',time:'18:00',date:'Por confirmar'}
       matches.push({
