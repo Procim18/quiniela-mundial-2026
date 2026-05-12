@@ -187,11 +187,11 @@ export default function PrediccionesPage() {
                               {player.username.charAt(0).toUpperCase()}
                             </div>
                             <span style={{ fontWeight: 600, fontSize: '0.85rem', minWidth: 80 }}>{player.username}</span>
-                            {hasPred ? (
+                            {hasPred && pred ? (
                               <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                                <div style={{ width: 30, height: 30, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.1rem' }}>{pred!.home_score}</div>
+                                <div style={{ width: 30, height: 30, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.1rem' }}>{pred.home_score}</div>
                                 <span style={{ color: 'rgba(255,255,255,0.2)', fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.85rem' }}>:</span>
-                                <div style={{ width: 30, height: 30, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.1rem' }}>{pred!.away_score}</div>
+                                <div style={{ width: 30, height: 30, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.1rem' }}>{pred.away_score}</div>
                               </div>
                             ) : (
                               <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.78rem', fontStyle: 'italic' }}>Sin prediccion</span>
