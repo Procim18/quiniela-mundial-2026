@@ -100,7 +100,6 @@ export default function PerfilPage() {
               {myRank > 0 && <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>Posicion <span style={{ color: medalColor || 'var(--text)', fontWeight: 700 }}>#{myRank}</span></span>}
               {champion && <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>Campeon: <span style={{ color: 'var(--purple)', fontWeight: 600 }}>{champion}</span></span>}
               {scorer && <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>Goleador: <span style={{ color: scorer === scorerResult && scorerResult ? 'var(--green)' : 'var(--purple)', fontWeight: 600 }}>{scorer}{scorer === scorerResult && scorerResult ? ' +10pts' : ''}</span></span>}
-              {scorer && <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>Goleador: <span style={{ color: scorer === scorerResult && scorerResult ? 'var(--green)' : 'var(--purple)', fontWeight: 600 }}>{scorer}{scorer === scorerResult && scorerResult ? ' +10pts' : ''}</span></span>}
             </div>
           </div>
           <div style={{ textAlign: 'center' }}>
