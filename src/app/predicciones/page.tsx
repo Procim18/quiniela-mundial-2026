@@ -64,12 +64,6 @@ export default function PrediccionesPage() {
   const matches = getGroupMatches()
 
   useEffect(() => {
-    const loadScorer = () => {
-      fetch('/api/predictions/scorer/all?t=' + Date.now()).then(r => r.json()).then(({ data }) => setScorerPreds(data || []))
-      fetch('/api/results/scorer?t=' + Date.now()).then(r => r.json()).then(({ data }) => { if (data?.scorer_name) setScorerResult(data.scorer_name) })
-    }
-    loadScorer()
-    const scorerInterval = setInterval(loadScorer, 10000)
     Promise.all([
       fetch('/api/players?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
       fetch('/api/predictions/all?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
@@ -82,6 +76,16 @@ export default function PrediccionesPage() {
       setKnockResults(kr.data || [])
       setLoading(false)
     })
+  }, [])
+
+  useEffect(() => {
+    const loadScorer = () => {
+      fetch('/api/predictions/scorer/all?t=' + Date.now()).then(r => r.json()).then(({ data }) => setScorerPreds(data || []))
+      fetch('/api/results/scorer?t=' + Date.now()).then(r => r.json()).then(({ data }) => { if (data?.scorer_name) setScorerResult(data.scorer_name) })
+    }
+    loadScorer()
+    const t = setInterval(loadScorer, 8000)
+    return () => clearInterval(t)
   }, [])
 
   useEffect(() => {
