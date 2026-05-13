@@ -36,6 +36,10 @@ export default function PerfilPage() {
   const [preds, setPreds] = useState<Pred[]>([])
   const [results, setResults] = useState<Result[]>([])
   const [champion, setChampion] = useState('')
+  const [scorer, setScorer] = useState('')
+  const [scorerResult, setScorerResult] = useState('')
+  const [scorer, setScorer] = useState('')
+  const [scorerResult, setScorerResult] = useState('')
   const [dataLoading, setDataLoading] = useState(true)
   const matches = getGroupMatches()
 
@@ -50,11 +54,17 @@ export default function PerfilPage() {
       fetch('/api/predictions?player_id=' + player.id + '&t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
       fetch('/api/results?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
       fetch('/api/predictions/champion?player_id=' + player.id).then(r => r.json()),
-    ]).then(([lb, pr, rs, ch]) => {
+      fetch('/api/predictions/scorer?player_id=' + player.id).then(r => r.json()),
+      fetch('/api/results/scorer').then(r => r.json()),
+      fetch('/api/predictions/scorer?player_id=' + player.id).then(r => r.json()),
+      fetch('/api/results/scorer').then(r => r.json()),
+    ]).then(([lb, pr, rs, ch, sc, scRes]) => {
       setScores(lb.data || [])
       setPreds(pr.data || [])
       setResults(rs.data || [])
       if (ch.data?.[0]) setChampion(ch.data[0].team)
+      if (sc.data?.scorer_name) setScorer(sc.data.scorer_name)
+      if (scRes.data?.scorer_name) setScorerResult(scRes.data.scorer_name)
       setDataLoading(false)
     })
   }, [player])
@@ -91,6 +101,8 @@ export default function PerfilPage() {
             <div style={{ display: 'flex', gap: 12, marginTop: 6, flexWrap: 'wrap' }}>
               {myRank > 0 && <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>Posicion <span style={{ color: medalColor || 'var(--text)', fontWeight: 700 }}>#{myRank}</span></span>}
               {champion && <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>Campeon: <span style={{ color: 'var(--purple)', fontWeight: 600 }}>{champion}</span></span>}
+              {scorer && <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>Goleador: <span style={{ color: scorer === scorerResult && scorerResult ? 'var(--green)' : 'var(--purple)', fontWeight: 600 }}>{scorer}{scorer === scorerResult && scorerResult ? ' +10pts' : ''}</span></span>}
+              {scorer && <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>Goleador: <span style={{ color: scorer === scorerResult && scorerResult ? 'var(--green)' : 'var(--purple)', fontWeight: 600 }}>{scorer}{scorer === scorerResult && scorerResult ? ' +10pts' : ''}</span></span>}
             </div>
           </div>
           <div style={{ textAlign: 'center' }}>

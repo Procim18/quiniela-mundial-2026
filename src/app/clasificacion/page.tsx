@@ -48,6 +48,12 @@ export default function ClasificacionPage() {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const [prevRanks, setPrevRanks] = useState<Record<string, number>>({})
   const [movers, setMovers] = useState<Record<string, number>>({})
+  const [scorerPreds, setScorerPreds] = useState<{player_id: string; scorer_name: string}[]>([])
+  const [scorerResult, setScorerResult] = useState('')
+  const [allPlayers, setAllPlayers] = useState<{id: string; username: string}[]>([])
+  const [scorerPreds, setScorerPreds] = useState<{player_id: string; scorer_name: string}[]>([])
+  const [scorerResult, setScorerResult] = useState('')
+  const [allPlayers, setAllPlayers] = useState<{id: string; username: string}[]>([])
 
   useEffect(() => {
     if (!authLoading && !player) router.push('/login')
@@ -55,10 +61,16 @@ export default function ClasificacionPage() {
 
   const load = async () => {
     setLoading(true)
-    const [lb, fav] = await Promise.all([
+    const [lb, fav, scAll, scRes, pls] = await Promise.all([
       fetch('/api/leaderboard?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
       fetch('/api/favorites?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
+      fetch('/api/predictions/scorer/all?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
+      fetch('/api/results/scorer').then(r => r.json()),
+      fetch('/api/players?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
     ])
+    setScorerPreds(scAll.data || [])
+    if (scRes.data?.scorer_name) setScorerResult(scRes.data.scorer_name)
+    setAllPlayers(pls.data || [])
     const newScores = lb.data || []
     if (scores.length > 0) {
       const newMovers: Record<string, number> = {}
@@ -156,7 +168,7 @@ export default function ClasificacionPage() {
           {/* Full table */}
           <div style={{ background: 'rgba(10,10,16,0.8)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, overflow: 'hidden', backdropFilter: 'blur(12px)', marginBottom: 20 }}>
             {/* Table header */}
-            <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 70px 120px 50px', gap: 0, padding: '10px 16px', background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 70px 120px 50px 50px', gap: 0, padding: '10px 16px', background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
               <span style={{ fontSize: '0.62rem', color: 'var(--muted)', letterSpacing: '0.15em', textTransform: 'uppercase' }}>#</span>
               <span style={{ fontSize: '0.62rem', color: 'var(--muted)', letterSpacing: '0.15em', textTransform: 'uppercase' }}>Jugador</span>
               <span style={{ fontSize: '0.62rem', color: 'var(--muted)', letterSpacing: '0.15em', textTransform: 'uppercase', textAlign: 'center' }}>Pts</span>
@@ -168,7 +180,7 @@ export default function ClasificacionPage() {
               const isMe = p.username === player.username
               const colorIdx = i
               return (
-                <div key={p.username} style={{ display: 'grid', gridTemplateColumns: '40px 1fr 70px 120px 50px', gap: 0, padding: '12px 16px', borderBottom: i < scores.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', background: isMe ? 'rgba(244,197,66,0.04)' : 'none', alignItems: 'center' }}>
+                <div key={p.username} style={{ display: 'grid', gridTemplateColumns: '40px 1fr 70px 120px 50px 50px', gap: 0, padding: '12px 16px', borderBottom: i < scores.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', background: isMe ? 'rgba(244,197,66,0.04)' : 'none', alignItems: 'center' }}>
                   <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1rem', color: i < 3 ? MEDAL_COLORS[i] : 'var(--muted)' }}>{i + 1}</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{ width: 32, height: 32, borderRadius: '50%', background: AVATAR_COLORS[colorIdx % AVATAR_COLORS.length], display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.95rem', color: 'white', flexShrink: 0 }}>
@@ -192,6 +204,15 @@ export default function ClasificacionPage() {
                       ? <span style={{ fontSize: '0.75rem', color: 'var(--purple)', fontWeight: 700 }}>+{p.champPts}</span>
                       : <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.15)' }}>—</span>
                     }
+                  </div>
+                  <div style={{ textAlign: 'center' }}>
+                    {(() => {
+                      const pl = allPlayers.find(ap => ap.username === p.username)
+                      const sp = pl ? scorerPreds.find(s => s.player_id === pl.id) : null
+                      return scorerResult && sp?.scorer_name === scorerResult
+                        ? <span style={{ fontSize: '0.75rem', color: 'var(--green)', fontWeight: 700 }}>+10</span>
+                        : <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.15)' }}>—</span>
+                    })()}
                   </div>
                 </div>
               )

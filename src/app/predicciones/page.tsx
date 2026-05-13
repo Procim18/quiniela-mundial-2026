@@ -59,9 +59,15 @@ export default function PrediccionesPage() {
   const [knockPreds, setKnockPreds] = useState<KnockPred[]>([])
   const [knockResults, setKnockResults] = useState<KnockResult[]>([])
   const [loading, setLoading] = useState(true)
+  const [scorerPreds, setScorerPreds] = useState<{player_id: string; scorer_name: string}[]>([])
+  const [scorerResult, setScorerResult] = useState('')
   const matches = getGroupMatches()
 
   useEffect(() => {
+    fetch('/api/predictions/scorer/all?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(({ data }) => setScorerPreds(data || []))
+    fetch('/api/results/scorer').then(r => r.json()).then(({ data }) => { if (data?.scorer_name) setScorerResult(data.scorer_name) })
+    fetch('/api/predictions/scorer/all?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(({ data }) => setScorerPreds(data || []))
+    fetch('/api/results/scorer').then(r => r.json()).then(({ data }) => { if (data?.scorer_name) setScorerResult(data.scorer_name) })
     Promise.all([
       fetch('/api/players?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
       fetch('/api/predictions/all?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
@@ -94,6 +100,68 @@ export default function PrediccionesPage() {
         <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.8rem', color: 'var(--text)', letterSpacing: '0.06em', lineHeight: 1 }}>Predicciones</h1>
         <p style={{ color: 'var(--muted)', fontSize: '0.78rem', marginTop: 4 }}>Haz clic en un partido para ver lo que predijo cada jugador.</p>
       </div>
+
+      {/* Goleador section */}
+      {scorerPreds.length > 0 && (
+        <div style={{ background: 'rgba(10,10,16,0.8)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: 12, padding: '16px 18px', marginBottom: 16, backdropFilter: 'blur(12px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg>
+            <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.95rem', color: 'var(--purple)', letterSpacing: '0.1em' }}>GOLEADOR DEL TORNEO</span>
+            {scorerResult && <span style={{ fontSize: '0.7rem', color: 'var(--green)', background: 'rgba(46,204,113,0.1)', borderRadius: 5, padding: '2px 8px', border: '1px solid rgba(46,204,113,0.2)' }}>Resultado: {scorerResult}</span>}
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {players.map((player, idx) => {
+              const pred = scorerPreds.find(s => s.player_id === player.id)
+              const isCorrect = scorerResult && pred?.scorer_name === scorerResult
+              return (
+                <div key={player.id} style={{ display: 'flex', alignItems: 'center', gap: 8, background: isCorrect ? 'rgba(46,204,113,0.08)' : 'rgba(255,255,255,0.03)', border: '1px solid ' + (isCorrect ? 'rgba(46,204,113,0.25)' : 'rgba(255,255,255,0.07)'), borderRadius: 8, padding: '8px 12px' }}>
+                  <div style={{ width: 26, height: 26, borderRadius: '50%', background: AVATAR_COLORS[idx % AVATAR_COLORS.length], display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.8rem', color: 'white', flexShrink: 0 }}>
+                    {player.username.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.78rem', fontWeight: 600, color: isCorrect ? 'var(--green)' : 'var(--text)' }}>{player.username}</div>
+                    <div style={{ fontSize: '0.7rem', color: pred ? (isCorrect ? 'var(--green)' : 'var(--muted)') : 'rgba(255,255,255,0.2)', fontStyle: pred ? 'normal' : 'italic' }}>
+                      {pred ? pred.scorer_name : 'Sin predicción'}
+                      {isCorrect && ' +10pts'}
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Goleador section */}
+      {scorerPreds.length > 0 && (
+        <div style={{ background: 'rgba(10,10,16,0.8)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: 12, padding: '16px 18px', marginBottom: 16, backdropFilter: 'blur(12px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg>
+            <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.95rem', color: 'var(--purple)', letterSpacing: '0.1em' }}>GOLEADOR DEL TORNEO</span>
+            {scorerResult && <span style={{ fontSize: '0.7rem', color: 'var(--green)', background: 'rgba(46,204,113,0.1)', borderRadius: 5, padding: '2px 8px', border: '1px solid rgba(46,204,113,0.2)' }}>Resultado: {scorerResult}</span>}
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {players.map((player, idx) => {
+              const pred = scorerPreds.find(s => s.player_id === player.id)
+              const isCorrect = scorerResult && pred?.scorer_name === scorerResult
+              return (
+                <div key={player.id} style={{ display: 'flex', alignItems: 'center', gap: 8, background: isCorrect ? 'rgba(46,204,113,0.08)' : 'rgba(255,255,255,0.03)', border: '1px solid ' + (isCorrect ? 'rgba(46,204,113,0.25)' : 'rgba(255,255,255,0.07)'), borderRadius: 8, padding: '8px 12px' }}>
+                  <div style={{ width: 26, height: 26, borderRadius: '50%', background: AVATAR_COLORS[idx % AVATAR_COLORS.length], display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.8rem', color: 'white', flexShrink: 0 }}>
+                    {player.username.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.78rem', fontWeight: 600, color: isCorrect ? 'var(--green)' : 'var(--text)' }}>{player.username}</div>
+                    <div style={{ fontSize: '0.7rem', color: pred ? (isCorrect ? 'var(--green)' : 'var(--muted)') : 'rgba(255,255,255,0.2)', fontStyle: pred ? 'normal' : 'italic' }}>
+                      {pred ? pred.scorer_name : 'Sin predicción'}
+                      {isCorrect && ' +10pts'}
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Main tabs */}
       <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
