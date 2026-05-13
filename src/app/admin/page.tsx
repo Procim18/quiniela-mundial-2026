@@ -75,7 +75,7 @@ export default function AdminPage() {
   }
 
   const loadResults = async () => {
-    const [gr, kr, cr] = await Promise.all([
+    const [gr, kr, cr, scorerRes, wcRes] = await Promise.all([
       fetch('/api/results').then(r => r.json()),
       fetch('/api/results/knockout').then(r => r.json()),
       fetch('/api/results/champion').then(r => r.json()),
@@ -89,6 +89,8 @@ export default function AdminPage() {
     ;(kr.data || []).forEach((r: any) => { kmap[r.match_id] = r })
     setKnockResults(kmap)
     if (cr.data?.team) setChampion(cr.data.team)
+    if (scorerRes?.data?.scorer_name) { setScorerResult(scorerRes.data.scorer_name); setScorerInput(scorerRes.data.scorer_name) }
+    if (wcRes?.data?.length > 0) setWcPlayers(wcRes.data)
   }
 
   const saveGroupResult = useCallback(async (matchId: string, home: string, away: string) => {
