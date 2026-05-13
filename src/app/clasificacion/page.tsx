@@ -51,9 +51,6 @@ export default function ClasificacionPage() {
   const [scorerPreds, setScorerPreds] = useState<{player_id: string; scorer_name: string}[]>([])
   const [scorerResult, setScorerResult] = useState('')
   const [allPlayers, setAllPlayers] = useState<{id: string; username: string}[]>([])
-  const [scorerPreds, setScorerPreds] = useState<{player_id: string; scorer_name: string}[]>([])
-  const [scorerResult, setScorerResult] = useState('')
-  const [allPlayers, setAllPlayers] = useState<{id: string; username: string}[]>([])
 
   useEffect(() => {
     if (!authLoading && !player) router.push('/login')

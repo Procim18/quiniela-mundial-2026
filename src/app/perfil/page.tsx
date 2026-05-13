@@ -38,8 +38,6 @@ export default function PerfilPage() {
   const [champion, setChampion] = useState('')
   const [scorer, setScorer] = useState('')
   const [scorerResult, setScorerResult] = useState('')
-  const [scorer, setScorer] = useState('')
-  const [scorerResult, setScorerResult] = useState('')
   const [dataLoading, setDataLoading] = useState(true)
   const matches = getGroupMatches()
 
