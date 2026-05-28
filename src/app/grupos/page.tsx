@@ -9,7 +9,7 @@ type PredMap = Record<string, Prediction>
 type ResultMap = Record<string, { home_score: number; away_score: number }>
 type SavedMap = Record<string, boolean>
 
-function calcStandings(teams: {name: string; flag: string}[], matches: any[], preds: any[]) {
+function calcStandings(teams: {name: string; flag: string}[], matches: any[], preds: Record<string, {home_score: string; away_score: string}>) {
   const table: Record<string, {name: string; flag: string; pj: number; g: number; e: number; p: number; gf: number; gc: number; pts: number}> = {}
   teams.forEach(t => { table[t.name] = { name: t.name, flag: t.flag, pj: 0, g: 0, e: 0, p: 0, gf: 0, gc: 0, pts: 0 } })
   matches.forEach(match => {
