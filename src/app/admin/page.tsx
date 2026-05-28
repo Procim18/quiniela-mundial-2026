@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
+import { supabase as sbClient } from '@/lib/supabase'
 import KnockoutPanel from './knockout-panel'
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
