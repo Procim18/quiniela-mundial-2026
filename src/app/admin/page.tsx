@@ -53,8 +53,7 @@ export default function AdminPage() {
   }
 
   const loadPlayers = async () => {
-    const res = await fetch('/api/players')
-    const { data } = await res.json()
+    const { data } = await sbClient.from('players').select('id, username, is_active, email').order('username')
     setPlayers(data || [])
   }
 
@@ -62,7 +61,7 @@ export default function AdminPage() {
 
   const loadPredStats = async () => {
     const [playersRes, predsRes] = await Promise.all([
-      fetch('/api/players').then(r => r.json()),
+      sbClient.from('players').select('id, username').then(r => ({ data: r.data })),
       fetch('/api/predictions/all?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
     ])
     const players = playersRes.data || []

@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { GROUPS, getGroupMatches, GroupMatch } from '@/lib/data'
+import { supabase } from '@/lib/supabase'
 import { ALL_KNOCKOUT_ROUNDS, KnockoutMatch } from '@/lib/knockout'
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
