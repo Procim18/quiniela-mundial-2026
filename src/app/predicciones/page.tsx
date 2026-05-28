@@ -66,7 +66,7 @@ export default function PrediccionesPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/players?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
+      supabase.from('players').select('id, username').then(r => ({ data: r.data })),
       fetch('/api/predictions/all?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
       fetch('/api/results?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
       fetch('/api/knockout?type=results&t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
