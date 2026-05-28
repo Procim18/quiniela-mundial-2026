@@ -9,6 +9,31 @@ type PredMap = Record<string, Prediction>
 type ResultMap = Record<string, { home_score: number; away_score: number }>
 type SavedMap = Record<string, boolean>
 
+function calcStandings(teams: {name: string; flag: string}[], matches: any[], preds: any[]) {
+  const table: Record<string, {name: string; flag: string; pj: number; g: number; e: number; p: number; gf: number; gc: number; pts: number}> = {}
+  teams.forEach(t => { table[t.name] = { name: t.name, flag: t.flag, pj: 0, g: 0, e: 0, p: 0, gf: 0, gc: 0, pts: 0 } })
+  matches.forEach(match => {
+    const pred = preds[match.id]
+    if (!pred || pred.home_score === '' || pred.away_score === '') return
+    const h = parseInt(pred.home_score), a = parseInt(pred.away_score)
+    if (isNaN(h) || isNaN(a)) return
+    const home = table[match.home.name], away = table[match.away.name]
+    if (!home || !away) return
+    home.pj++; away.pj++
+    home.gf += h; home.gc += a
+    away.gf += a; away.gc += h
+    if (h > a) { home.g++; home.pts += 3; away.p++ }
+    else if (h < a) { away.g++; away.pts += 3; home.p++ }
+    else { home.e++; home.pts++; away.e++; away.pts++ }
+  })
+  return Object.values(table).sort((a, b) => {
+    if (b.pts !== a.pts) return b.pts - a.pts
+    const gdB = b.gf - b.gc, gdA = a.gf - a.gc
+    if (gdB !== gdA) return gdB - gdA
+    return b.gf - a.gf
+  })
+}
+
 const LockIcon = () => <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
 const CheckIcon = () => <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
 const ShareIcon = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
@@ -281,6 +306,43 @@ export default function GruposPage() {
           </div>
         )}
       </div>
+
+      {/* Group standings */}
+      {(() => {
+        const groupTeams = GROUPS[activeGroup] || []
+        const groupMatches = matches.filter(m => m.group === activeGroup)
+        const standings = calcStandings(groupTeams, groupMatches, preds)
+        const hasPreds = standings.some(t => t.pj > 0)
+        if (!hasPreds) return null
+        return (
+          <div style={{ background: 'rgba(10,10,16,0.8)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: '16px', marginBottom: 16, backdropFilter: 'blur(12px)' }}>
+            <div style={{ fontSize: '0.65rem', color: 'var(--muted)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 12 }}>
+              Tabla proyectada · Grupo {activeGroup}
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '20px 1fr 30px 30px 30px 30px 30px 30px 36px', gap: 4, marginBottom: 6 }}>
+              {['#','','PJ','G','E','P','GF','GC','PTS'].map(h => (
+                <div key={h} style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.3)', textAlign: 'center', letterSpacing: '0.1em' }}>{h}</div>
+              ))}
+            </div>
+            {standings.map((t, i) => (
+              <div key={t.name} style={{ display: 'grid', gridTemplateColumns: '20px 1fr 30px 30px 30px 30px 30px 30px 36px', gap: 4, padding: '6px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none', alignItems: 'center' }}>
+                <div style={{ fontSize: '0.75rem', color: i < 2 ? 'var(--green)' : 'var(--muted)', fontWeight: 600, textAlign: 'center' }}>{i + 1}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: '1rem' }}>{t.flag}</span>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 600, color: i < 2 ? 'var(--text)' : 'var(--muted)' }}>{t.name}</span>
+                </div>
+                {[t.pj, t.g, t.e, t.p, t.gf, t.gc].map((v, j) => (
+                  <div key={j} style={{ fontSize: '0.75rem', textAlign: 'center', color: 'var(--muted)' }}>{v}</div>
+                ))}
+                <div style={{ fontSize: '0.85rem', fontWeight: 700, textAlign: 'center', color: i < 2 ? 'var(--gold)' : 'var(--muted)', fontFamily: "'Bebas Neue', sans-serif" }}>{t.pts}</div>
+              </div>
+            ))}
+            <div style={{ marginTop: 8, fontSize: '0.62rem', color: 'rgba(255,255,255,0.2)' }}>
+              Verde = clasifican · Solo aplica a tus predicciones
+            </div>
+          </div>
+        )
+      })()}
 
       {/* Group tabs */}
       <div style={{ display: 'flex', gap: 4, overflowX: 'auto', marginBottom: 16, paddingBottom: 2, scrollbarWidth: 'none' }}>
