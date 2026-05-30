@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server'
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 import { supabase } from '@/lib/supabase'
 import { getGroupMatches, getOutcome, CHAMPION_POINTS } from '@/lib/data'
 import { KNOCKOUT_PTS, ALL_KNOCKOUT_ROUNDS } from '@/lib/knockout'
