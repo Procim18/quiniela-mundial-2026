@@ -102,13 +102,12 @@ export default function AdminPage() {
     rows.push([])
     rows.push(scorerRow)
 
-    const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n')
-    const bom = '\uFEFF'
-    const blob = new Blob([bom + csv], { type: 'text/csv;charset=utf-8;' })
+    const csv = rows.map(r => r.join('\t')).join('\n')
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/tab-separated-values;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = 'predicciones_mundial_2026.csv'
+    a.download = 'predicciones_mundial_2026.tsv'
     a.click()
     URL.revokeObjectURL(url)
   }
