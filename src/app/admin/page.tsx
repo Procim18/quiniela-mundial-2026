@@ -53,6 +53,46 @@ export default function AdminPage() {
     setAuthed(true)
   }
 
+  const exportToExcel = async () => {
+    const [playersRes, predsRes, scorerRes] = await Promise.all([
+      sbClient.from('players').select('id, username, email'),
+      sbClient.from('group_predictions').select('player_id, match_id, home_score, away_score'),
+      sbClient.from('top_scorer_predictions').select('player_id, scorer_name'),
+    ])
+    const players = playersRes.data || []
+    const preds = predsRes.data || []
+    const scorers = scorerRes.data || []
+
+    const rows: string[][] = [['Usuario', 'Email', 'Partido', 'Local', 'Visitante', 'Goleador']]
+    players.forEach(p => {
+      const myPreds = preds.filter(pr => pr.player_id === p.id)
+      const myScorer = scorers.find(s => s.player_id === p.id)?.scorer_name || ''
+      if (myPreds.length === 0) {
+        rows.push([p.username, p.email || '', 'Sin predicciones', '', '', myScorer])
+      } else {
+        myPreds.forEach((pr, i) => {
+          rows.push([
+            i === 0 ? p.username : '',
+            i === 0 ? (p.email || '') : '',
+            pr.match_id,
+            String(pr.home_score),
+            String(pr.away_score),
+            i === 0 ? myScorer : '',
+          ])
+        })
+      }
+    })
+
+    const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'predicciones_mundial_2026.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   const loadPlayers = async () => {
     const { data } = await sbClient.from('players').select('id, username, is_active, email').order('username')
     setPlayers(data || [])
