@@ -253,6 +253,9 @@ export default function AdminPage() {
             🔄 Sincronizar resultados automaticamente
           </button>
           <span style={{ color: 'var(--muted)', fontSize: '0.75rem', marginLeft: 10 }}>Importa resultados reales desde football-data.org</span>
+         <button onClick={exportToExcel} style={{ marginLeft: 12, display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.3)', color: 'var(--blue)', borderRadius: 8, padding: '8px 18px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600 }}>
+           📥 Exportar predicciones
+         </button>
         </div>
       </div>
 
