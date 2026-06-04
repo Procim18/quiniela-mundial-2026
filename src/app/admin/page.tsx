@@ -54,6 +54,9 @@ export default function AdminPage() {
   }
 
   const exportToExcel = async () => {
+    const { GROUPS, getGroupMatches } = await import('@/lib/data')
+    const matches = getGroupMatches()
+
     const [playersRes, predsRes, scorerRes] = await Promise.all([
       sbClient.from('players').select('id, username, email'),
       sbClient.from('group_predictions').select('player_id, match_id, home_score, away_score'),
@@ -63,28 +66,45 @@ export default function AdminPage() {
     const preds = predsRes.data || []
     const scorers = scorerRes.data || []
 
-    const rows: string[][] = [['Usuario', 'Email', 'Partido', 'Local', 'Visitante', 'Goleador']]
-    players.forEach(p => {
-      const myPreds = preds.filter(pr => pr.player_id === p.id)
-      const myScorer = scorers.find(s => s.player_id === p.id)?.scorer_name || ''
-      if (myPreds.length === 0) {
-        rows.push([p.username, p.email || '', 'Sin predicciones', '', '', myScorer])
-      } else {
-        myPreds.forEach((pr, i) => {
-          rows.push([
-            i === 0 ? p.username : '',
-            i === 0 ? (p.email || '') : '',
-            pr.match_id,
-            String(pr.home_score),
-            String(pr.away_score),
-            i === 0 ? myScorer : '',
-          ])
+    // Build match name map
+    const matchNames: Record<string, string> = {}
+    matches.forEach(m => { matchNames[m.id] = m.home.name + ' vs ' + m.away.name })
+
+    // Header row
+    const headers = ['Grupo', 'Partido', 'Fecha', 'Hora ET', ...players.map(p => p.username)]
+    const rows: string[][] = [headers]
+
+    // One row per match
+    const groups = Object.keys(GROUPS)
+    groups.forEach(g => {
+      const gMatches = matches.filter(m => m.group === g)
+      gMatches.forEach(match => {
+        const row = [
+          'Grupo ' + g,
+          matchNames[match.id] || match.id,
+          match.date || '',
+          match.time || '',
+        ]
+        players.forEach(p => {
+          const pred = preds.find(pr => pr.player_id === p.id && pr.match_id === match.id)
+          row.push(pred ? pred.home_score + ' - ' + pred.away_score : 'Sin pred')
         })
-      }
+        rows.push(row)
+      })
     })
 
+    // Goleador row
+    const scorerRow = ['', 'GOLEADOR DEL TORNEO', '', '']
+    players.forEach(p => {
+      const s = scorers.find(sc => sc.player_id === p.id)
+      scorerRow.push(s ? s.scorer_name : 'Sin pred')
+    })
+    rows.push([])
+    rows.push(scorerRow)
+
     const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n')
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const bom = '\uFEFF'
+    const blob = new Blob([bom + csv], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
