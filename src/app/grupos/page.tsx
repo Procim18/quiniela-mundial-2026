@@ -344,6 +344,49 @@ export default function GruposPage() {
         )
       })()}
 
+      {/* Mejores terceros */}
+      {(() => {
+        const thirds: any[] = []
+        Object.keys(GROUPS).forEach(g => {
+          const st = calcStandings(GROUPS[g] || [], matches.filter(m => m.group === g), preds)
+          if (st.length >= 3 && st[2].pj > 0) thirds.push({ ...st[2], group: g })
+        })
+        if (thirds.length === 0) return null
+        thirds.sort((a, b) => b.pts - a.pts || (b.gf - b.gc) - (a.gf - a.gc) || b.gf - a.gf)
+        return (
+          <div style={{ background: 'rgba(10,10,16,0.8)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: '16px', marginBottom: 16, backdropFilter: 'blur(12px)' }}>
+            <div style={{ fontSize: '0.65rem', color: 'var(--muted)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 4 }}>
+              Mejores terceros · Segun tus predicciones
+            </div>
+            <div style={{ fontSize: '0.62rem', color: 'rgba(255,255,255,0.25)', marginBottom: 12 }}>
+              Los 8 mejores terceros de los 12 grupos clasifican al Round de 32 (criterio FIFA: Pts, Dif. gol, GF)
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '20px 30px 1fr 30px 36px 36px 36px', gap: 4, marginBottom: 6 }}>
+              {['#','Gr.','','PJ','DIF','GF','PTS'].map((h, i) => (
+                <div key={i} style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.3)', textAlign: i === 2 ? 'left' : 'center', letterSpacing: '0.1em' }}>{h}</div>
+              ))}
+            </div>
+            {thirds.map((t, i) => (
+              <div key={t.group} style={{ display: 'grid', gridTemplateColumns: '20px 30px 1fr 30px 36px 36px 36px', gap: 4, padding: '6px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none', alignItems: 'center', opacity: i < 8 ? 1 : 0.45 }}>
+                <div style={{ fontSize: '0.75rem', color: i < 8 ? 'var(--green)' : '#e74c3c', fontWeight: 600, textAlign: 'center' }}>{i + 1}</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--muted)', textAlign: 'center' }}>{t.group}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: '1rem' }}>{t.flag}</span>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 600, color: i < 8 ? 'var(--text)' : 'var(--muted)' }}>{t.name}</span>
+                </div>
+                <div style={{ fontSize: '0.75rem', textAlign: 'center', color: 'var(--muted)' }}>{t.pj}</div>
+                <div style={{ fontSize: '0.75rem', textAlign: 'center', color: 'var(--muted)' }}>{t.gf - t.gc > 0 ? '+' : ''}{t.gf - t.gc}</div>
+                <div style={{ fontSize: '0.75rem', textAlign: 'center', color: 'var(--muted)' }}>{t.gf}</div>
+                <div style={{ fontSize: '0.85rem', fontWeight: 700, textAlign: 'center', color: i < 8 ? 'var(--gold)' : 'var(--muted)', fontFamily: "'Bebas Neue', sans-serif" }}>{t.pts}</div>
+              </div>
+            ))}
+            <div style={{ marginTop: 8, fontSize: '0.62rem', color: 'rgba(255,255,255,0.2)' }}>
+              Verde = clasifican · Rojo = eliminados
+            </div>
+          </div>
+        )
+      })()}
+
       {/* Group tabs */}
       <div style={{ display: 'flex', gap: 4, overflowX: 'auto', marginBottom: 16, paddingBottom: 2, scrollbarWidth: 'none' }}>
         {Object.keys(GROUPS).map(g => {
