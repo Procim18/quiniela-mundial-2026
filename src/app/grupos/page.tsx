@@ -319,17 +319,17 @@ export default function GruposPage() {
             <div style={{ fontSize: '0.65rem', color: 'var(--muted)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 12 }}>
               Tabla proyectada · Grupo {activeGroup}
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '20px 1fr 30px 30px 30px 30px 30px 30px 36px', gap: 4, marginBottom: 6 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '16px minmax(0,1fr) 22px 20px 20px 20px 22px 22px 28px', gap: 3, marginBottom: 6 }}>
               {['#','','PJ','G','E','P','GF','GC','PTS'].map(h => (
                 <div key={h} style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.3)', textAlign: 'center', letterSpacing: '0.1em' }}>{h}</div>
               ))}
             </div>
             {standings.map((t, i) => (
-              <div key={t.name} style={{ display: 'grid', gridTemplateColumns: '20px 1fr 30px 30px 30px 30px 30px 30px 36px', gap: 4, padding: '6px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none', alignItems: 'center' }}>
+              <div key={t.name} style={{ display: 'grid', gridTemplateColumns: '16px minmax(0,1fr) 22px 20px 20px 20px 22px 22px 28px', gap: 3, padding: '6px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none', alignItems: 'center' }}>
                 <div style={{ fontSize: '0.75rem', color: i < 2 ? 'var(--green)' : 'var(--muted)', fontWeight: 600, textAlign: 'center' }}>{i + 1}</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span style={{ fontSize: '1rem' }}>{t.flag}</span>
-                  <span style={{ fontSize: '0.78rem', fontWeight: 600, color: i < 2 ? 'var(--text)' : 'var(--muted)' }}>{t.name}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5, minWidth: 0 }}>
+                  <span style={{ fontSize: '0.95rem', flexShrink: 0 }}>{t.flag}</span>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 600, color: i < 2 ? 'var(--text)' : 'var(--muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.name}</span>
                 </div>
                 {[t.pj, t.g, t.e, t.p, t.gf, t.gc].map((v, j) => (
                   <div key={j} style={{ fontSize: '0.75rem', textAlign: 'center', color: 'var(--muted)' }}>{v}</div>
@@ -367,12 +367,12 @@ export default function GruposPage() {
               ))}
             </div>
             {thirds.map((t, i) => (
-              <div key={t.group} style={{ display: 'grid', gridTemplateColumns: '20px 30px 1fr 30px 36px 36px 36px', gap: 4, padding: '6px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none', alignItems: 'center', opacity: i < 8 ? 1 : 0.45 }}>
+              <div key={t.group} style={{ display: 'grid', gridTemplateColumns: '16px 20px minmax(0,1fr) 24px 30px 26px 30px', gap: 3, padding: '6px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none', alignItems: 'center', opacity: i < 8 ? 1 : 0.45 }}>
                 <div style={{ fontSize: '0.75rem', color: i < 8 ? 'var(--green)' : '#e74c3c', fontWeight: 600, textAlign: 'center' }}>{i + 1}</div>
                 <div style={{ fontSize: '0.7rem', color: 'var(--muted)', textAlign: 'center' }}>{t.group}</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span style={{ fontSize: '1rem' }}>{t.flag}</span>
-                  <span style={{ fontSize: '0.78rem', fontWeight: 600, color: i < 8 ? 'var(--text)' : 'var(--muted)' }}>{t.name}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5, minWidth: 0 }}>
+                  <span style={{ fontSize: '0.95rem', flexShrink: 0 }}>{t.flag}</span>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 600, color: i < 8 ? 'var(--text)' : 'var(--muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.name}</span>
                 </div>
                 <div style={{ fontSize: '0.75rem', textAlign: 'center', color: 'var(--muted)' }}>{t.pj}</div>
                 <div style={{ fontSize: '0.75rem', textAlign: 'center', color: 'var(--muted)' }}>{t.gf - t.gc > 0 ? '+' : ''}{t.gf - t.gc}</div>
