@@ -96,12 +96,10 @@ export default function ClasificacionPage() {
   const myRankIdx = scores.findIndex(s => s.username === player.username)
  const myRank = myRankIdx
  const getRank = (i: number) => {
-   if (i === 0) return 1
-   let r = i + 1
-   for (let j = i - 1; j >= 0; j--) {
-     if (scores[j].pts === scores[i].pts) r = j + 1
-     else break
-   }
+   const pts = scores[i].pts
+   const above = scores.filter(s => s.pts > pts).length
+   return above + 1
+ }
    return r
  }
  const myDisplayRank = myRankIdx >= 0 ? getRank(myRankIdx) : 0
