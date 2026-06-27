@@ -155,10 +155,6 @@ export default function ClasificacionPage() {
                   </div>
                 ))}
               </div>
-                    </div>
-                  )
-                })}
-              </div>
             </div>
           )}
 
