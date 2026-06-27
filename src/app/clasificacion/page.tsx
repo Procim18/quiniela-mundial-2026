@@ -97,8 +97,8 @@ export default function ClasificacionPage() {
  const myRank = myRankIdx
  const getRank = (i: number) => {
    const pts = scores[i].pts
-   const above = scores.filter(s => s.pts > pts).length
-   return above + 1
+   const distinctAbove = new Set(scores.filter(s => s.pts > pts).map(s => s.pts)).size
+   return distinctAbove + 1
  }
    return r
  }
