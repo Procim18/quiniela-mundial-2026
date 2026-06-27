@@ -91,15 +91,10 @@ export default function ClasificacionPage() {
 
   if (authLoading || !player) return null
 
-  // Group by rank for podium
- const rank1 = scores.filter(s => getRank(scores.indexOf(s)) === 1)
- const rank2 = scores.filter(s => getRank(scores.indexOf(s)) === 2)
- const rank3 = scores.filter(s => getRank(scores.indexOf(s)) === 3)
- const top3 = scores.slice(0, 3)
- const rest = scores.slice(3)
+  const top3 = scores.slice(0, 3)
+  const rest = scores.slice(3)
   const myRankIdx = scores.findIndex(s => s.username === player.username)
   const getRank = (idx: number) => {
-    if (!scores || scores.length === 0 || idx < 0 || idx >= scores.length) return idx + 1
     const pts = scores[idx]?.pts ?? 0
     const distinctAbove = new Set(scores.filter(s => s.pts > pts).map(s => s.pts)).size
     return distinctAbove + 1
@@ -130,39 +125,36 @@ export default function ClasificacionPage() {
       ) : (
         <>
           {/* Podium */}
-          {top3.length > 0 && (() => {
-            const rank1 = scores.filter((s, i) => getRank(i) === 1)
-            const rank2 = scores.filter((s, i) => getRank(i) === 2)
-            const rank3 = scores.filter((s, i) => getRank(i) === 3)
-            return (
+          {top3.length > 0 && (
             <div style={{ background: 'rgba(10,10,16,0.8)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: '28px 20px 20px', marginBottom: 16, backdropFilter: 'blur(12px)' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-                {[rank1, rank2, rank3].map((group, rankIdx) => group.length === 0 ? null : (
-                  <div key={rankIdx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, width: '100%' }}>
-                    <div style={{ fontSize: '0.65rem', color: MEDAL_COLORS[rankIdx], letterSpacing: '0.15em', fontFamily: "'Bebas Neue', sans-serif" }}>{MEDAL_LABELS[rankIdx]}</div>
-                    <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 8 }}>
-                      {group.map(p => {
-                        const colorIdx = scores.findIndex(s => s.username === p.username)
-                        return (
-                          <div key={p.username} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, background: MEDAL_COLORS[rankIdx] + '15', border: '1px solid ' + MEDAL_COLORS[rankIdx] + '40', borderRadius: 10, padding: '10px 16px', minWidth: 80 }}>
-                            <div style={{ position: 'relative', marginTop: rankIdx === 0 ? 16 : 0 }}>
-                              {rankIdx === 0 && <div style={{ position: 'absolute', top: -18, left: '50%', transform: 'translateX(-50%)', fontSize: '0.9rem' }}>👑</div>}
-                              <div style={{ width: 44, height: 44, borderRadius: '50%', background: AVATAR_COLORS[colorIdx % AVATAR_COLORS.length], display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.2rem', color: 'white', border: '2px solid ' + MEDAL_COLORS[rankIdx] + '60' }}>
-                                {p.username.charAt(0).toUpperCase()}
-                              </div>
-                            </div>
-                            <div style={{ fontWeight: 700, fontSize: '0.8rem', color: rankIdx === 0 ? 'var(--gold)' : 'var(--text)', textAlign: 'center' }}>{p.username}</div>
-                            <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.1rem', color: MEDAL_COLORS[rankIdx] }}>{p.pts}<span style={{ fontSize: '0.65rem', marginLeft: 2 }}>pts</span></div>
-                          </div>
-                        )
-                      })}
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: 12, marginBottom: 16 }}>
+                {[top3[1], top3[0], top3[2]].filter(Boolean).map((p, idx) => {
+                  const realIdx = idx === 0 ? 1 : idx === 1 ? 0 : 2
+                  const heights = [80, 110, 60]
+                  const colorIdx = scores.findIndex(s => s.username === p.username)
+                  return (
+                    <div key={p.username} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                      <div style={{ position: 'relative' }}>
+                        {realIdx === 0 && (
+                          <div style={{ position: 'absolute', top: -20, left: '50%', transform: 'translateX(-50%)', fontSize: '1.1rem' }}>👑</div>
+                        )}
+                        <div style={{ width: 52, height: 52, borderRadius: '50%', background: AVATAR_COLORS[colorIdx % AVATAR_COLORS.length], display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.4rem', color: 'white', boxShadow: `0 0 20px ${MEDAL_COLORS[realIdx]}30`, border: `2px solid ${MEDAL_COLORS[realIdx]}50` }}>
+                          {p.username.charAt(0).toUpperCase()}
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontWeight: 700, fontSize: '0.85rem', color: realIdx === 0 ? 'var(--gold)' : 'var(--text)' }}>{p.username}</div>
+                        <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.3rem', color: MEDAL_COLORS[realIdx], lineHeight: 1 }}>{p.pts}<span style={{ fontSize: '0.7rem', marginLeft: 2 }}>pts</span></div>
+                      </div>
+                      <div style={{ width: 80, height: heights[idx], background: `linear-gradient(180deg, ${MEDAL_COLORS[realIdx]}20, ${MEDAL_COLORS[realIdx]}08)`, border: `1px solid ${MEDAL_COLORS[realIdx]}30`, borderRadius: '6px 6px 0 0', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: 8 }}>
+                        <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.4rem', color: MEDAL_COLORS[realIdx], opacity: 0.6 }}>{MEDAL_LABELS[realIdx]}</span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
-            )
-          })()}
+          )}
 
           {/* My position highlight */}
           {myDisplayRank > 3 && (
