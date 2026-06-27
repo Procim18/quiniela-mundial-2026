@@ -99,6 +99,7 @@ export default function ClasificacionPage() {
  const rest = scores.slice(3)
   const myRankIdx = scores.findIndex(s => s.username === player.username)
   const getRank = (idx: number) => {
+    if (!scores || scores.length === 0 || idx < 0 || idx >= scores.length) return idx + 1
     const pts = scores[idx]?.pts ?? 0
     const distinctAbove = new Set(scores.filter(s => s.pts > pts).map(s => s.pts)).size
     return distinctAbove + 1
