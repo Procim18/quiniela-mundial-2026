@@ -94,9 +94,6 @@ export default function ClasificacionPage() {
   const top3 = scores.slice(0, 3)
   const rest = scores.slice(3)
   const myRankIdx = scores.findIndex(s => s.username === player.username)
- const myRank = myRankIdx
-   return r
- }
   const getRank = (idx: number) => {
     const pts = scores[idx]?.pts ?? 0
     const distinctAbove = new Set(scores.filter(s => s.pts > pts).map(s => s.pts)).size
@@ -160,14 +157,14 @@ export default function ClasificacionPage() {
           )}
 
           {/* My position highlight */}
-          {myRank >= 3 && (
+          {myDisplayRank > 3 && (
             <div style={{ background: 'rgba(244,197,66,0.06)', border: '1px solid rgba(244,197,66,0.2)', borderRadius: 10, padding: '12px 16px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 12 }}>
               <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.1rem', color: 'var(--gold)', minWidth: 32 }}>#{myDisplayRank}</span>
-              <div style={{ width: 34, height: 34, borderRadius: '50%', background: AVATAR_COLORS[myRank % AVATAR_COLORS.length], display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1rem', color: 'white' }}>
+              <div style={{ width: 34, height: 34, borderRadius: '50%', background: AVATAR_COLORS[myRankIdx % AVATAR_COLORS.length], display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1rem', color: 'white' }}>
                 {player.username.charAt(0).toUpperCase()}
               </div>
               <span style={{ fontWeight: 700, color: 'var(--gold)', flex: 1 }}>{player.username} <span style={{ fontSize: '0.72rem', color: 'var(--muted)', fontWeight: 400 }}>— Tu posición</span></span>
-              <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.3rem', color: 'var(--gold)' }}>{scores[myRank]?.pts ?? 0} pts</span>
+              <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.3rem', color: 'var(--gold)' }}>{scores[myRankIdx]?.pts ?? 0} pts</span>
             </div>
           )}
 
