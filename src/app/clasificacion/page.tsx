@@ -130,7 +130,11 @@ export default function ClasificacionPage() {
       ) : (
         <>
           {/* Podium */}
-          {top3.length > 0 && (
+          {top3.length > 0 && (() => {
+            const rank1 = scores.filter((s, i) => getRank(i) === 1)
+            const rank2 = scores.filter((s, i) => getRank(i) === 2)
+            const rank3 = scores.filter((s, i) => getRank(i) === 3)
+            return (
             <div style={{ background: 'rgba(10,10,16,0.8)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: '28px 20px 20px', marginBottom: 16, backdropFilter: 'blur(12px)' }}>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, marginBottom: 16 }}>
                 {[rank1, rank2, rank3].map((group, rankIdx) => group.length === 0 ? null : (
@@ -157,7 +161,8 @@ export default function ClasificacionPage() {
                 ))}
               </div>
             </div>
-          )}
+            )
+          })()}
 
           {/* My position highlight */}
           {myDisplayRank > 3 && (
