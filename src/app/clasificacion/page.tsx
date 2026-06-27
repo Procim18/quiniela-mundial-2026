@@ -95,13 +95,13 @@ export default function ClasificacionPage() {
   const rest = scores.slice(3)
   const myRankIdx = scores.findIndex(s => s.username === player.username)
  const myRank = myRankIdx
- const getRank = (i: number) => {
-   const pts = scores[i].pts
-   const distinctAbove = new Set(scores.filter(s => s.pts > pts).map(s => s.pts)).size
-   return distinctAbove + 1
- }
    return r
  }
+  const getRank = (idx: number) => {
+    const pts = scores[idx]?.pts ?? 0
+    const distinctAbove = new Set(scores.filter(s => s.pts > pts).map(s => s.pts)).size
+    return distinctAbove + 1
+  }
  const myDisplayRank = myRankIdx >= 0 ? getRank(myRankIdx) : 0
 
   return (
