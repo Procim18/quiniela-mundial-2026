@@ -93,7 +93,18 @@ export default function ClasificacionPage() {
 
   const top3 = scores.slice(0, 3)
   const rest = scores.slice(3)
-  const myRank = scores.findIndex(s => s.username === player.username)
+  const myRankIdx = scores.findIndex(s => s.username === player.username)
+ const myRank = myRankIdx
+ const getRank = (i: number) => {
+   if (i === 0) return 1
+   let r = i + 1
+   for (let j = i - 1; j >= 0; j--) {
+     if (scores[j].pts === scores[i].pts) r = j + 1
+     else break
+   }
+   return r
+ }
+ const myDisplayRank = myRankIdx >= 0 ? getRank(myRankIdx) : 0
 
   return (
     <div style={{ maxWidth: 900, margin: '0 auto', padding: '24px 16px 60px' }}>
@@ -153,7 +164,7 @@ export default function ClasificacionPage() {
           {/* My position highlight */}
           {myRank >= 3 && (
             <div style={{ background: 'rgba(244,197,66,0.06)', border: '1px solid rgba(244,197,66,0.2)', borderRadius: 10, padding: '12px 16px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.1rem', color: 'var(--gold)', minWidth: 32 }}>#{myRank + 1}</span>
+              <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.1rem', color: 'var(--gold)', minWidth: 32 }}>#{myDisplayRank}</span>
               <div style={{ width: 34, height: 34, borderRadius: '50%', background: AVATAR_COLORS[myRank % AVATAR_COLORS.length], display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1rem', color: 'white' }}>
                 {player.username.charAt(0).toUpperCase()}
               </div>
@@ -177,9 +188,12 @@ export default function ClasificacionPage() {
             {scores.map((p, i) => {
               const isMe = p.username === player.username
               const colorIdx = i
+              // Calculate rank with ties
+              const rank = i === 0 ? 1 : scores[i].pts === scores[i-1].pts ? 
+                (scores.slice(0, i).findIndex(x => x.pts === p.pts) + 1) : i + 1
               return (
                 <div key={p.username} style={{ display: 'grid', gridTemplateColumns: '40px 1fr 70px 120px 50px 50px', gap: 0, padding: '12px 16px', borderBottom: i < scores.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', background: isMe ? 'rgba(244,197,66,0.04)' : 'none', alignItems: 'center' }}>
-                  <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1rem', color: i < 3 ? MEDAL_COLORS[i] : 'var(--muted)' }}>{i + 1}</div>
+                  <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1rem', color: getRank(i) <= 3 ? MEDAL_COLORS[getRank(i)-1] : 'var(--muted)' }}>{getRank(i)}</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{ width: 32, height: 32, borderRadius: '50%', background: AVATAR_COLORS[colorIdx % AVATAR_COLORS.length], display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.95rem', color: 'white', flexShrink: 0 }}>
                       {p.username.charAt(0).toUpperCase()}
