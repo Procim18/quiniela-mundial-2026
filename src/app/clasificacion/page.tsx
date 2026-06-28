@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
+import { isRoundLocked } from '@/lib/data'
 
 interface Score { username: string; pts: number; exactGroup: number; winnerGroup: number; exactKnockout: number; winnerKnockout: number; champPts: number }
 interface FavoriteTeam { name: string; flag: string; count: number; pct: number }
