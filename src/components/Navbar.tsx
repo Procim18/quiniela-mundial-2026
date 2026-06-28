@@ -29,10 +29,21 @@ function DaysCounter() {
 
   useEffect(() => {
     const update = () => {
-      const diff = DEADLINES.grupos.getTime() - Date.now()
-      if (diff <= 0) { setPast(true); return }
-      setDays(Math.floor(diff / 86400000))
-      setHours(Math.floor((diff % 86400000) / 3600000))
+      const now = Date.now()
+      // Find next active deadline
+      const gruposDiff = DEADLINES.grupos.getTime() - now
+      const r32Diff = DEADLINES.R32.getTime() - now
+      if (gruposDiff > 0) {
+        setDays(Math.floor(gruposDiff / 86400000))
+        setHours(Math.floor((gruposDiff % 86400000) / 3600000))
+        setPast(false)
+      } else if (r32Diff > 0) {
+        setDays(Math.floor(r32Diff / 86400000))
+        setHours(Math.floor((r32Diff % 86400000) / 3600000))
+        setPast(false)
+      } else {
+        setPast(true)
+      }
     }
     update()
     const t = setInterval(update, 60000)
