@@ -59,6 +59,7 @@ export default function PrediccionesPage() {
   const [allPreds, setAllPreds] = useState<Pred[]>([])
   const [results, setResults] = useState<Result[]>([])
   const [knockPreds, setKnockPreds] = useState<KnockPred[]>([])
+  const [allKnockPreds, setAllKnockPreds] = useState<KnockPred[]>([])
   const [knockResults, setKnockResults] = useState<KnockResult[]>([])
   const [loading, setLoading] = useState(true)
   const [scorerPreds, setScorerPreds] = useState<{player_id: string; scorer_name: string}[]>([])
@@ -71,6 +72,7 @@ export default function PrediccionesPage() {
       fetch('/api/predictions/all?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
       fetch('/api/results?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
       fetch('/api/knockout?type=results&t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
+      fetch('/api/knockout-all?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(({ data }) => setAllKnockPreds(data || [])),
     ]).then(([p, pr, rs, kr]) => {
       setPlayers(p.data || [])
       setAllPreds(pr.data || [])
@@ -352,7 +354,7 @@ export default function PrediccionesPage() {
               </div>
               {round.matches.map((match: KnockoutMatch) => {
                 const res = knockResults.find(r => r.match_id === match.id)
-                const matchPreds = players.map(player => ({ player, pred: knockPreds.find(p => p.player_id === player.id && p.match_id === match.id) || null }))
+                const matchPreds = players.map(player => ({ player, pred: allKnockPreds.find(p => p.player_id === player.id && p.match_id === match.id) || null }))
                 const predCount = matchPreds.filter(mp => mp.pred?.winner).length
                 const isExpanded = expandedMatch === match.id
 
