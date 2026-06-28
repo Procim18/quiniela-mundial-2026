@@ -189,7 +189,7 @@ export default function ClasificacionPage() {
           {/* Full table */}
           <div style={{ background: 'rgba(10,10,16,0.8)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, overflow: 'hidden', backdropFilter: 'blur(12px)', marginBottom: 20 }}>
             {/* Table header */}
-            <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 70px 120px 50px 50px', gap: 0, padding: '10px 16px', background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '32px 1fr 50px 90px 40px 36px', gap: 0, padding: '10px 12px', background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
               <span style={{ fontSize: '0.62rem', color: 'var(--muted)', letterSpacing: '0.15em', textTransform: 'uppercase' }}>#</span>
               <span style={{ fontSize: '0.62rem', color: 'var(--muted)', letterSpacing: '0.15em', textTransform: 'uppercase' }}>Jugador</span>
               <span style={{ fontSize: '0.62rem', color: 'var(--muted)', letterSpacing: '0.15em', textTransform: 'uppercase', textAlign: 'center' }}>Pts</span>
@@ -205,7 +205,7 @@ export default function ClasificacionPage() {
               const rank = i === 0 ? 1 : scores[i].pts === scores[i-1].pts ? 
                 (scores.slice(0, i).findIndex(x => x.pts === p.pts) + 1) : i + 1
               return (
-                <div key={p.username} style={{ display: 'grid', gridTemplateColumns: '40px 1fr 70px 120px 50px 50px', gap: 0, padding: '12px 16px', borderBottom: i < activeScores.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', background: isMe ? 'rgba(244,197,66,0.04)' : 'none', alignItems: 'center' }}>
+                <div key={p.username} style={{ display: 'grid', gridTemplateColumns: '32px 1fr 50px 90px 40px 36px', gap: 0, padding: '10px 12px', borderBottom: i < activeScores.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', background: isMe ? 'rgba(244,197,66,0.04)' : 'none', alignItems: 'center' }}>
                   <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1rem', color: getRank(i) <= 3 ? MEDAL_COLORS[getRank(i)-1] : 'var(--muted)' }}>{getRank(i)}</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{ width: 32, height: 32, borderRadius: '50%', background: AVATAR_COLORS[colorIdx % AVATAR_COLORS.length], display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.95rem', color: 'white', flexShrink: 0 }}>
