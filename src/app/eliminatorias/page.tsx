@@ -225,7 +225,7 @@ export default function EliminatoriasPage() {
         </button>
       </div>
 
-      {roundLocked && activeRound !== 'CHAMPION' && (
+      {roundLocked && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(214,40,40,0.06)', border: '1px solid rgba(214,40,40,0.2)', borderRadius: 8, padding: '10px 14px', marginBottom: 16, fontSize: '0.8rem', color: '#FF6B6B' }}>
           <LockIcon /> Predicciones cerradas para esta ronda
         </div>
@@ -250,11 +250,11 @@ export default function EliminatoriasPage() {
           )}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 6 }}>
             {uniqueTeams.map(team => (
-              <button key={team.name} onClick={() => { setChampion(team.name); fetch('/api/predictions/champion', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ player_id: player.id, team: team.name }) }) }} style={{
+              <button key={team.name} onClick={() => { if (roundLocked) return; setChampion(team.name); fetch('/api/predictions/champion', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ player_id: player.id, team: team.name }) }) }} disabled={roundLocked} style={{
                 background: champion === team.name ? 'rgba(139,92,246,0.12)' : 'rgba(255,255,255,0.03)',
                 border: '1px solid ' + (champion === team.name ? 'rgba(139,92,246,0.4)' : 'rgba(255,255,255,0.07)'),
-                borderRadius: 8, padding: '9px 12px', cursor: 'pointer',
-                display: 'flex', alignItems: 'center', gap: 8,
+                borderRadius: 8, padding: '9px 12px', cursor: roundLocked ? 'not-allowed' : 'pointer',
+                display: 'flex', alignItems: 'center', gap: 8, opacity: roundLocked ? 0.6 : 1,
                 color: champion === team.name ? 'var(--purple)' : 'var(--text)',
               }}>
                 <span style={{ fontSize: '1.1rem' }}>{team.flag}</span>
