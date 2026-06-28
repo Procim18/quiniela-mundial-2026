@@ -72,7 +72,7 @@ export default function PrediccionesPage() {
       fetch('/api/predictions/all?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
       fetch('/api/results?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
       fetch('/api/knockout?type=results&t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
-      fetch('/api/knockout-all?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(({ data }) => setAllKnockPreds(data || [])),
+      fetch('/api/knockout-all?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(({ data }) => setAllKnockPreds(data || []))
     ]).then(([p, pr, rs, kr]) => {
       setPlayers(p.data || [])
       setAllPreds(pr.data || [])
@@ -94,6 +94,10 @@ export default function PrediccionesPage() {
 
   useEffect(() => {
     if (!authPlayer) return
+    const refreshKnockAll = () => fetch('/api/knockout-all?t=' + Date.now()).then(r => r.json()).then(({ data }) => setAllKnockPreds(data || []))
+    refreshKnockAll()
+    const knockInterval = setInterval(refreshKnockAll, 15000)
+
     fetch('/api/knockout?type=predictions&player_id=' + authPlayer.id + '&t=' + Date.now(), { cache: 'no-store' })
       .then(r => r.json()).then(({ data }) => setKnockPreds(data || []))
   }, [authPlayer])
