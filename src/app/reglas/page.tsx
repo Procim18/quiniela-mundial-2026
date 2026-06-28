@@ -63,39 +63,6 @@ export default function ReglasPage() {
         </div>
       ))}
 
-      <div style={{ background: 'rgba(10,10,16,0.8)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: '20px', marginBottom: 14, backdropFilter: 'blur(12px)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-          <span style={{ color: 'var(--gold)' }}><ClockIcon /></span>
-          <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.1rem', color: 'var(--muted)', letterSpacing: '0.08em' }}>FECHAS LIMITE</h2>
-        </div>
-        {[
-          { fase: 'Fase de Grupos', fecha: '11 Jun 2026', hora: '14:00 ET' },
-          { fase: 'Ronda de 32', fecha: '28 Jun 2026', hora: '14:00 ET' },
-          { fase: 'Octavos de Final', fecha: '4 Jul 2026', hora: '12:00 ET' },
-          { fase: 'Cuartos de Final', fecha: '9 Jul 2026', hora: '15:00 ET' },
-          { fase: 'Semifinales', fecha: '14 Jul 2026', hora: '14:00 ET' },
-          { fase: 'Gran Final', fecha: '19 Jul 2026', hora: '14:00 ET' },
-        ].map((d, i, arr) => (
-          <div key={d.fase} style={{ display: 'flex', gap: 14, alignItems: 'flex-start', paddingBottom: i < arr.length - 1 ? 14 : 0, marginBottom: i < arr.length - 1 ? 14 : 0, borderBottom: i < arr.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0, marginTop: 3 }}>
-              <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--gold)', border: '2px solid rgba(244,197,66,0.3)' }} />
-              {i < arr.length - 1 && <div style={{ width: 1, height: 28, background: 'rgba(244,197,66,0.15)', marginTop: 4 }} />}
-            </div>
-            <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 4 }}>
-              <div>
-                <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>{d.fase}</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2, color: 'var(--muted)', fontSize: '0.72rem' }}>
-                  <LockIcon /> Cierra 1 hora antes del primer partido
-                </div>
-              </div>
-              <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.9rem', color: 'var(--gold)' }}>{d.fecha}</div>
-                <div style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>{d.hora}</div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
 
       <div style={{ background: 'rgba(10,10,16,0.8)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: '20px', marginBottom: 24, backdropFilter: 'blur(12px)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
