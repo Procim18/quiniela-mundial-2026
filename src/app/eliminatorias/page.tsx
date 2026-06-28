@@ -80,14 +80,15 @@ export default function EliminatoriasPage() {
   const savePred = useCallback(async (matchId: string, pred: KnockPred, overrideTeams?: {home: string, away: string}) => {
     if (!player) return
     const teams = overrideTeams || (matchId.startsWith('R32_') ? (results[matchId] ? { home: results[matchId].home_team, away: results[matchId].away_team } : null) : getTeamsForMatch(matchId))
-    if (!teams && !pred.winner) return
+    // Allow saving even without teams - winner is most important
     setSaving(s => ({ ...s, [matchId]: true }))
     await fetch('/api/knockout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         type: 'prediction', player_id: player.id, match_id: matchId,
-        home_team: teams.home, away_team: teams.away,
+        home_team: teams?.home || '',
+        away_team: teams?.away || '',
         home_score: pred.home_score === '' ? null : parseInt(pred.home_score),
         away_score: pred.away_score === '' ? null : parseInt(pred.away_score),
         winner: pred.winner,
