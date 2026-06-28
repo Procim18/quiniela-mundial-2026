@@ -77,10 +77,10 @@ export default function EliminatoriasPage() {
       .then(r => r.json()).then(({ data }) => { if (data?.team) setChampResult(data.team) })
   }, [player])
 
-  const savePred = useCallback(async (matchId: string, pred: KnockPred) => {
+  const savePred = useCallback(async (matchId: string, pred: KnockPred, overrideTeams?: {home: string, away: string}) => {
     if (!player) return
-    const teams = matchId.startsWith('R32_') ? (results[matchId] ? { home: results[matchId].home_team, away: results[matchId].away_team } : null) : getTeamsForMatch(matchId)
-    if (!teams) return
+    const teams = overrideTeams || (matchId.startsWith('R32_') ? (results[matchId] ? { home: results[matchId].home_team, away: results[matchId].away_team } : null) : getTeamsForMatch(matchId))
+    if (!teams && !pred.winner) return
     setSaving(s => ({ ...s, [matchId]: true }))
     await fetch('/api/knockout', {
       method: 'POST',
@@ -105,7 +105,10 @@ export default function EliminatoriasPage() {
 
   const handleBlur = (matchId: string) => {
     const pred = preds[matchId]
-    if (pred) savePred(matchId, pred)
+    if (pred) {
+      const teams = matchId.startsWith('R32_') ? (results[matchId] ? { home: results[matchId].home_team, away: results[matchId].away_team } : null) : getTeamsForMatch(matchId)
+      savePred(matchId, pred, teams || undefined)
+    }
   }
 
   const getPoints = (matchId: string, pred: KnockPred) => {
@@ -346,11 +349,11 @@ export default function EliminatoriasPage() {
                           <div style={{ flex: 1 }}>
                             <div style={{ fontSize: '0.6rem', color: 'var(--muted)', marginBottom: 3, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Avanza</div>
                             <div style={{ display: 'flex', gap: 5 }}>
-                              <button onClick={() => { const newPred = { ...pred, winner: homeTeam }; updatePred(match.id, 'winner', homeTeam); savePred(match.id, newPred) }} disabled={roundLocked}
+                              <button onClick={() => { const newPred = { ...pred, winner: homeTeam }; updatePred(match.id, 'winner', homeTeam); savePred(match.id, newPred, {home: homeTeam, away: awayTeam}) }} disabled={roundLocked}
                                 style={{ flex: 1, padding: '5px 8px', borderRadius: 6, border: '1px solid ' + (pred.winner === homeTeam ? 'rgba(244,197,66,0.5)' : 'rgba(255,255,255,0.1)'), background: pred.winner === homeTeam ? 'rgba(244,197,66,0.12)' : 'rgba(255,255,255,0.04)', color: pred.winner === homeTeam ? 'var(--gold)' : 'var(--muted)', cursor: roundLocked ? 'not-allowed' : 'pointer', fontSize: '0.68rem', fontWeight: 600, textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
                                 <span>{getFlag(homeTeam)}</span><span>{homeTeam}</span>
                               </button>
-                              <button onClick={() => { const newPred = { ...pred, winner: awayTeam }; updatePred(match.id, 'winner', awayTeam); savePred(match.id, newPred) }} disabled={roundLocked}
+                              <button onClick={() => { const newPred = { ...pred, winner: awayTeam }; updatePred(match.id, 'winner', awayTeam); savePred(match.id, newPred, {home: homeTeam, away: awayTeam}) }} disabled={roundLocked}
                                 style={{ flex: 1, padding: '5px 8px', borderRadius: 6, border: '1px solid ' + (pred.winner === awayTeam ? 'rgba(244,197,66,0.5)' : 'rgba(255,255,255,0.1)'), background: pred.winner === awayTeam ? 'rgba(244,197,66,0.12)' : 'rgba(255,255,255,0.04)', color: pred.winner === awayTeam ? 'var(--gold)' : 'var(--muted)', cursor: roundLocked ? 'not-allowed' : 'pointer', fontSize: '0.68rem', fontWeight: 600, textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
                                 <span>{getFlag(awayTeam)}</span><span>{awayTeam}</span>
                               </button>
