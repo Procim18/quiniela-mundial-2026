@@ -44,7 +44,7 @@ export default function ClasificacionPage() {
   const router = useRouter()
   const [scores, setScores] = useState<Score[]>([])
   const [knockoutScores, setKnockoutScores] = useState<any[]>([])
-  const [phase, setPhase] = useState<'grupos' | 'eliminatorias'>('eliminatorias')
+  const [phase, setPhase] = useState<'grupos' | 'eliminatorias'>('grupos')
   const [favorites, setFavorites] = useState<FavoriteTeam[]>([])
   const [loading, setLoading] = useState(true)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
@@ -130,9 +130,11 @@ export default function ClasificacionPage() {
         <button onClick={() => setPhase('grupos')} style={{ flex: 1, padding: '10px', borderRadius: 8, border: '1px solid ' + (phase === 'grupos' ? 'rgba(244,197,66,0.4)' : 'rgba(255,255,255,0.08)'), background: phase === 'grupos' ? 'rgba(244,197,66,0.08)' : 'rgba(255,255,255,0.03)', color: phase === 'grupos' ? 'var(--gold)' : 'var(--muted)', cursor: 'pointer', fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.9rem', letterSpacing: '0.08em' }}>
           ⚽ Fase de Grupos
         </button>
-        <button onClick={() => setPhase('eliminatorias')} style={{ flex: 1, padding: '10px', borderRadius: 8, border: '1px solid ' + (phase === 'eliminatorias' ? 'rgba(139,92,246,0.4)' : 'rgba(255,255,255,0.08)'), background: phase === 'eliminatorias' ? 'rgba(139,92,246,0.08)' : 'rgba(255,255,255,0.03)', color: phase === 'eliminatorias' ? 'var(--purple)' : 'var(--muted)', cursor: 'pointer', fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.9rem', letterSpacing: '0.08em' }}>
-          🏆 Eliminatorias
-        </button>
+        {isRoundLocked('R32') && (
+          <button onClick={() => setPhase('eliminatorias')} style={{ flex: 1, padding: '10px', borderRadius: 8, border: '1px solid ' + (phase === 'eliminatorias' ? 'rgba(139,92,246,0.4)' : 'rgba(255,255,255,0.08)'), background: phase === 'eliminatorias' ? 'rgba(139,92,246,0.08)' : 'rgba(255,255,255,0.03)', color: phase === 'eliminatorias' ? 'var(--purple)' : 'var(--muted)', cursor: 'pointer', fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.9rem', letterSpacing: '0.08em' }}>
+            🏆 Eliminatorias
+          </button>
+        )}
       </div>
 
       {loading ? (
