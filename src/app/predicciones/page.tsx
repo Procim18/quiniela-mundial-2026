@@ -223,7 +223,7 @@ export default function PrediccionesPage() {
                         const hasPred = pred?.home_score !== null && pred?.away_score !== null
                         return (
                           <div key={player.id} style={{
-                            display: 'flex', alignItems: 'center', gap: 12,
+                            display: 'grid', gridTemplateColumns: '30px 1fr 75px 60px', alignItems: 'center', gap: 8,
                             background: pts === 3 ? 'rgba(244,197,66,0.06)' : pts === 1 ? 'rgba(59,130,246,0.06)' : pts === 0 ? 'rgba(214,40,40,0.04)' : 'rgba(255,255,255,0.02)',
                             borderRadius: 8, padding: '9px 12px',
                             border: '1px solid ' + (pts === 3 ? 'rgba(244,197,66,0.2)' : pts === 1 ? 'rgba(59,130,246,0.15)' : 'rgba(255,255,255,0.05)'),
@@ -231,7 +231,7 @@ export default function PrediccionesPage() {
                             <div style={{ width: 30, height: 30, borderRadius: '50%', background: AVATAR_COLORS[idx % AVATAR_COLORS.length], display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.88rem', color: 'white', flexShrink: 0 }}>
                               {player.username.charAt(0).toUpperCase()}
                             </div>
-                            <span style={{ fontWeight: 600, fontSize: '0.85rem', minWidth: 80 }}>{player.username}</span>
+                            <span style={{ fontWeight: 600, fontSize: '0.82rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{player.username}</span>
                             {hasPred && pred ? (
                               <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                                 <div style={{ width: 30, height: 30, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.1rem' }}>{pred.home_score}</div>
