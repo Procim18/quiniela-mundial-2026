@@ -323,6 +323,12 @@ export default function EliminatoriasPage() {
                         <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.2)', marginTop: 4 }}>
                           {match.id.startsWith('R32_') ? 'El admin confirmará los equipos' : 'Completa la ronda anterior para ver los equipos'}
                         </div>
+                        {pred.winner && (
+                          <div style={{ marginTop: 8, display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(244,197,66,0.08)', border: '1px solid rgba(244,197,66,0.2)', borderRadius: 6, padding: '4px 10px' }}>
+                            <span style={{ fontSize: '0.7rem', color: 'var(--muted)' }}>Avanza:</span>
+                            <span style={{ fontSize: '0.78rem', color: 'var(--gold)', fontWeight: 600 }}>{pred.winner}</span>
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <>
