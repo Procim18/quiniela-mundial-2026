@@ -30,7 +30,7 @@ export default function ReglasPage() {
         {
           icon: <TrophyIcon />, title: 'Eliminatorias', color: '#3B82F6', border: 'rgba(59,130,246,0.2)', bg: 'rgba(59,130,246,0.04)',
           items: [
-            { pts: '2/1', label: 'Ronda de 32', desc: '2pts resultado exacto + quien avanza. 1pt solo quien avanza.', color: '#F4C542', border: 'rgba(244,197,66,0.2)', bg: 'rgba(244,197,66,0.05)' },
+            { pts: '2/1', label: 'Ronda de 32', desc: '2pts solo resultado exacto. 1pt solo quien avanza.', color: '#F4C542', border: 'rgba(244,197,66,0.2)', bg: 'rgba(244,197,66,0.05)' },
             { pts: '3/1', label: 'Octavos de Final', desc: '3pts resultado exacto. 1pt solo quien avanza.', color: '#F4C542', border: 'rgba(244,197,66,0.2)', bg: 'rgba(244,197,66,0.05)' },
             { pts: '4/2', label: 'Cuartos de Final', desc: '4pts resultado exacto. 2pts solo quien avanza.', color: '#F4C542', border: 'rgba(244,197,66,0.2)', bg: 'rgba(244,197,66,0.05)' },
             { pts: '5/2', label: 'Semifinales', desc: '5pts resultado exacto. 2pts solo quien avanza.', color: '#F4C542', border: 'rgba(244,197,66,0.2)', bg: 'rgba(244,197,66,0.05)' },
