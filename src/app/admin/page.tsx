@@ -109,6 +109,51 @@ export default function AdminPage() {
     XLSX.writeFile(wb, 'predicciones_mundial_2026.xlsx')
   }
 
+  const exportKnockoutToExcel = async () => {
+    const { ALL_KNOCKOUT_ROUNDS } = await import('@/lib/knockout')
+    const [playersRes, knockRes, scorerRes] = await Promise.all([
+      sbClient.from('players').select('id, username'),
+      sbClient.from('knockout_predictions').select('player_id, match_id, home_score, away_score, winner'),
+      sbClient.from('top_scorer_predictions').select('player_id, scorer_name'),
+    ])
+    const players = playersRes.data || []
+    const preds = knockRes.data || []
+    const scorers = scorerRes.data || []
+
+    const headers = ['Ronda', 'Partido', ...players.map(p => p.username)]
+    const rows: string[][] = [headers]
+
+    for (const round of ALL_KNOCKOUT_ROUNDS) {
+      for (const match of round.matches) {
+        const row = [round.label, match.label + ': ' + match.homeDesc + ' vs ' + match.awayDesc]
+        for (const p of players) {
+          const pred = preds.find(pr => pr.player_id === p.id && pr.match_id === match.id)
+          if (pred) {
+            row.push((pred.home_score ?? '-') + ':' + (pred.away_score ?? '-') + ' → ' + (pred.winner || 'Sin ganador'))
+          } else {
+            row.push('Sin pred')
+          }
+        }
+        rows.push(row)
+      }
+    }
+
+    // Goleador row
+    const scorerRow = ['', 'GOLEADOR DEL TORNEO']
+    for (const p of players) {
+      const s = scorers.find(sc => sc.player_id === p.id)
+      scorerRow.push(s ? s.scorer_name : 'Sin pred')
+    }
+    rows.push([])
+    rows.push(scorerRow)
+
+    const XLSX = await import('xlsx')
+    const ws = XLSX.utils.aoa_to_sheet(rows)
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, 'Eliminatorias')
+    XLSX.writeFile(wb, 'eliminatorias_mundial_2026.xlsx')
+  }
+
   const loadPlayers = async () => {
     const { data } = await sbClient.from('players').select('id, username, is_active, email').order('username')
     setPlayers(data || [])
