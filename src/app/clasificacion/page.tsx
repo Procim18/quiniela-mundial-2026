@@ -43,6 +43,8 @@ export default function ClasificacionPage() {
   const { player, loading: authLoading } = useAuth()
   const router = useRouter()
   const [scores, setScores] = useState<Score[]>([])
+  const [knockoutScores, setKnockoutScores] = useState<any[]>([])
+  const [phase, setPhase] = useState<'grupos' | 'eliminatorias'>('eliminatorias')
   const [favorites, setFavorites] = useState<FavoriteTeam[]>([])
   const [loading, setLoading] = useState(true)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
@@ -58,14 +60,16 @@ export default function ClasificacionPage() {
 
   const load = async () => {
     setLoading(true)
-    const [lb, fav, scAll, scRes, pls] = await Promise.all([
+    const [lb, lbKnockout, fav, scAll, scRes, pls] = await Promise.all([
       fetch('/api/leaderboard?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
+      fetch('/api/leaderboard-knockout?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
       fetch('/api/favorites?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
       fetch('/api/predictions/scorer/all?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
       fetch('/api/results/scorer').then(r => r.json()),
       fetch('/api/players?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
     ])
     setScorerPreds(scAll.data || [])
+    setKnockoutScores(lbKnockout.data || [])
     if (scRes.data?.scorer_name) setScorerResult(scRes.data.scorer_name)
     setAllPlayers(pls.data || [])
     const newScores = lb.data || []
@@ -91,12 +95,13 @@ export default function ClasificacionPage() {
 
   if (authLoading || !player) return null
 
-  const top3 = scores.slice(0, 3)
+  const activeScores = phase === 'grupos' ? scores : knockoutScores
+  const top3 = activeScores.slice(0, 3)
   const rest = scores.slice(3)
-  const myRankIdx = scores.findIndex(s => s.username === player.username)
+  const myRankIdx = activeScores.findIndex(s => s.username === player.username)
   const getRank = (idx: number) => {
     const pts = scores[idx]?.pts ?? 0
-    const distinctAbove = new Set(scores.filter(s => s.pts > pts).map(s => s.pts)).size
+    const distinctAbove = new Set(activeScores.filter(s => s.pts > pts).map(s => s.pts)).size
     return distinctAbove + 1
   }
  const myDisplayRank = myRankIdx >= 0 ? getRank(myRankIdx) : 0
@@ -118,6 +123,16 @@ export default function ClasificacionPage() {
             <PrintIcon /> Exportar
           </button>
         </div>
+      </div>
+
+      {/* Phase tabs */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+        <button onClick={() => setPhase('grupos')} style={{ flex: 1, padding: '10px', borderRadius: 8, border: '1px solid ' + (phase === 'grupos' ? 'rgba(244,197,66,0.4)' : 'rgba(255,255,255,0.08)'), background: phase === 'grupos' ? 'rgba(244,197,66,0.08)' : 'rgba(255,255,255,0.03)', color: phase === 'grupos' ? 'var(--gold)' : 'var(--muted)', cursor: 'pointer', fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.9rem', letterSpacing: '0.08em' }}>
+          ⚽ Fase de Grupos
+        </button>
+        <button onClick={() => setPhase('eliminatorias')} style={{ flex: 1, padding: '10px', borderRadius: 8, border: '1px solid ' + (phase === 'eliminatorias' ? 'rgba(139,92,246,0.4)' : 'rgba(255,255,255,0.08)'), background: phase === 'eliminatorias' ? 'rgba(139,92,246,0.08)' : 'rgba(255,255,255,0.03)', color: phase === 'eliminatorias' ? 'var(--purple)' : 'var(--muted)', cursor: 'pointer', fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.9rem', letterSpacing: '0.08em' }}>
+          🏆 Eliminatorias
+        </button>
       </div>
 
       {loading ? (
@@ -164,7 +179,7 @@ export default function ClasificacionPage() {
                 {player.username.charAt(0).toUpperCase()}
               </div>
               <span style={{ fontWeight: 700, color: 'var(--gold)', flex: 1 }}>{player.username} <span style={{ fontSize: '0.72rem', color: 'var(--muted)', fontWeight: 400 }}>— Tu posición</span></span>
-              <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.3rem', color: 'var(--gold)' }}>{scores[myRankIdx]?.pts ?? 0} pts</span>
+              <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.3rem', color: 'var(--gold)' }}>{activeScores[myRankIdx]?.pts ?? 0} pts</span>
             </div>
           )}
 
@@ -180,14 +195,14 @@ export default function ClasificacionPage() {
               <span style={{ fontSize: '0.62rem', color: 'var(--muted)', letterSpacing: '0.15em', textTransform: 'uppercase', textAlign: 'center' }}>Gol.</span>
             </div>
 
-            {scores.map((p, i) => {
+            {activeScores.map((p, i) => {
               const isMe = p.username === player.username
               const colorIdx = i
               // Calculate rank with ties
               const rank = i === 0 ? 1 : scores[i].pts === scores[i-1].pts ? 
                 (scores.slice(0, i).findIndex(x => x.pts === p.pts) + 1) : i + 1
               return (
-                <div key={p.username} style={{ display: 'grid', gridTemplateColumns: '40px 1fr 70px 120px 50px 50px', gap: 0, padding: '12px 16px', borderBottom: i < scores.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', background: isMe ? 'rgba(244,197,66,0.04)' : 'none', alignItems: 'center' }}>
+                <div key={p.username} style={{ display: 'grid', gridTemplateColumns: '40px 1fr 70px 120px 50px 50px', gap: 0, padding: '12px 16px', borderBottom: i < activeScores.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', background: isMe ? 'rgba(244,197,66,0.04)' : 'none', alignItems: 'center' }}>
                   <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1rem', color: getRank(i) <= 3 ? MEDAL_COLORS[getRank(i)-1] : 'var(--muted)' }}>{getRank(i)}</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{ width: 32, height: 32, borderRadius: '50%', background: AVATAR_COLORS[colorIdx % AVATAR_COLORS.length], display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.95rem', color: 'white', flexShrink: 0 }}>
