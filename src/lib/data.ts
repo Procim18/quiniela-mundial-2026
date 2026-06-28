@@ -246,12 +246,12 @@ export const KNOCKOUT_POINTS: Record<string, { exact: number; winner: number }> 
 export const CHAMPION_POINTS = 10
 export const DEADLINES: Record<string, Date> = {
   grupos:  new Date('2026-06-11T14:00:00-04:00'),
-  R32:     new Date('2026-06-29T14:00:00-04:00'),
-  R16:     new Date('2026-06-29T14:00:00-04:00'),
-  QF:      new Date('2026-06-29T14:00:00-04:00'),
-  SF:      new Date('2026-06-29T14:00:00-04:00'),
-  TP:      new Date('2026-06-29T14:00:00-04:00'),
-  FINAL:   new Date('2026-06-29T14:00:00-04:00'),
+  R32:     new Date('2026-06-28T14:00:00-04:00'),
+  R16:     new Date('2026-06-28T14:00:00-04:00'),
+  QF:      new Date('2026-06-28T14:00:00-04:00'),
+  SF:      new Date('2026-06-28T14:00:00-04:00'),
+  TP:      new Date('2026-06-28T14:00:00-04:00'),
+  FINAL:   new Date('2026-06-28T14:00:00-04:00'),
   campeon: new Date('2026-06-11T14:00:00-04:00'),
 }
 
