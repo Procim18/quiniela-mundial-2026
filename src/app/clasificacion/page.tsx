@@ -193,7 +193,7 @@ export default function ClasificacionPage() {
               <span style={{ fontSize: '0.62rem', color: 'var(--muted)', letterSpacing: '0.15em', textTransform: 'uppercase' }}>#</span>
               <span style={{ fontSize: '0.62rem', color: 'var(--muted)', letterSpacing: '0.15em', textTransform: 'uppercase' }}>Jugador</span>
               <span style={{ fontSize: '0.62rem', color: 'var(--muted)', letterSpacing: '0.15em', textTransform: 'uppercase', textAlign: 'center' }}>Pts</span>
-              <span style={{ fontSize: '0.62rem', color: 'var(--muted)', letterSpacing: '0.15em', textTransform: 'uppercase', textAlign: 'center' }}>Grupos</span>
+              <span style={{ fontSize: '0.62rem', color: 'var(--muted)', letterSpacing: '0.15em', textTransform: 'uppercase', textAlign: 'center' }}>{phase === 'grupos' ? 'Grupos' : 'Elim.'}</span>
               <span style={{ fontSize: '0.62rem', color: 'var(--muted)', letterSpacing: '0.15em', textTransform: 'uppercase', textAlign: 'center' }}>Camp.</span>
               <span style={{ fontSize: '0.62rem', color: 'var(--muted)', letterSpacing: '0.15em', textTransform: 'uppercase', textAlign: 'center' }}>Gol.</span>
             </div>
@@ -220,9 +220,9 @@ export default function ClasificacionPage() {
                   </div>
                   <div style={{ textAlign: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.2rem', color: isMe ? 'var(--gold)' : 'var(--text)' }}>{p.pts}</div>
                   <div style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--muted)' }}>
-                    <span style={{ color: 'var(--gold)' }}>+3×{p.exactGroup}</span>
+                    <span style={{ color: 'var(--gold)' }}>{phase === 'grupos' ? '+3×' + p.exactGroup : '+ex×' + ((p as any).exactKnockout || 0)}</span>
                     <span style={{ margin: '0 4px', opacity: 0.3 }}>·</span>
-                    <span style={{ color: 'var(--blue)' }}>+1×{p.winnerGroup}</span>
+                    <span style={{ color: 'var(--blue)' }}>{phase === 'grupos' ? '+1×' + p.winnerGroup : '+w×' + ((p as any).winnerKnockout || 0)}</span>
                   </div>
                   <div style={{ textAlign: 'center' }}>
                     {p.champPts > 0
