@@ -18,20 +18,24 @@ const StarIcon = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="cur
 
 // Maps each match to its feeder matches from previous round
 const BRACKET: Record<string, [string, string]> = {
-  'R16_M89': ['R32_M73', 'R32_M77'],
-  'R16_M90': ['R32_M74', 'R32_M75'],
-  'R16_M91': ['R32_M76', 'R32_M78'],
-  'R16_M92': ['R32_M79', 'R32_M80'],
-  'R16_M93': ['R32_M83', 'R32_M84'],
-  'R16_M94': ['R32_M81', 'R32_M82'],
-  'R16_M95': ['R32_M86', 'R32_M88'],
-  'R16_M96': ['R32_M85', 'R32_M87'],
-  'QF_M97':  ['R16_M89', 'R16_M90'],
-  'QF_M98':  ['R16_M93', 'R16_M94'],
-  'QF_M99':  ['R16_M91', 'R16_M92'],
-  'QF_M100': ['R16_M95', 'R16_M96'],
-  'SF_M101': ['QF_M97',  'QF_M98'],
-  'SF_M102': ['QF_M99',  'QF_M100'],
+  // R16: segun FIFA oficial
+  'R16_M89': ['R32_M74', 'R32_M77'],  // W74 vs W77
+  'R16_M90': ['R32_M73', 'R32_M75'],  // W73 vs W75
+  'R16_M91': ['R32_M76', 'R32_M78'],  // W76 vs W78
+  'R16_M92': ['R32_M79', 'R32_M80'],  // W79 vs W80
+  'R16_M93': ['R32_M83', 'R32_M84'],  // W83 vs W84
+  'R16_M94': ['R32_M81', 'R32_M82'],  // W81 vs W82
+  'R16_M95': ['R32_M86', 'R32_M88'],  // W86 vs W88
+  'R16_M96': ['R32_M85', 'R32_M87'],  // W85 vs W87
+  // QF: segun FIFA oficial
+  'QF_M97':  ['R16_M89', 'R16_M90'],  // W89 vs W90
+  'QF_M98':  ['R16_M93', 'R16_M94'],  // W93 vs W94
+  'QF_M99':  ['R16_M91', 'R16_M92'],  // W91 vs W92
+  'QF_M100': ['R16_M95', 'R16_M96'],  // W95 vs W96
+  // SF: segun FIFA oficial
+  'SF_M101': ['QF_M97',  'QF_M98'],   // W97 vs W98
+  'SF_M102': ['QF_M99',  'QF_M100'],  // W99 vs W100
+  // TP y FINAL
   'TP_M103': ['SF_M101', 'SF_M102'],
   'FINAL_M104': ['SF_M101', 'SF_M102'],
 }
