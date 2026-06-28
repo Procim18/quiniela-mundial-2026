@@ -96,7 +96,7 @@ export default function EliminatoriasPage() {
     setSaving(s => ({ ...s, [matchId]: false }))
     setSaved(s => ({ ...s, [matchId]: true }))
     setTimeout(() => setSaved(s => ({ ...s, [matchId]: false })), 2000)
-  }, [player, results])
+  }, [player, results, preds])
 
   const updatePred = (matchId: string, field: keyof KnockPred, val: string) => {
     const current = preds[matchId] || { home_score: '', away_score: '', winner: '' }
@@ -346,11 +346,11 @@ export default function EliminatoriasPage() {
                           <div style={{ flex: 1 }}>
                             <div style={{ fontSize: '0.6rem', color: 'var(--muted)', marginBottom: 3, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Avanza</div>
                             <div style={{ display: 'flex', gap: 5 }}>
-                              <button onClick={() => { updatePred(match.id, 'winner', homeTeam); setTimeout(() => handleBlur(match.id), 100) }} disabled={roundLocked}
+                              <button onClick={() => { const newPred = { ...pred, winner: homeTeam }; updatePred(match.id, 'winner', homeTeam); savePred(match.id, newPred) }} disabled={roundLocked}
                                 style={{ flex: 1, padding: '5px 8px', borderRadius: 6, border: '1px solid ' + (pred.winner === homeTeam ? 'rgba(244,197,66,0.5)' : 'rgba(255,255,255,0.1)'), background: pred.winner === homeTeam ? 'rgba(244,197,66,0.12)' : 'rgba(255,255,255,0.04)', color: pred.winner === homeTeam ? 'var(--gold)' : 'var(--muted)', cursor: roundLocked ? 'not-allowed' : 'pointer', fontSize: '0.68rem', fontWeight: 600, textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
                                 <span>{getFlag(homeTeam)}</span><span>{homeTeam}</span>
                               </button>
-                              <button onClick={() => { updatePred(match.id, 'winner', awayTeam); setTimeout(() => handleBlur(match.id), 100) }} disabled={roundLocked}
+                              <button onClick={() => { const newPred = { ...pred, winner: awayTeam }; updatePred(match.id, 'winner', awayTeam); savePred(match.id, newPred) }} disabled={roundLocked}
                                 style={{ flex: 1, padding: '5px 8px', borderRadius: 6, border: '1px solid ' + (pred.winner === awayTeam ? 'rgba(244,197,66,0.5)' : 'rgba(255,255,255,0.1)'), background: pred.winner === awayTeam ? 'rgba(244,197,66,0.12)' : 'rgba(255,255,255,0.04)', color: pred.winner === awayTeam ? 'var(--gold)' : 'var(--muted)', cursor: roundLocked ? 'not-allowed' : 'pointer', fontSize: '0.68rem', fontWeight: 600, textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
                                 <span>{getFlag(awayTeam)}</span><span>{awayTeam}</span>
                               </button>
