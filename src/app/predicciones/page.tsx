@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { GROUPS, getGroupMatches, GroupMatch } from '@/lib/data'
 import { supabase } from '@/lib/supabase'
 import { ALL_KNOCKOUT_ROUNDS, KnockoutMatch } from '@/lib/knockout'
+import { isRoundLocked } from '@/lib/data'
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 
@@ -372,13 +373,15 @@ export default function PrediccionesPage() {
                           <span style={{ color: 'rgba(255,255,255,0.35)', fontStyle: 'italic' }}>{match.homeDesc} vs {match.awayDesc}</span>
                         )}
                       </div>
-                      <span style={{ fontSize: '0.68rem', color: 'var(--muted)', background: 'rgba(255,255,255,0.04)', borderRadius: 5, padding: '2px 7px', border: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
-                        {predCount}/{players.length}
-                      </span>
+                      {isRoundLocked(round.id) && (
+                        <span style={{ fontSize: '0.68rem', color: 'var(--muted)', background: 'rgba(255,255,255,0.04)', borderRadius: 5, padding: '2px 7px', border: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
+                          {predCount}/{players.length}
+                        </span>
+                      )}
                       <span style={{ color: 'var(--muted)', flexShrink: 0 }}><ChevronIcon up={isExpanded} /></span>
                     </div>
 
-                    {isExpanded && (
+                    {isExpanded && isRoundLocked(round.id) && (
                       <div style={{ background: 'rgba(6,6,10,0.95)', border: '1px solid rgba(244,197,66,0.15)', borderTop: 'none', borderRadius: '0 0 10px 10px', padding: '14px 16px' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                           {matchPreds.map(({ player, pred }, idx) => (
