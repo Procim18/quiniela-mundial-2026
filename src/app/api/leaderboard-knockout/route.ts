@@ -44,10 +44,9 @@ export async function GET() {
       const roundPts = KNOCKOUT_PTS[round] || { exact: 2, winner: 1 }
       const predH = parseInt(pred.home_score)
       const predA = parseInt(pred.away_score)
-      if (pred.home_team === result.home_team && pred.away_team === result.away_team &&
-          !isNaN(predH) && !isNaN(predA) &&
-          predH === result.home_score && predA === result.away_score &&
-          pred.winner === result.winner) {
+      const sameTeams = pred.home_team === result.home_team && pred.away_team === result.away_team
+      const exactScore = !isNaN(predH) && !isNaN(predA) && predH === result.home_score && predA === result.away_score
+      if (sameTeams && exactScore && pred.winner === result.winner) {
         pts += roundPts.exact; exactKnockout++
       } else if (pred.winner === result.winner) {
         pts += roundPts.winner; winnerKnockout++
