@@ -245,7 +245,7 @@ export default function ClasificacionPage() {
           </div>
 
           {/* Top favorites */}
-          {favorites.length > 0 && (
+          {isRoundLocked('R32') && favorites.length > 0 && (
             <div style={{ background: 'rgba(10,10,16,0.8)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: '18px', backdropFilter: 'blur(12px)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
                 <TrophyIcon size={13} />
