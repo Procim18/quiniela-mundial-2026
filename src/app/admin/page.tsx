@@ -317,6 +317,9 @@ export default function AdminPage() {
          <button onClick={exportToExcel} style={{ marginLeft: 12, display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.3)', color: 'var(--blue)', borderRadius: 8, padding: '8px 18px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600 }}>
            📥 Exportar predicciones
          </button>
+         <button onClick={exportKnockoutToExcel} style={{ marginLeft: 8, display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.3)', color: 'var(--purple)', borderRadius: 8, padding: '8px 18px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600 }}>
+           📥 Exportar eliminatorias
+         </button>
         </div>
       </div>
 
