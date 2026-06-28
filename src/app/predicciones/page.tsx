@@ -385,20 +385,20 @@ export default function PrediccionesPage() {
                       <div style={{ background: 'rgba(6,6,10,0.95)', border: '1px solid rgba(244,197,66,0.15)', borderTop: 'none', borderRadius: '0 0 10px 10px', padding: '14px 16px' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                           {matchPreds.map(({ player, pred }, idx) => (
-                            <div key={player.id} style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.02)', borderRadius: 8, padding: '9px 12px', border: '1px solid rgba(255,255,255,0.05)', flexWrap: 'wrap' }}>
+                            <div key={player.id} style={{ display: 'grid', gridTemplateColumns: '30px 1fr auto', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.02)', borderRadius: 8, padding: '9px 12px', border: '1px solid rgba(255,255,255,0.05)' }}>
                               <div style={{ width: 30, height: 30, borderRadius: '50%', background: AVATAR_COLORS[idx % AVATAR_COLORS.length], display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.88rem', color: 'white', flexShrink: 0 }}>
                                 {player.username.charAt(0).toUpperCase()}
                               </div>
-                              <span style={{ fontWeight: 600, fontSize: '0.85rem', minWidth: 80 }}>{player.username}</span>
+                              <span style={{ fontWeight: 600, fontSize: '0.82rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{player.username}</span>
                               {pred?.home_team ? (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', fontSize: '0.82rem' }}>
-                                  <span>{pred.home_team}</span>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.78rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                                  <span style={{ color: 'var(--muted)' }}>{pred.home_team}</span>
                                   {pred.home_score !== null && <span style={{ color: 'var(--gold)', fontFamily: "'Bebas Neue', sans-serif" }}>{pred.home_score}:{pred.away_score}</span>}
-                                  <span>{pred.away_team}</span>
-                                  {pred.winner && <span style={{ fontSize: '0.7rem', color: 'var(--green)', background: 'rgba(46,204,113,0.08)', borderRadius: 4, padding: '1px 6px' }}>→ {pred.winner}</span>}
+                                  <span style={{ color: 'var(--muted)' }}>{pred.away_team}</span>
+                                  {pred.winner && <span style={{ fontSize: '0.68rem', color: 'var(--green)', background: 'rgba(46,204,113,0.08)', borderRadius: 4, padding: '1px 5px' }}>→ {pred.winner}</span>}
                                 </div>
                               ) : (
-                                <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.78rem', fontStyle: 'italic' }}>Sin prediccion</span>
+                                <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.75rem', fontStyle: 'italic', textAlign: 'right' }}>Sin prediccion</span>
                               )}
                             </div>
                           ))}
