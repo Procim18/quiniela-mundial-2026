@@ -117,7 +117,7 @@ export default function PrediccionesPage() {
             <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.95rem', color: 'var(--purple)', letterSpacing: '0.1em' }}>GOLEADOR DEL TORNEO</span>
             {scorerResult && <span style={{ fontSize: '0.7rem', color: 'var(--green)', background: 'rgba(46,204,113,0.1)', borderRadius: 5, padding: '2px 8px', border: '1px solid rgba(46,204,113,0.2)' }}>Resultado: {scorerResult}</span>}
           </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 8 }}>
             {players.map((player, idx) => {
               const pred = scorerPreds.find(s => s.player_id === player.id)
               const isCorrect = scorerResult && pred?.scorer_name === scorerResult
