@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { GROUPS, getGroupMatches, GroupMatch } from '@/lib/data'
+import { GROUPS, getGroupMatches, GroupMatch, ALL_TEAMS } from '@/lib/data'
 import { supabase } from '@/lib/supabase'
 import { ALL_KNOCKOUT_ROUNDS, KnockoutMatch } from '@/lib/knockout'
 import { isRoundLocked } from '@/lib/data'
@@ -65,6 +65,7 @@ export default function PrediccionesPage() {
   const [scorerPreds, setScorerPreds] = useState<{player_id: string; scorer_name: string}[]>([])
   const [scorerResult, setScorerResult] = useState('')
   const matches = getGroupMatches()
+  const uniqueTeams = ALL_TEAMS.filter((t, i, arr) => arr.findIndex(x => x.name === t.name) === i)
 
   useEffect(() => {
     Promise.all([
@@ -372,11 +373,21 @@ export default function PrediccionesPage() {
                       display: 'flex', alignItems: 'center', gap: 12,
                     }}>
                       <span style={{ fontSize: '0.7rem', color: 'var(--gold)', fontWeight: 700, fontFamily: "'Bebas Neue', sans-serif", minWidth: 30 }}>{match.label}</span>
-                      <div style={{ flex: 1, fontSize: '0.85rem', fontWeight: 600 }}>
-                        {res?.home_team ? (
-                          <span>{res.home_team} {res.home_score !== null ? res.home_score + ':' + res.away_score : 'vs'} {res.away_team}</span>
-                        ) : (
-                          <span style={{ color: 'rgba(255,255,255,0.35)', fontStyle: 'italic' }}>{match.homeDesc} vs {match.awayDesc}</span>
+                      <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8 }}>
+                        {res?.home_team ? (<>
+                          <span style={{ fontSize: '1.1rem' }}>{uniqueTeams.find(t => t.name === res.home_team)?.flag || ''}</span>
+                          <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{res.home_team}</span>
+                          {res.home_score !== null ? (<>
+                            <div style={{ width: 28, height: 28, background: 'rgba(244,197,66,0.1)', border: '1px solid rgba(244,197,66,0.3)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1rem', color: 'var(--gold)' }}>{res.home_score}</div>
+                            <span style={{ color: 'rgba(255,255,255,0.3)', fontFamily: "'Bebas Neue', sans-serif" }}>:</span>
+                            <div style={{ width: 28, height: 28, background: 'rgba(244,197,66,0.1)', border: '1px solid rgba(244,197,66,0.3)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1rem', color: 'var(--gold)' }}>{res.away_score}</div>
+                          </>) : (
+                            <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.75rem' }}>vs</span>
+                          )}
+                          <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{res.away_team}</span>
+                          <span style={{ fontSize: '1.1rem' }}>{uniqueTeams.find(t => t.name === res.away_team)?.flag || ''}</span>
+                        </>) : (
+                          <span style={{ color: 'rgba(255,255,255,0.35)', fontStyle: 'italic', fontSize: '0.82rem' }}>{match.homeDesc} vs {match.awayDesc}</span>
                         )}
                       </div>
                       {isRoundLocked(round.id) && (
