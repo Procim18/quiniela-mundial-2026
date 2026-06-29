@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { ALL_KNOCKOUT_ROUNDS, KNOCKOUT_PTS, KnockoutMatch } from '@/lib/knockout'
 import { ALL_TEAMS, isRoundLocked } from '@/lib/data'
 
-type KnockPred = { home_score: string; away_score: string; winner: string }
+type KnockPred = { home_score: string; away_score: string; winner: string; home_team?: string; away_team?: string }
 type KnockResult = { home_team: string; away_team: string; home_score: number | null; away_score: number | null; winner: string }
 type PredMap = Record<string, KnockPred>
 type ResultMap = Record<string, KnockResult>
