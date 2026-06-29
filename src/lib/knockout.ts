@@ -70,13 +70,13 @@ export const ALL_KNOCKOUT_ROUNDS = [
   { id: 'FINAL', label: 'Gran Final', matches: FINAL },
 ]
 
-export const KNOCKOUT_PTS: Record<string, { exact: number; winner: number }> = {
-  R32:   { exact: 2, winner: 1 },
-  R16:   { exact: 3, winner: 1 },
-  QF:    { exact: 4, winner: 2 },
-  SF:    { exact: 5, winner: 2 },
-  TP:    { exact: 4, winner: 2 },
-  FINAL: { exact: 6, winner: 3 },
+export const KNOCKOUT_PTS: Record<string, { exact: number; winner: number; advance: number }> = {
+  R32:   { exact: 2, winner: 1, advance: 1 },
+  R16:   { exact: 2, winner: 1, advance: 1 },
+  QF:    { exact: 2, winner: 1, advance: 1 },
+  SF:    { exact: 2, winner: 1, advance: 1 },
+  TP:    { exact: 2, winner: 1, advance: 1 },
+  FINAL: { exact: 2, winner: 1, advance: 1 },
 }
 
 // Auto-suggest teams based on group standings

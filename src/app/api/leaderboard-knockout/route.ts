@@ -46,11 +46,11 @@ export async function GET() {
       const predA = parseInt(pred.away_score)
       const sameTeams = pred.home_team === result.home_team && pred.away_team === result.away_team
       const exactScore = !isNaN(predH) && !isNaN(predA) && predH === result.home_score && predA === result.away_score
-      if (sameTeams && exactScore && pred.winner === result.winner) {
-        pts += roundPts.exact; exactKnockout++
-      } else if (pred.winner === result.winner) {
-        pts += roundPts.winner; winnerKnockout++
-      }
+      const correctWinner90 = sameTeams && exactScore && pred.winner === result.winner
+      const correctAdvance = pred.winner === result.winner
+      if (correctWinner90) { pts += (roundPts as any).exact; exactKnockout++ }
+      if (sameTeams && exactScore) { pts += (roundPts as any).winner }
+      if (correctAdvance) { pts += (roundPts as any).advance; winnerKnockout++ }
     })
 
     // --- CHAMPION ---

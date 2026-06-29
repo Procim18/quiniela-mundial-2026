@@ -122,9 +122,13 @@ export default function EliminatoriasPage() {
     const round = matchId.split('_')[0]
     const pts = KNOCKOUT_PTS[round] || { exact: 2, winner: 1 }
     const predH = parseInt(pred.home_score), predA = parseInt(pred.away_score)
-    if (!isNaN(predH) && !isNaN(predA) && predH === res.home_score && predA === res.away_score && pred.winner === res.winner) return pts.exact
-    if (pred.winner === res.winner) return pts.winner
-    return 0
+    const sameTeams = pred.home_team === res.home_team && pred.away_team === res.away_team
+    const exactScore = !isNaN(predH) && !isNaN(predA) && predH === res.home_score && predA === res.away_score
+    let total = 0
+    if (sameTeams && exactScore && pred.winner === res.winner) total += (pts as any).exact
+    if (sameTeams && exactScore) total += (pts as any).winner
+    if (pred.winner === res.winner) total += (pts as any).advance
+    return total > 0 ? total : 0
   }
 
   const uniqueTeams = ALL_TEAMS.filter((t, i, arr) => arr.findIndex(x => x.name === t.name) === i)
