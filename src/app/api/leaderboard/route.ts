@@ -62,9 +62,13 @@ export async function GET() {
       const sameTeams = pred.home_team === result.home_team && pred.away_team === result.away_team
       const exactScore = !isNaN(predH) && !isNaN(predA) && predH === Number(result.home_score) && predA === Number(result.away_score)
       const correctWinner90 = sameTeams && exactScore && pred.winner === result.winner
+      // Ganador en 90min: predijo quien gana Y el resultado no es empate Y coincide
+      const realWinner90 = Number(result.home_score) !== Number(result.away_score) ? result.winner : null
+      const predWinner90 = Number(pred.home_score) !== Number(pred.away_score) ? pred.winner : null
+      const correctGanador90 = sameTeams && realWinner90 && predWinner90 === realWinner90
       const correctAdvance = pred.winner === result.winner
       if (correctWinner90) { pts += (roundPts as any).exact; exactKnockout++ }
-      if (sameTeams && exactScore) { pts += (roundPts as any).winner }
+      if (correctGanador90 && !exactScore) { pts += (roundPts as any).winner }
       if (correctAdvance) { pts += (roundPts as any).advance; winnerKnockout++ }
     })
 
