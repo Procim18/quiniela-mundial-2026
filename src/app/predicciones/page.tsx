@@ -432,8 +432,7 @@ export default function PrediccionesPage() {
                                 {pts !== null && <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.82rem', color: pts === pts_config.exact ? 'var(--gold)' : pts > 0 ? 'var(--blue)' : 'rgba(255,255,255,0.2)', background: pts === pts_config.exact ? 'rgba(244,197,66,0.1)' : pts > 0 ? 'rgba(59,130,246,0.1)' : 'rgba(255,255,255,0.04)', borderRadius: 5, padding: '2px 7px' }}>{pts > 0 ? '+' + pts + 'pts' : '0pts'}</span>}
                               </div>
                             </div>
-                              )
-                            }
+                          )}
                           ))}
                         </div>
                       </div>
