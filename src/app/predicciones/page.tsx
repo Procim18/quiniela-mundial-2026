@@ -408,13 +408,13 @@ export default function PrediccionesPage() {
                               </div>
                               <span style={{ fontWeight: 600, fontSize: '0.82rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{player.username}</span>
                               <div style={{ display: 'flex', alignItems: 'center', gap: 5, justifyContent: 'flex-end' }}>
-                                {pred?.home_score !== null && pred?.home_score !== undefined && pred?.home_score !== '' ? (<>
+                                {pred?.home_score !== null && pred?.home_score !== undefined ? (<>
                                   <div style={{ width: 26, height: 26, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.95rem' }}>{pred.home_score}</div>
                                   <span style={{ color: 'rgba(255,255,255,0.2)', fontFamily: "'Bebas Neue', sans-serif" }}>:</span>
                                   <div style={{ width: 26, height: 26, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.95rem' }}>{pred.away_score}</div>
                                 </>) : null}
                                 {pred?.winner && <span style={{ fontSize: '0.68rem', color: 'var(--green)', background: 'rgba(46,204,113,0.08)', borderRadius: 4, padding: '2px 6px', border: '1px solid rgba(46,204,113,0.15)' }}>→ {pred.winner}</span>}
-                                {!pred?.winner && !pred?.home_score && <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.75rem', fontStyle: 'italic' }}>Sin pred</span>}
+                                {!pred?.winner && pred?.home_score === null && <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.75rem', fontStyle: 'italic' }}>Sin pred</span>}
                               </div>
                             </div>
                           ))}
