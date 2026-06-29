@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { GROUPS, getGroupMatches, GroupMatch, ALL_TEAMS } from '@/lib/data'
 import { supabase } from '@/lib/supabase'
-import { ALL_KNOCKOUT_ROUNDS, KnockoutMatch } from '@/lib/knockout'
+import { ALL_KNOCKOUT_ROUNDS, KnockoutMatch, KNOCKOUT_PTS } from '@/lib/knockout'
 import { isRoundLocked } from '@/lib/data'
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
@@ -401,23 +401,39 @@ export default function PrediccionesPage() {
                     {isExpanded && isRoundLocked(round.id) && (
                       <div style={{ background: 'rgba(6,6,10,0.95)', border: '1px solid rgba(244,197,66,0.15)', borderTop: 'none', borderRadius: '0 0 10px 10px', padding: '14px 16px' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                          {matchPreds.map(({ player, pred }, idx) => (
-                            <div key={player.id} style={{ display: 'grid', gridTemplateColumns: '30px 1fr auto', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.02)', borderRadius: 8, padding: '9px 12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                          {matchPreds.map(({ player, pred }, idx) => {
+                              const kr = knockResults.find(r => r.match_id === match.id)
+                              const round = match.id.split('_')[0]
+                              const pts_config = KNOCKOUT_PTS[round] || { exact: 2, winner: 1 }
+                              let pts: number | null = null
+                              if (kr?.winner && pred?.winner) {
+                                const predH = parseInt(pred.home_score || '')
+                                const predA = parseInt(pred.away_score || '')
+                                const sameTeams = pred.home_team === kr.home_team && pred.away_team === kr.away_team
+                                const exactScore = !isNaN(predH) && !isNaN(predA) && predH === kr.home_score && predA === kr.away_score
+                                if (sameTeams && exactScore && pred.winner === kr.winner) pts = pts_config.exact
+                                else if (pred.winner === kr.winner) pts = pts_config.winner
+                                else pts = 0
+                              }
+                              return (
+                            <div key={player.id} style={{ display: 'grid', gridTemplateColumns: '30px 1fr auto', alignItems: 'center', gap: 8, background: pts === pts_config.exact ? 'rgba(244,197,66,0.06)' : pts === pts_config.winner ? 'rgba(59,130,246,0.06)' : pts === 0 ? 'rgba(214,40,40,0.04)' : 'rgba(255,255,255,0.02)', borderRadius: 8, padding: '9px 12px', border: '1px solid ' + (pts === pts_config.exact ? 'rgba(244,197,66,0.2)' : pts === pts_config.winner ? 'rgba(59,130,246,0.15)' : 'rgba(255,255,255,0.05)') }}>
                               <div style={{ width: 30, height: 30, borderRadius: '50%', background: AVATAR_COLORS[idx % AVATAR_COLORS.length], display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.88rem', color: 'white', flexShrink: 0 }}>
                                 {player.username.charAt(0).toUpperCase()}
                               </div>
                               <span style={{ fontWeight: 600, fontSize: '0.82rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{player.username}</span>
-                              {pred?.home_team ? (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.78rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                                  <span style={{ color: 'var(--muted)' }}>{pred.home_team}</span>
-                                  {pred.home_score !== null && <span style={{ color: 'var(--gold)', fontFamily: "'Bebas Neue', sans-serif" }}>{pred.home_score}:{pred.away_score}</span>}
-                                  <span style={{ color: 'var(--muted)' }}>{pred.away_team}</span>
-                                  {pred.winner && <span style={{ fontSize: '0.68rem', color: 'var(--green)', background: 'rgba(46,204,113,0.08)', borderRadius: 4, padding: '1px 5px' }}>→ {pred.winner}</span>}
-                                </div>
-                              ) : (
-                                <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.75rem', fontStyle: 'italic', textAlign: 'right' }}>Sin prediccion</span>
-                              )}
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'flex-end' }}>
+                                {pred?.home_score !== null && pred?.home_score !== undefined && pred?.home_score !== '' ? (<>
+                                  <div style={{ width: 26, height: 26, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.95rem' }}>{pred.home_score}</div>
+                                  <span style={{ color: 'rgba(255,255,255,0.2)', fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.8rem' }}>:</span>
+                                  <div style={{ width: 26, height: 26, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.95rem' }}>{pred.away_score}</div>
+                                </>) : null}
+                                {pred?.winner && <span style={{ fontSize: '0.68rem', color: 'var(--green)', background: 'rgba(46,204,113,0.08)', borderRadius: 4, padding: '2px 6px', border: '1px solid rgba(46,204,113,0.15)' }}>→ {pred.winner}</span>}
+                                {!pred?.winner && !pred?.home_score && <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.75rem', fontStyle: 'italic' }}>Sin pred</span>}
+                                {pts !== null && <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.82rem', color: pts === pts_config.exact ? 'var(--gold)' : pts > 0 ? 'var(--blue)' : 'rgba(255,255,255,0.2)', background: pts === pts_config.exact ? 'rgba(244,197,66,0.1)' : pts > 0 ? 'rgba(59,130,246,0.1)' : 'rgba(255,255,255,0.04)', borderRadius: 5, padding: '2px 7px' }}>{pts > 0 ? '+' + pts + 'pts' : '0pts'}</span>}
+                              </div>
                             </div>
+                              )
+                            }
                           ))}
                         </div>
                       </div>
