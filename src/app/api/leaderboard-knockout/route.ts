@@ -45,14 +45,14 @@ export async function GET() {
       const predH = Number(pred.home_score)
       const predA = Number(pred.away_score)
       const sameTeams = pred.home_team === result.home_team && pred.away_team === result.away_team
-      const exactScore = !isNaN(predH) && !isNaN(predA) && predH === Number(result.home_score) && predA === Number(result.away_score)
-      const correctWinner90 = sameTeams && exactScore && pred.winner === result.winner
-      const realWinner90 = Number(result.home_score) !== Number(result.away_score) ? result.winner : null
-      const predWinner90 = Number(pred.home_score) !== Number(pred.away_score) ? pred.winner : null
+      const exactScore = sameTeams && !isNaN(predH) && !isNaN(predA) && predH === Number(result.home_score) && predA === Number(result.away_score)
+      if (exactScore) { pts += (roundPts as any).exact; exactKnockout++ }
+      const realH = Number(result.home_score), realA = Number(result.away_score)
+      const realWinner90 = realH > realA ? result.home_team : realA > realH ? result.away_team : null
+      const predWinner90 = !isNaN(predH) && !isNaN(predA) ? (predH > predA ? pred.home_team : predA > predH ? pred.away_team : null) : null
       const correctGanador90 = sameTeams && realWinner90 && predWinner90 === realWinner90
+      if (correctGanador90) { pts += (roundPts as any).winner }
       const correctAdvance = pred.winner === result.winner
-      if (correctWinner90) { pts += (roundPts as any).exact; exactKnockout++ }
-      if (correctGanador90 && !exactScore) { pts += (roundPts as any).winner }
       if (correctAdvance) { pts += (roundPts as any).advance; winnerKnockout++ }
     })
 
