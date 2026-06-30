@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import { isRoundLocked } from '@/lib/data'
 
-interface Score { username: string; pts: number; exactGroup: number; winnerGroup: number; exactKnockout: number; winnerKnockout: number; champPts: number }
+interface Score { username: string; pts: number; exactGroup: number; winnerGroup: number; exactKnockout: number; winnerKnockout: number; advanceKnockout: number; champPts: number }
 interface FavoriteTeam { name: string; flag: string; count: number; pct: number }
 
 const AVATAR_COLORS = [
@@ -220,9 +220,10 @@ export default function ClasificacionPage() {
                   </div>
                   <div style={{ textAlign: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.2rem', color: isMe ? 'var(--gold)' : 'var(--text)' }}>{p.pts}</div>
                   <div style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--muted)' }}>
-                    <span style={{ color: 'var(--gold)' }}>{phase === 'grupos' ? '+3×' + p.exactGroup : '+ex×' + ((p as any).exactKnockout || 0)}</span>
+                    <span style={{ color: 'var(--gold)' }}>{phase === 'grupos' ? '+3×' + p.exactGroup : '+E' + ((p as any).exactKnockout || 0)}</span>
                     <span style={{ margin: '0 4px', opacity: 0.3 }}>·</span>
-                    <span style={{ color: 'var(--blue)' }}>{phase === 'grupos' ? '+1×' + p.winnerGroup : '+w×' + ((p as any).winnerKnockout || 0)}</span>
+                    <span style={{ color: 'var(--blue)' }}>{phase === 'grupos' ? '+1×' + p.winnerGroup : '+G' + ((p as any).winnerKnockout || 0)}</span>
+                        {phase === 'eliminatorias' && (<><span style={{ margin: '0 2px', opacity: 0.3, fontSize: '0.68rem' }}>·</span><span style={{ color: 'var(--green)', fontSize: '0.68rem' }}>+A{(p as any).advanceKnockout || 0}</span></>)}
                   </div>
                   <div style={{ textAlign: 'center' }}>
                     {p.champPts > 0
