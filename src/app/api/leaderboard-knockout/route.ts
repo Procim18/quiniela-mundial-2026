@@ -33,7 +33,7 @@ export async function GET() {
   const realScorer = scorerResult?.scorer_name || null
 
   const scores = players.map(player => {
-    let pts = 0, exactKnockout = 0, winnerKnockout = 0, champPts = 0, scorerPts = 0
+    let pts = 0, exactKnockout = 0, winnerKnockout = 0, advanceKnockout = 0, champPts = 0, scorerPts = 0
 
     // --- KNOCKOUT PHASE ---
     const myKnockoutPreds = (knockoutPreds || []).filter(p => p.player_id === player.id)
@@ -51,9 +51,9 @@ export async function GET() {
       const realOutcome90 = realH > realA ? 'H' : realA > realH ? 'A' : 'D'
       const predOutcome90 = (!isNaN(predH) && !isNaN(predA)) ? (predH > predA ? 'H' : predA > predH ? 'A' : 'D') : null
       const correctGanador90 = sameTeams && predOutcome90 !== null && predOutcome90 === realOutcome90
-      if (correctGanador90) { pts += (roundPts as any).winner }
+      if (correctGanador90) { pts += (roundPts as any).winner; winnerKnockout++ }
       const correctAdvance = pred.winner === result.winner
-      if (correctAdvance) { pts += (roundPts as any).advance; winnerKnockout++ }
+      if (correctAdvance) { pts += (roundPts as any).advance; advanceKnockout++ }
     })
 
     // --- CHAMPION ---
@@ -74,6 +74,7 @@ export async function GET() {
       pts,
       exactKnockout,
       winnerKnockout,
+      advanceKnockout,
       champPts,
       scorerPts,
     }
