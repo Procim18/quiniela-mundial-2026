@@ -71,12 +71,12 @@ export const ALL_KNOCKOUT_ROUNDS = [
 ]
 
 export const KNOCKOUT_PTS: Record<string, { exact: number; winner: number; advance: number }> = {
-  R32:   { exact: 2, winner: 1, advance: 1 },
-  R16:   { exact: 2, winner: 1, advance: 1 },
-  QF:    { exact: 2, winner: 1, advance: 1 },
-  SF:    { exact: 2, winner: 1, advance: 1 },
-  TP:    { exact: 2, winner: 1, advance: 1 },
-  FINAL: { exact: 2, winner: 1, advance: 1 },
+  R32:   { exact: 1, winner: 1, advance: 1 },
+  R16:   { exact: 1, winner: 1, advance: 1 },
+  QF:    { exact: 1, winner: 1, advance: 1 },
+  SF:    { exact: 1, winner: 1, advance: 1 },
+  TP:    { exact: 1, winner: 1, advance: 1 },
+  FINAL: { exact: 1, winner: 1, advance: 1 },
 }
 
 // Auto-suggest teams based on group standings
