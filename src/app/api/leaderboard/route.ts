@@ -60,14 +60,14 @@ export async function GET() {
       const predH = Number(pred.home_score)
       const predA = Number(pred.away_score)
       const sameTeams = pred.home_team === result.home_team && pred.away_team === result.away_team
-      // 1) MARCADOR EXACTO (90min): solo depende del marcador, no de quien "avanza"
-      const exactScore = sameTeams && !isNaN(predH) && !isNaN(predA) && predH === Number(result.home_score) && predA === Number(result.away_score)
-      if (exactScore) { pts += (roundPts as any).exact; exactKnockout++ }
-      // 2) GANADOR EN 90 MINUTOS: quien anota mas goles en el marcador (propio e independiente del exacto)
       const realH = Number(result.home_score), realA = Number(result.away_score)
-      const realWinner90 = realH > realA ? result.home_team : realA > realH ? result.away_team : null
-      const predWinner90 = !isNaN(predH) && !isNaN(predA) ? (predH > predA ? pred.home_team : predA > predH ? pred.away_team : null) : null
-      const correctGanador90 = sameTeams && realWinner90 && predWinner90 === realWinner90
+      // 1) MARCADOR EXACTO (90min)
+      const exactScore = sameTeams && !isNaN(predH) && !isNaN(predA) && predH === realH && predA === realA
+      if (exactScore) { pts += (roundPts as any).exact; exactKnockout++ }
+      // 2) RESULTADO EN 90 MINUTOS (gana local / gana visitante / empate) - incluye empates
+      const realOutcome90 = realH > realA ? 'H' : realA > realH ? 'A' : 'D'
+      const predOutcome90 = (!isNaN(predH) && !isNaN(predA)) ? (predH > predA ? 'H' : predA > predH ? 'A' : 'D') : null
+      const correctGanador90 = sameTeams && predOutcome90 !== null && predOutcome90 === realOutcome90
       if (correctGanador90) { pts += (roundPts as any).winner }
       // 3) QUIEN AVANZA: el equipo que predijo como avanzando, sin importar marcador
       const correctAdvance = pred.winner === result.winner

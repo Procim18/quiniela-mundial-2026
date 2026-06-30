@@ -121,14 +121,17 @@ export default function EliminatoriasPage() {
     if (!res || !res.winner || !pred.winner) return null
     const round = matchId.split('_')[0]
     const pts = KNOCKOUT_PTS[round] || { exact: 2, winner: 1 }
-    const predH = parseInt(pred.home_score), predA = parseInt(pred.away_score)
+    const predH = Number(pred.home_score), predA = Number(pred.away_score)
     const sameTeams = pred.home_team === res.home_team && pred.away_team === res.away_team
-    const exactScore = !isNaN(predH) && !isNaN(predA) && predH === res.home_score && predA === res.away_score
+    const realH = Number(res.home_score), realA = Number(res.away_score)
     let total = 0
-    if (sameTeams && exactScore && pred.winner === res.winner) total += (pts as any).exact
-    if (sameTeams && exactScore) total += (pts as any).winner
+    const exactScore = sameTeams && !isNaN(predH) && !isNaN(predA) && predH === realH && predA === realA
+    if (exactScore) total += (pts as any).exact
+    const realOutcome90 = realH > realA ? 'H' : realA > realH ? 'A' : 'D'
+    const predOutcome90 = (!isNaN(predH) && !isNaN(predA)) ? (predH > predA ? 'H' : predA > predH ? 'A' : 'D') : null
+    if (sameTeams && predOutcome90 !== null && predOutcome90 === realOutcome90) total += (pts as any).winner
     if (pred.winner === res.winner) total += (pts as any).advance
-    return total > 0 ? total : 0
+    return total
   }
 
   const uniqueTeams = ALL_TEAMS.filter((t, i, arr) => arr.findIndex(x => x.name === t.name) === i)
